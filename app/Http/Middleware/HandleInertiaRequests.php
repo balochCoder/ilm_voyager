@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
+// use App\Http\Resources\UserResource;
+use Illuminate\Auth\AuthManager;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
-class HandleInertiaRequests extends Middleware
+final class HandleInertiaRequests extends Middleware
 {
     /**
      * The root template that's loaded on the first page visit.
@@ -17,6 +21,11 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(
+
+        private readonly AuthManager $auth,
+    ) {}
 
     /**
      * Determines the current asset version.
@@ -42,8 +51,12 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
+            'quote' => ['message' => mb_trim($message), 'author' => mb_trim($author)],
             'auth' => [
+                // 'user' => $this->auth->check()
+                //     ? UserResource::make(
+                //         $this->auth->user(),
+                //     ) : null,
                 'user' => $request->user(),
             ],
             'ziggy' => fn (): array => [
