@@ -75,6 +75,41 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+    body {
+        --sb-track-color: #ffffff;
+        --sb-thumb-color: #000000;
+        @apply text-foreground font-base bg-background;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-heading;
+    }
+
+    *::-webkit-scrollbar {
+        width: 20px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: var(--sb-track-color);
+        border-left: 3px solid var(--sb-thumb-color); /* Left border */
+        border-right: 3px solid var(--sb-thumb-color); /* Right border */
+
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb-color);
+        /* Optional: for rounded thumb */
+    }
+    @supports not selector(::-webkit-scrollbar) {
+        * {
+            scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+        }
+    }
 }
 
 :root {
@@ -189,18 +224,3 @@
     --font-weight-base: 500;
     --font-weight-heading: 700;
 }
-@layer base {
-    body {
-        @apply text-foreground font-base bg-background;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply font-heading;
-    }
-}
-    
