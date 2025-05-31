@@ -29,7 +29,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         name: auth.user.name,
-        email: auth.user.email,
+        email: auth.user.email.address,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -82,7 +82,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             <InputError className="mt-2" message={errors.email} />
                         </div>
 
-                        {mustVerifyEmail && auth.user.email_verified_at === null && (
+                        {mustVerifyEmail && !auth.user.email.verified && (
                             <div>
                                 <p className="text-muted-foreground -mt-4 text-sm">
                                     Your email address is unverified.{' '}

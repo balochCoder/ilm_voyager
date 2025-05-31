@@ -30,11 +30,14 @@ export interface SharedData {
     sidebarOpen: boolean;
     [key: string]: unknown;
 }
-
+export type Email = {
+    address: string;
+    verified: boolean;
+};
 export interface User {
     id: number;
     name: string;
-    email: string;
+    email: Email;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;

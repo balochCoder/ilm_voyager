@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-// use App\Http\Resources\UserResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
@@ -53,11 +53,11 @@ final class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => mb_trim($message), 'author' => mb_trim($author)],
             'auth' => [
-                // 'user' => $this->auth->check()
-                //     ? UserResource::make(
-                //         $this->auth->user(),
-                //     ) : null,
-                'user' => $request->user(),
+                'user' => $this->auth->check()
+                    ? UserResource::make(
+                        $this->auth->user(),
+                    ) : null,
+                // 'user' => $request->user(),
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
