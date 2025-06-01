@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -29,5 +30,9 @@ final class DatabaseSeeder extends Seeder
          Tenant::all()->runForEach(function(){
             User::factory()->create();
          });
+
+         Role::create([
+            'name' => 'admin'
+         ]);
     }
 }
