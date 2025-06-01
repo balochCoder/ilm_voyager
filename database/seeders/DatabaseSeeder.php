@@ -23,7 +23,7 @@ final class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-         $tenant1 = Tenant::create(['id' => 'foo']);
+         $tenant1 = Tenant::create();
          $tenant1->domains()->create(['domain' => 'foo.localhost']);
 
          Tenant::all()->runForEach(function(){

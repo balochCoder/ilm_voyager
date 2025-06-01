@@ -18,10 +18,9 @@ class CreateDomainsTable extends Migration
         Schema::create('domains', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('domain', 255)->unique();
-            $table->string('tenant_id');
+            $table->foreignUlid('tenant_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
