@@ -11,10 +11,10 @@
     "require": {
         "php": "^8.2",
         "inertiajs/inertia-laravel": "^2.0.2",
-        "laravel/framework": "^12.16",
+        "laravel/framework": "^12.17",
         "laravel/tinker": "^2.10.1",
         "spatie/laravel-permission": "^6.19",
-        "stancl/tenancy": "^3.9",
+        "stancl/tenancy": "^3.9.1",
         "tightenco/ziggy": "^2.5.3"
     },
     "require-dev": {

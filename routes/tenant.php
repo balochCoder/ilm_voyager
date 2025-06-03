@@ -25,21 +25,20 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        return to_route('login');
     });
 
     Route::group(
-    [],
-    base_path('routes/web/auth.php')
-);
-
-Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::get('dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
-
-    Route::group(
         [],
-        base_path('routes/web/settings.php')
+        base_path('routes/web/auth.php')
     );
-});
 
+    Route::middleware(['auth', 'verified'])->group(function (): void {
+        Route::get('dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
+
+        Route::group(
+            [],
+            base_path('routes/web/settings.php')
+        );
+    });
 });
