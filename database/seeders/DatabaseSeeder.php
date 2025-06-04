@@ -19,16 +19,14 @@ final class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-      
-         $tenant1 = Tenant::create();
-         $tenant1->domains()->create(['domain' => 'foo.localhost']);
+        Role::create([
+            'name' => 'owner'
+        ]);
+        $tenant1 = Tenant::create();
+        $tenant1->domains()->create(['domain' => 'foo.localhost']);
 
-         Tenant::all()->runForEach(function(){
+        Tenant::all()->runForEach(function () {
             User::factory()->create();
-         });
-
-         Role::create([
-            'name' => 'admin'
-         ]);
+        });
     }
 }
