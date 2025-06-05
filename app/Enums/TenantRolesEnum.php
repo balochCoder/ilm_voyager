@@ -2,9 +2,9 @@
 
 namespace App\Enums;
 
-enum RolesEnum: string
+enum TenantRolesEnum: string
 {
-    case OWNER = 'owner';
+   
     case SUPERADMIN = 'super-admin';
     case BRANCHOFFICE = 'branch-office';
     case COUNSELLOR = 'counsellor';
@@ -15,7 +15,7 @@ enum RolesEnum: string
     public function label(): string
     {
         return match ($this) {
-            static::OWNER => 'Owner',
+
             static::SUPERADMIN => 'Super Admin',
             static::BRANCHOFFICE => 'Branch Office',
             static::COUNSELLOR => 'Counsellor',

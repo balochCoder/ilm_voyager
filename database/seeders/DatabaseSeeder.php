@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\CentralRolesEnum;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
@@ -17,13 +18,18 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $user = User::factory()->create([
+            'name' => 'Raheel Ahmed',
+            'email'=>'admin@ilmvoyager.com'
+        ]);
 
         Role::create([
             'name' => 'owner'
         ]);
+
+        $user->assignRole(CentralRolesEnum::OWNER->value);
         $tenant1 = Tenant::create();
-        $tenant1->domains()->create(['domain' => 'foo.localhost']);
+        $tenant1->domains()->create(['domain' => 'study.localhost']);
 
         Tenant::all()->runForEach(function () {
             User::factory()->create();
