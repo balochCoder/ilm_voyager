@@ -24,10 +24,7 @@ final class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
-            'roles' => collect(TenantRolesEnum::cases())->map(fn($role) => [
-                'value' => $role->value,
-                'label' => $role->label(),
-            ]),
+           
         ]);
     }
 

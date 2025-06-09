@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -12,6 +13,11 @@ foreach (config('tenancy.central_domains') as $domain) {
         // your actual routes
 
         Route::get('/', fn() => Inertia::render('welcome'))->name('home');
+        Route::middleware('guest')->group(function (): void {
+            Route::get('register', [RegisteredUserController::class, 'create'])
+                ->name('register');
+
+            Route::post('register', [RegisteredUserController::class, 'store']);
+        });
     });
 }
-
