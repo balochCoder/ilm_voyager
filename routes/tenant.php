@@ -34,11 +34,7 @@ Route::middleware([
     );
 
     Route::middleware(['auth', 'verified'])->group(function (): void {
-        Route::get('dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
 
-        Route::group(
-            [],
-            base_path('routes/web/settings.php')
-        );
+        Route::group([], base_path('routes/web/agents/routes.php'));
     });
 });

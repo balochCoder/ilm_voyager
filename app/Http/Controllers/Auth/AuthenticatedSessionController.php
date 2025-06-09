@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\TenantRolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,10 @@ final class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'roles' => collect(TenantRolesEnum::cases())->map(fn($role) => [
+                'value' => $role->value,
+                'label' => $role->label(),
+            ]),
         ]);
     }
 
@@ -35,7 +40,7 @@ final class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return $this->redirectToDashboard();
     }
 
     /**
@@ -49,5 +54,14 @@ final class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function redirectToDashboard()
+    {
+        if (auth()->user()->hasRole(TenantRolesEnum::SUPERADMIN->value)) {
+            return redirect()->intended(route('agents:dashboard', absolute:false));
+        }
+
+        Auth::logout();
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\CentralRolesEnum;
+use App\Enums\TenantRolesEnum;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
@@ -32,7 +33,8 @@ final class DatabaseSeeder extends Seeder
         $tenant1->domains()->create(['domain' => 'study.localhost']);
 
         Tenant::all()->runForEach(function () {
-            User::factory()->create();
+            $user = User::factory()->create();
+            $user->assignRole(TenantRolesEnum::SUPERADMIN->value);
         });
     }
 }
