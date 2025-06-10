@@ -3,7 +3,6 @@ import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +13,9 @@ type RegisterForm = {
     email: string;
     password: string;
     password_confirmation: string;
+    agency_name: string;
+    website: string;
+    domain: string;
 };
 
 export default function Register() {
@@ -22,12 +24,15 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        agency_name: '',
+        website: '',
+        domain: '',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            onFinish: () => reset(),
         });
     };
 
@@ -37,18 +42,66 @@ export default function Register() {
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">Agency Name</Label>
+                        <Input
+                            id="agency_name"
+                            type="text"
+                            required
+                            autoFocus
+                            tabIndex={1}
+                            autoComplete="agency_name"
+                            value={data.agency_name}
+                            onChange={(e) => setData('agency_name', e.target.value)}
+                            disabled={processing}
+                            placeholder="Agency Name"
+                        />
+                        <InputError message={errors.agency_name} className="mt-2" />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Website</Label>
+                        <Input
+                            id="website"
+                            type="text"
+                            required
+                            tabIndex={1}
+                            autoComplete="website"
+                            value={data.website}
+                            onChange={(e) => setData('website', e.target.value)}
+                            disabled={processing}
+                            placeholder="Website"
+                        />
+                        <InputError message={errors.website} className="mt-2" />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Domain</Label>
+                        <Input
+                            id="domain"
+                            type="text"
+                            required
+                            tabIndex={1}
+                            autoComplete="domain"
+                            value={data.domain}
+                            onChange={(e) => setData('domain', e.target.value)}
+                            disabled={processing}
+                            placeholder="Domain"
+                        />
+                        <InputError message={errors.domain} className="mt-2" />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Contact Person</Label>
                         <Input
                             id="name"
                             type="text"
                             required
-                            autoFocus
+
                             tabIndex={1}
                             autoComplete="name"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             disabled={processing}
-                            placeholder="Full name"
+                            placeholder="Contact Person"
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
@@ -107,12 +160,12 @@ export default function Register() {
                     </Button>
                 </div>
 
-                <div className="text-muted-foreground text-center text-sm">
+                {/* <div className="text-muted-foreground text-center text-sm">
                     Already have an account?{' '}
                     <TextLink href={route('login')} tabIndex={6}>
                         Log in
                     </TextLink>
-                </div>
+                </div> */}
             </form>
         </AuthLayout>
     );

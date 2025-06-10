@@ -29,8 +29,14 @@ final class DatabaseSeeder extends Seeder
         ]);
 
         $user->assignRole(CentralRolesEnum::OWNER->value);
-        $tenant1 = Tenant::create();
-        $tenant1->domains()->create(['domain' => 'study.localhost']);
+        $tenant1 = Tenant::create([
+            'name' => 'Mehmood',
+            'website' => 'https://gen.com',
+            'agency_name' => 'GEN',
+            'email' => "info@gen.com",
+            'password' => bcrypt('password'),
+        ]);
+        $tenant1->domains()->create(['domain' => 'gen.localhost']);
 
         Tenant::all()->runForEach(function () {
             $user = User::factory()->create();

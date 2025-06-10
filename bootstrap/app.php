@@ -19,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
         $middleware->alias([
-            'role' => RoleMiddleware::class
+            'role' => RoleMiddleware::class,
+            'tenant.approval' => App\Http\Middleware\CheckTenantApproval::class,
         ]);
 
         $middleware->web(append: [
