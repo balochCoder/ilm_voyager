@@ -21,7 +21,7 @@ export function StatusSwitch({ id, checked, route, showLabel = true, onSuccess }
     return (
         <div className="flex items-center space-x-3">
             {showLabel && !isLoading && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm">
                     {checked ? 'Active' : 'Inactive'}
                 </span>
             )}
@@ -31,7 +31,7 @@ export function StatusSwitch({ id, checked, route, showLabel = true, onSuccess }
                 <Switch
                     checked={checked}
                     onCheckedChange={handleToggle}
-                    className="data-[state=checked]:bg-blue-500"
+                    className="data-[state=checked]:bg-blue-500 dark:data-[state=unchecked]:bg-rose-500"
                 />
             )}
         </div>

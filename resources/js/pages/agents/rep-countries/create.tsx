@@ -293,8 +293,8 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                                 </div>
 
                                 {data.status_ids.length > 0 && (
-                                    <div className="rounded-lg bg-gray-50 p-4">
-                                        <h4 className="mb-2 text-sm font-medium text-gray-900">Selected Steps:</h4>
+                                    <div className="rounded-lg  p-4">
+                                        <h4 className="mb-2 text-sm font-medium">Selected Steps:</h4>
                                         <div className="flex flex-wrap gap-2">
                                             {data.status_ids.map((statusId) => {
                                                 const status = statuses.find((s) => s.id === statusId);

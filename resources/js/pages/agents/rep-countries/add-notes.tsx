@@ -73,7 +73,7 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                     </div>
 
                     {/* Country Info Card */}
-                    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                    <Card className="">
                         <CardContent className="p-4 sm:p-6">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <img
@@ -82,7 +82,7 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                                     className="w-10 h-7 sm:w-12 sm:h-9 rounded shadow-sm flex-shrink-0"
                                 />
                                 <div className="min-w-0 flex-1">
-                                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                                    <h2 className="text-lg sm:text-xl font-semibold truncate">
                                         {repCountry.country?.name}
                                     </h2>
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
@@ -186,15 +186,15 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                     </form>
 
                     {/* Help Section */}
-                    <Card className="bg-gray-50 border-gray-200">
+                    <Card className="">
                         <CardContent className="p-4">
                             <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                                 <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 w-fit">
                                     <FileText className="w-4 h-4 text-blue-600" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h3 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">Tips for writing effective notes</h3>
-                                    <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
+                                    <h3 className="font-medium  mb-2 text-sm sm:text-base">Tips for writing effective notes</h3>
+                                    <ul className="text-xs sm:text-sm  space-y-1">
                                         <li>• Be specific about what documents or information are required</li>
                                         <li>• Include estimated processing times if known</li>
                                         <li>• Mention any special requirements or exceptions</li>

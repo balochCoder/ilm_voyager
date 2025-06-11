@@ -66,7 +66,7 @@ export default function CountriesIndex({ countries }: Props) {
                 <Card className="shadow-sm">
                     <CardContent className="p-4 sm:p-6">
                         <div className="mb-2 sm:mb-4">
-                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">All Countries</h3>
+                            <h3 className="text-base sm:text-lg font-semibold  mb-1">All Countries</h3>
                             <p className="text-xs sm:text-sm text-muted-foreground">
                                 Browse through all countries available in the system
                             </p>
@@ -76,15 +76,15 @@ export default function CountriesIndex({ countries }: Props) {
                 </Card>
 
                 {/* Help Section */}
-                <Card className="bg-gray-50 border-gray-200">
+                <Card className="">
                     <CardContent className="p-4">
                         <div className="flex flex-col sm:flex-row items-start sm:space-x-3 space-y-2 sm:space-y-0">
                             <div className="p-2 bg-blue-100 rounded-lg mb-2 sm:mb-0">
                                 <Globe className="w-4 h-4 text-blue-600" aria-label="Help section globe icon" />
                             </div>
                             <div>
-                                <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">About Countries Database</h3>
-                                <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
+                                <h3 className="font-medium mb-1 text-sm sm:text-base">About Countries Database</h3>
+                                <ul className="text-xs sm:text-sm space-y-1">
                                     <li>• All countries are available for selection in application processes</li>
                                     <li>• Countries can be used for representing countries</li>
                                     <li>• Country data includes flags, names, and identification</li>

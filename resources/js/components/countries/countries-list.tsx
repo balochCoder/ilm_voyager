@@ -11,8 +11,8 @@ export default function CountriesList({ countries }: CountriesListProps) {
             {countries.map((country, index) => (
                 <Alert key={country.id} className="flex items-center justify-between">
                     <AlertDescription className="flex items-center gap-2">
-                        <span className="font-medium">{index + 1}.</span>
-                        <span>{country.name}</span>
+                        <span className="font-medium text-primary">{index + 1}.</span>
+                        <span className='text-primary'>{country.name}</span>
                     </AlertDescription>
                     <div className="w-8 h-6 flex items-center justify-center">
                         <img

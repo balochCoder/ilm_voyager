@@ -42,7 +42,7 @@ function SortableItem({ status, index }: { status: RepCountryStatus; index: numb
         <div
             ref={setNodeRef}
             style={style}
-            className={`flex items-center space-x-2 p-3 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ${isNew ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-blue-300'
+            className={`flex items-center space-x-2 p-3  border rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ${isNew ? ' border-gray-200' : 'border-gray-200 hover:border-blue-300'
                 } ${isDragging ? 'shadow-lg scale-105' : ''}`}
             {...attributes}
             {...(isNew ? {} : listeners)}
@@ -172,7 +172,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
                 </div>
 
                 {/* Country Info Card */}
-                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                <Card>
                     <CardContent className="p-4">
                         <div className="flex flex-col items-start space-y-3 min-w-0">
                             {repCountry.country?.flag && (
@@ -183,7 +183,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
                                 />
                             )}
                             <div className="min-w-0 flex-1">
-                                <h2 className="text-lg font-semibold text-gray-900 truncate">
+                                <h2 className="text-lg font-semibold truncate">
                                     {repCountry.country.name}
                                 </h2>
                                 <div className="flex flex-col items-start space-y-2 mt-1">
@@ -201,15 +201,15 @@ export default function ReorderStatuses({ repCountry }: Props) {
                 </Card>
 
                 {/* Instructions Card */}
-                <Card className="bg-amber-50 border-amber-200">
+                <Card>
                     <CardContent className="p-4">
                         <div className="flex flex-col items-start space-y-3 min-w-0">
                             <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0 w-fit">
                                 <Info className="w-4 h-4 text-amber-600" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-medium text-amber-900 mb-2 text-sm">How to reorder steps</h3>
-                                <ul className="text-xs text-amber-800 space-y-1">
+                                <h3 className="font-medium mb-2 text-sm">How to reorder steps</h3>
+                                <ul className="text-xs space-y-1">
                                     <li>• Drag and drop the steps below to change their order</li>
                                     <li>• The "New" step is fixed at the beginning and cannot be moved</li>
                                     <li>• Changes are saved automatically when you reorder</li>
@@ -275,7 +275,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
                 </Card>
 
                 {/* Summary Card */}
-                <Card className="bg-gray-50 border-gray-200">
+                <Card>
                     <CardContent className="p-4">
                         <div className="flex flex-col justify-between space-y-3 min-w-0">
                             <div className="flex items-center space-x-2 min-w-0 flex-1">
@@ -283,8 +283,8 @@ export default function ReorderStatuses({ repCountry }: Props) {
                                     <CheckCircle className="w-4 h-4 text-blue-600" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h3 className="font-medium text-gray-900 text-sm">Current Order</h3>
-                                    <p className="text-xs text-gray-600 truncate">
+                                    <h3 className="font-medium  text-sm">Current Order</h3>
+                                    <p className="text-xs  truncate">
                                         {statuses.map((s) => s.status_name).join(' → ')}
                                     </p>
                                 </div>

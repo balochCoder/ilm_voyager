@@ -59,10 +59,10 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             <Button
                                 key={`${item.href}-${index}`}
                                 size="sm"
-                                variant="outline"
+                                variant="ghost"
                                 asChild
-                                className={cn('w-full justify-start hover:bg-sidebar-primary hover:text-sidebar-primary-foreground', {
-                                    'bg-sidebar-primary text-primary-foreground dark:text-white': currentPath === item.href,
+                                className={cn('w-full justify-start', {
+                                    ' bg-muted': currentPath === item.href,
                                 })}
                             >
                                 <Link href={item.href} prefetch>

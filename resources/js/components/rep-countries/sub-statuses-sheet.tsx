@@ -27,7 +27,7 @@ export default function SubStatusesSheet({
 }: SubStatusesSheetProps) {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="fixed top-0 right-0 h-screen w-full sm:w-[540px] lg:w-[700px] bg-white z-50 shadow-lg transition-transform overflow-y-auto">
+            <SheetContent className="!max-w-none fixed top-0 right-0 h-screen w-full sm:w-[540px] lg:w-[700px]  z-50 shadow-lg transition-transform overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-lg sm:text-xl">{sheetTitle}</SheetTitle>
                     <SheetDescription className="text-sm">
@@ -40,16 +40,16 @@ export default function SubStatusesSheet({
                             <Loader className="h-6 w-6 animate-spin text-blue-500" />
                         </div>
                     ) : status.sub_statuses && status.sub_statuses.length > 0 ? (
-                        <div className="grid w-full flex-1 auto-rows-min gap-6">
+                        <div className="grid w-full container flex-1 p-3 auto-rows-min gap-6">
                             {status.sub_statuses.map((subStatus: SubStatus, index: number) => (
-                                <div key={subStatus.id} className="flex items-center gap-2 w-full rounded-lg border bg-gray-50 p-3 sm:p-4 overflow-hidden">
+                                <div key={subStatus.id} className="flex items-center gap-2 w-full rounded-lg border p-3 sm:p-4 overflow-hidden">
                                     <div className="flex min-w-0 flex-1 items-center space-x-2 sm:space-x-3">
                                         <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600 sm:h-8 sm:w-8 sm:text-sm">
                                             {index + 1}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h4 className="truncate text-sm font-medium text-gray-900 sm:text-base">{subStatus.name}</h4>
-                                            <p className="text-xs text-gray-500 sm:text-sm">{subStatus.is_active ? 'Active' : 'Inactive'}</p>
+                                            <h4 className="truncate text-sm font-medium  sm:text-base">{subStatus.name}</h4>
+                                            <p className="text-xs  sm:text-sm">{subStatus.is_active ? 'Active' : 'Inactive'}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-shrink-0 items-center space-x-2">
@@ -61,7 +61,7 @@ export default function SubStatusesSheet({
                                                 onCheckedChange={(checked: boolean) =>
                                                     subStatusActions.handleToggleSubStatus(subStatus, checked)
                                                 }
-                                                className="data-[state=checked]:bg-blue-500"
+                                                className="data-[state=checked]:bg-blue-500 dark:data-[state=unchecked]:bg-rose-500"
                                             />
                                         )}
                                         <Button
@@ -84,11 +84,11 @@ export default function SubStatusesSheet({
                         </div>
                     ) : (
                         <div className="py-6 text-center sm:py-8">
-                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16">
-                                <Layers className="h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16">
+                                <Layers className="h-6 w-6 sm:h-8 sm:w-8" />
                             </div>
-                            <h3 className="mb-2 text-base font-medium text-gray-900 sm:text-lg">No sub-steps yet</h3>
-                            <p className="mb-4 px-4 text-sm text-gray-500">
+                            <h3 className="mb-2 text-base font-medium  sm:text-lg">No sub-steps yet</h3>
+                            <p className="mb-4 px-4 text-sm">
                                 Add sub-steps to break down this application step into smaller tasks.
                             </p>
                             <Button
