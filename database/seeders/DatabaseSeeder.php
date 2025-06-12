@@ -36,7 +36,7 @@ final class DatabaseSeeder extends Seeder
             'email' => "info@gen.com",
             'password' => bcrypt('password'),
         ]);
-        $tenant1->domains()->create(['domain' => 'gen.localhost']);
+        $tenant1->domains()->create(['domain' => 'gen' .'.'.config('app.domain')]);
 
         Tenant::all()->runForEach(function () {
             $user = User::factory()->create();

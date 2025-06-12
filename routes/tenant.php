@@ -37,6 +37,5 @@ Route::middleware([
 
     Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::group([], base_path('routes/web/agents/routes.php'));
-        Route::get('/agents/countries', [CountryController::class, 'index'])->name('countries.index');
     });
 });
