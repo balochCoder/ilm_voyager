@@ -14,8 +14,8 @@ class CountryController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('countries/index', [
+        return Inertia::render('agents/countries/index', [
             'countries' => $countries,
         ]);
     }
-} 
+}
