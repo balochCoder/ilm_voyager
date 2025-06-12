@@ -16,7 +16,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: "Countries",
-        href: "#",
+        href: "/agents/countries",
         icon: Globe,
         isActive: false,
         items: [
@@ -34,6 +34,7 @@ const mainNavItems: NavItem[] = [
             },
         ],
     },
+
 
 ];
 
@@ -92,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                             </SidebarMenuButton>
                                         </CollapsibleTrigger>
                                         <CollapsibleContent>
-                                            <SidebarMenuSub>
+                                            <SidebarMenuSub className='mt-2'>
                                                 {item.items.map((subItem) => (
                                                     <SidebarMenuSubItem key={subItem.title}>
                                                         <SidebarMenuSubButton asChild>
