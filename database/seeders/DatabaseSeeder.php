@@ -39,8 +39,13 @@ final class DatabaseSeeder extends Seeder
         $tenant1->domains()->create(['domain' => 'gen' .'.'.config('app.domain')]);
 
         Tenant::all()->runForEach(function () {
-            $user = User::factory()->create();
-            $user->assignRole(TenantRolesEnum::SUPERADMIN->value);
+            $user1 = User::factory()->create([
+                'name'=> 'Mehmood',
+                'email' => 'info@gen.com'
+            ]);
+            $user1->assignRole(TenantRolesEnum::SUPERADMIN->value);
+            $user2 = User::factory()->create();
+            $user2->assignRole(TenantRolesEnum::COUNSELLOR->value);
         });
     }
 }

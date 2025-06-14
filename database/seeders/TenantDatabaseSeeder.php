@@ -17,10 +17,11 @@ class TenantDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-
-
         Role::create([
             'name' => TenantRolesEnum::SUPERADMIN->value
+        ]);
+        Role::create([
+            'name' => TenantRolesEnum::COUNSELLOR->value
         ]);
     }
 }

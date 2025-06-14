@@ -24,14 +24,7 @@ const mainNavItems: NavItem[] = [
                 title: "All Countries",
                 href: "/agents/countries",
             },
-            {
-                title: "Active Countries",
-                href: "/agents/countries?status=active",
-            },
-            {
-                title: "Inactive Countries",
-                href: "/agents/countries?status=inactive",
-            },
+            
         ],
     },
 

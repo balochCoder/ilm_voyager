@@ -24,7 +24,7 @@ final class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
-           
+
         ]);
     }
 
@@ -56,9 +56,11 @@ final class AuthenticatedSessionController extends Controller
     private function redirectToDashboard()
     {
         if (auth()->user()->hasRole(TenantRolesEnum::SUPERADMIN->value)) {
-            return redirect()->intended(route('agents:dashboard', absolute:false));
+            return redirect()->intended(route('agents:dashboard', absolute: false));
         }
-
+        if (auth()->user()->hasRole(TenantRolesEnum::COUNSELLOR->value)) {
+            return redirect()->intended(route('agents:dashboard', absolute: false));
+        }
         Auth::logout();
     }
 }
