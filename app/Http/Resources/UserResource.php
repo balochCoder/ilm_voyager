@@ -22,6 +22,7 @@ final class UserResource extends JsonResource
                 'address' => $this->resource->email,
                 'verified' => $this->resource->hasVerifiedEmail(),
             ],
+            'roles' => $this->resource->roles->pluck('name'),
         ];
     }
 }
