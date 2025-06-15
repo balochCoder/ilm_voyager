@@ -3,9 +3,11 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupLabel, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Globe, ChevronRight } from 'lucide-react';
+import { LayoutGrid, ChevronRight, Users, FileText, GraduationCap, Building2, ClipboardList, Settings, BarChart3 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { usePermission } from '@/hooks/use-permission';
+import { type SharedData } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
@@ -13,22 +15,31 @@ const mainNavItems: NavItem[] = [
         href: "/agents/dashboard",
         icon: LayoutGrid,
         isActive: false,
+        roles: ['super-admin'],
     },
     {
-        title: "Countries",
-        href: "/agents/countries",
-        icon: Globe,
+        title: "Dashboard",
+        href: "/counsellors/dashboard",
+        icon: LayoutGrid,
         isActive: false,
-        items: [
-            {
-                title: "All Countries",
-                href: "/agents/countries",
-            },
-
-        ],
+        roles: ['counsellor'],
     },
 
+    {
+        title: "All Countries",
+        href: "#",
+        icon: Users,
+        isActive: false,
+        roles: ['super-admin'],
+        items: [
 
+            {
+                title: "Countries",
+                href: "/agents/countries",
+            },
+        ],
+    },
+   
 ];
 
 // const footerNavItems: NavItem[] = [
@@ -45,8 +56,31 @@ const mainNavItems: NavItem[] = [
 // ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const page = usePage()
-    const currentPath = page.url
+    const page = usePage<SharedData>();
+    const currentPath = page.url;
+    const { hasRole } = usePermission();
+
+    // Filter navigation items based on user role
+    const filteredNavItems = mainNavItems.filter(item => {
+        if (!item.roles) return true;
+        return item.roles.some(role => hasRole(role));
+    }).map(item => {
+        if (item.items) {
+            return {
+                ...item,
+                items: item.items.filter(subItem => {
+                    if (!subItem.roles) return true;
+                    return subItem.roles.some(role => hasRole(role));
+                }),
+            };
+        }
+        return item;
+    }).filter(item => {
+        if (item.items) {
+            return item.items.length > 0;
+        }
+        return true;
+    });
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -66,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarGroup>
                     <SidebarGroupLabel>Platform</SidebarGroupLabel>
                     <SidebarMenu>
-                        {mainNavItems.map((item) => (
+                        {filteredNavItems.map((item) => (
                             item.items ? (
                                 <Collapsible
                                     key={item.title}

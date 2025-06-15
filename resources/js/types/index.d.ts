@@ -21,6 +21,7 @@ export interface NavItem {
     icon?: LucideIcon | null;
     isActive?: boolean;
     items? : NavItem[];
+    roles?: string[]; // Roles that can access this item
 }
 
 export interface SharedData {
