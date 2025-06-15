@@ -21,7 +21,7 @@ class RedirectBasedOnRole
         }
 
         $user = auth()->user();
-        
+
         // If user is already on their dashboard, proceed
         if ($this->isOnCorrectDashboard($user, $request->path())) {
             return $next($request);
@@ -31,25 +31,25 @@ class RedirectBasedOnRole
         if ($user->hasRole(TenantRolesEnum::SUPERADMIN->value)) {
             return redirect()->route('agents:dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::COUNSELLOR->value)) {
-            return redirect()->route('counsellor:dashboard');
+            return redirect()->route('counsellors:dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::BRANCHOFFICE->value)) {
-            return redirect()->route('branch:dashboard');
+            return redirect()->route('branches:dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::PROCESSINGOFFICE->value)) {
-            return redirect()->route('processing:dashboard');
+            return redirect()->route('processing-offices:dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::FRONTOFFICE->value)) {
-            return redirect()->route('front:dashboard');
+            return redirect()->route('front-offices:dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::ASSOCIATE->value)) {
-            return redirect()->route('associate:dashboard');
+            return redirect()->route('associates:dashboard');
         }
 
         return $next($request);
@@ -63,27 +63,27 @@ class RedirectBasedOnRole
         if ($user->hasRole(TenantRolesEnum::SUPERADMIN->value)) {
             return str_starts_with($path, 'agents/dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::COUNSELLOR->value)) {
-            return str_starts_with($path, 'counsellor/dashboard');
+            return str_starts_with($path, 'counsellors/dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::BRANCHOFFICE->value)) {
-            return str_starts_with($path, 'branch/dashboard');
+            return str_starts_with($path, 'branches/dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::PROCESSINGOFFICE->value)) {
-            return str_starts_with($path, 'processing/dashboard');
+            return str_starts_with($path, 'processing-offices/dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::FRONTOFFICE->value)) {
-            return str_starts_with($path, 'front/dashboard');
+            return str_starts_with($path, 'front-offices/dashboard');
         }
-        
+
         if ($user->hasRole(TenantRolesEnum::ASSOCIATE->value)) {
-            return str_starts_with($path, 'associate/dashboard');
+            return str_starts_with($path, 'associates/dashboard');
         }
 
         return false;
     }
-} 
+}

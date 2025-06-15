@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Models\Country;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class CountryController extends Controller
 {
+    use InertiaRoute;
     public function index()
     {
         $countries = Country::where('is_active', true)
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('agents/countries/index', [
+        return $this->factory->render('agents/countries/index', [
             'countries' => $countries,
         ]);
     }
