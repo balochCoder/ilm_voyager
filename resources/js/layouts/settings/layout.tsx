@@ -3,28 +3,41 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
+import { usePermission } from '@/hooks/use-permission';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: '/agents/settings/profile',
-        icon: null,
-    },
-    {
-        title: 'Password',
-        href: '/agents/settings/password',
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: '/agents/settings/appearance',
-        icon: null,
-    },
-];
-
 export default function SettingsLayout({ children }: PropsWithChildren) {
+    const { hasRole } = usePermission();
+
+    const getBaseRoute = () => {
+        if (hasRole('super-admin')) {
+            return '/agents/settings';
+        }
+        if (hasRole('counsellor')) {
+            return '/counsellors/settings';
+        }
+        return '/agents/settings'; // Default fallback
+    };
+
+    const sidebarNavItems: NavItem[] = [
+        {
+            title: 'Profile',
+            href: `${getBaseRoute()}/profile`,
+            icon: null,
+        },
+        {
+            title: 'Password',
+            href: `${getBaseRoute()}/password`,
+            icon: null,
+        },
+        {
+            title: 'Appearance',
+            href: `${getBaseRoute()}/appearance`,
+            icon: null,
+        },
+    ];
+
     // When server-side rendering, we only render the layout on the client...
     if (typeof window === 'undefined') {
         return null;
