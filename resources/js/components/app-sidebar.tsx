@@ -32,14 +32,17 @@ const mainNavItems: NavItem[] = [
         isActive: false,
         roles: ['super-admin'],
         items: [
-
+            {
+                title: "Representing Countries",
+                href: "/agents/representing-countries",
+            },
             {
                 title: "Countries",
                 href: "/agents/countries",
             },
         ],
     },
-   
+
 ];
 
 // const footerNavItems: NavItem[] = [

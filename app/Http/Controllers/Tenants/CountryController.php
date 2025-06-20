@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tenants;
 
 use App\Http\Controllers\Concerns\InertiaRoute;
+use App\Http\Controllers\Controller;
 use App\Models\Country;
 
 class CountryController extends Controller
