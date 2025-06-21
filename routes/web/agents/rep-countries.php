@@ -16,4 +16,4 @@ Route::get('representing-countries/create', [Tenants\RepCountryController::class
 Route::post('representing-countries', [Tenants\RepCountryController::class, 'store'])
     ->name('rep-countries:store');
 
-Route::patch('rep-countries/{id}/toggle-status', [Tenants\RepCountryController::class, 'toggleStatus'])->name('rep-countries:toggle-status');
+Route::patch('rep-countries/{repCountry}/toggle-status', [Tenants\RepCountryController::class, 'toggleStatus'])->name('rep-countries:toggle-status');

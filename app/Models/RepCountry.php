@@ -11,16 +11,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RepCountry extends Model
 {
-    use HasUlids, SoftDeletes;
+    use HasUlids;
+    use SoftDeletes;
 
-    protected $fillable = [
-        'monthly_living_cost',
-        'visa_requirements',
-        'part_time_work_details',
-        'country_benefits',
-        'is_active',
-        'country_id',
-    ];
+
 
     protected function casts()
     {
@@ -33,4 +27,4 @@ class RepCountry extends Model
     {
         return $this->belongsTo(Country::class);
     }
-} 
+}

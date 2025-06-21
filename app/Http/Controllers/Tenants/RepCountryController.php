@@ -8,8 +8,11 @@ use App\Models\RepCountry;
 use App\Models\Country;
 use App\Http\Resources\RepCountryResource;
 use App\Http\Resources\CountryResource;
+use App\Http\Requests\RepCountry\StoreRepCountryRequest;
+use App\Http\Requests\RepCountry\ToggleStatusRequest;
+use App\Actions\RepCountry\StoreRepCountryAction;
+use App\Actions\RepCountry\ToggleStatusAction;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class RepCountryController extends Controller
 {
@@ -19,7 +22,7 @@ class RepCountryController extends Controller
     {
         $repCountries = RepCountry::with('country')
             ->orderBy('created_at', 'desc')
-            ->paginate(4);
+            ->paginate(10);
 
         return $this->factory->render('agents/rep-countries/index', [
             'repCountries' => RepCountryResource::collection($repCountries)->resolve(),
@@ -48,31 +51,20 @@ class RepCountryController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreRepCountryRequest $request, StoreRepCountryAction $action)
     {
-        $validated = $request->validate([
-            'monthly_living_cost' => 'nullable|string|max:255',
-            'visa_requirements' => 'nullable|string',
-            'part_time_work_details' => 'nullable|string',
-            'country_benefits' => 'nullable|string',
-            'is_active' => 'boolean',
-            'country_id' => [
-                'required',
-                'exists:countries,id',
-                Rule::unique('rep_countries', 'country_id'),
-            ],
-        ]);
-
-        RepCountry::create($validated);
+        $action->execute($request);
 
         return redirect()->route('agents:rep-countries:index')
             ->with('success', 'Rep Country created successfully.');
     }
-    public function toggleStatus(Request $request, $id)
-    {
-        $repCountry = RepCountry::findOrFail($id);
-        $repCountry->update(['is_active' => $request->is_active]);
 
-        return redirect()->route('agents:rep-countries:index')->with('success' , 'Status updated successfully.');
+    public function toggleStatus(ToggleStatusRequest $request, RepCountry $repCountry, ToggleStatusAction $action)
+    {
+
+        $action->execute($repCountry, $request);
+
+        return redirect()->route('agents:rep-countries:index')
+            ->with('success', 'Status updated successfully.');
     }
 }
