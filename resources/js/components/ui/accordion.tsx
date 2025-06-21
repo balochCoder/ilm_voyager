@@ -11,60 +11,79 @@ function Accordion({
   return <AccordionPrimitive.Root data-slot="accordion" {...props} />
 }
 
-function AccordionItem({
-  className,
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Item>) {
-  return (
-    <AccordionPrimitive.Item
-      data-slot="accordion-item"
-      className={cn(
-        "rounded-base overflow-hidden border-2 border-b border-border shadow-shadow",
-        className,
-      )}
-      {...props}
-    />
-  )
+interface AccordionItemProps {
+  children: React.ReactNode
+  className?: string
 }
 
-function AccordionTrigger({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
-  return (
-    <AccordionPrimitive.Header className="flex">
-      <AccordionPrimitive.Trigger
-        data-slot="accordion-trigger"
-        className={cn(
-          "flex flex-1 items-center justify-between text-left text-base text-main-foreground border-border focus-visible:ring-[3px] bg-main p-4 font-heading transition-all [&[data-state=open]>svg]:rotate-180 data-[state=open]:rounded-b-none data-[state=open]:border-b-2 disabled:pointer-events-none disabled:opacity-50",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-        <ChevronDown className="pointer-events-none size-5 shrink-0 transition-transform duration-200" />
-      </AccordionPrimitive.Trigger>
-    </AccordionPrimitive.Header>
-  )
+interface AccordionTriggerProps {
+  children: React.ReactNode
+  className?: string
+  onClick?: () => void
+  isOpen?: boolean
 }
 
-function AccordionContent({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Content>) {
-  return (
-    <AccordionPrimitive.Content
-      data-slot="accordion-content"
-      className="overflow-hidden rounded-b-base bg-secondary-background text-sm font-base transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+interface AccordionContentProps {
+  children: React.ReactNode
+  className?: string
+  isOpen?: boolean
+}
+
+const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
+  ({ className, children, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn("border-b", className)}
       {...props}
     >
-      <div className={cn("p-4", className)}>{children}</div>
-    </AccordionPrimitive.Content>
+      {children}
+    </div>
   )
-}
+)
+AccordionItem.displayName = "AccordionItem"
 
-AccordionContent.displayName = AccordionPrimitive.Content.displayName
+const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerProps>(
+  ({ className, children, onClick, isOpen, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={cn(
+        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        className
+      )}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+      <ChevronDown className={cn(
+        "h-4 w-4 shrink-0 transition-transform duration-200",
+        isOpen && "rotate-180"
+      )} />
+    </button>
+  )
+)
+AccordionTrigger.displayName = "AccordionTrigger"
+
+const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>(
+  ({ className, children, isOpen, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "overflow-hidden text-sm transition-all",
+        isOpen ? "animate-accordion-down" : "animate-accordion-up",
+        className
+      )}
+      style={{
+        maxHeight: isOpen ? "1000px" : "0px",
+        opacity: isOpen ? 1 : 0,
+      }}
+      {...props}
+    >
+      <div className="pb-4 pt-0">
+        {children}
+      </div>
+    </div>
+  )
+)
+AccordionContent.displayName = "AccordionContent"
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }

@@ -20,7 +20,7 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
-    items? : NavItem[];
+    items?: NavItem[];
     roles?: string[]; // Roles that can access this item
 }
 
@@ -28,6 +28,9 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    flash?: {
+        success?: string;
+    };
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
     [key: string]: unknown;
@@ -46,4 +49,23 @@ export interface User {
     updated_at: string;
     roles: string[]; // Assuming roles are stored as an array of strings
     [key: string]: unknown; // This allows for additional properties...
+}
+export interface Country {
+    id: string;
+    name: string;
+    flag: string;
+}
+
+export interface RepCountry {
+    id: string;
+    monthly_living_cost: string | null;
+    visa_requirements: string | null;
+    part_time_work_details: string | null;
+    country_benefits: string | null;
+    is_active: boolean;
+    country: Country;
+    created: {
+        human: string;
+        string: string;
+    };
 }

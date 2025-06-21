@@ -27,7 +27,7 @@ const mainNavItems: NavItem[] = [
 
     {
         title: "All Countries",
-        href: "#",
+        href: "/agents/countries",
         icon: Users,
         isActive: false,
         roles: ['super-admin'],
@@ -41,8 +41,7 @@ const mainNavItems: NavItem[] = [
                 href: "/agents/countries",
             },
         ],
-    },
-
+    }
 ];
 
 // const footerNavItems: NavItem[] = [

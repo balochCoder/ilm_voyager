@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Country extends Model
 {
@@ -17,5 +18,10 @@ class Country extends Model
          return [
               'is_active' => 'boolean',
          ];
+   }
+
+   public function repCountry(): HasOne
+   {
+       return $this->hasOne(RepCountry::class);
    }
 }

@@ -23,5 +23,10 @@ class TenantDatabaseSeeder extends Seeder
         Role::create([
             'name' => TenantRolesEnum::COUNSELLOR->value
         ]);
+
+        // Seed rep countries
+        $this->call([
+            RepCountrySeeder::class,
+        ]);
     }
 }

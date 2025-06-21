@@ -16,4 +16,9 @@ Route::as('agents:')->middleware(['role:' . TenantRolesEnum::SUPERADMIN->value])
         [],
         base_path('routes/web/agents/countries.php')
     );
+
+    Route::group(
+        [],
+        base_path('routes/web/agents/rep-countries.php')
+    );
 });
