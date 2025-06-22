@@ -18,7 +18,7 @@ import {
     PaginationPrevious
 } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Minus, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus, Minus, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
@@ -277,7 +277,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                             </PopoverContent>
                         </Popover>
                         {isLoading && (
-                            <Skeleton className="w-4 h-4 rounded" />
+                            <Loader2 className="w-4 h-4 rounded animate-spin ml-2" />
                         )}
                     </div>
                     <div className="text-sm text-gray-600 mt-6">

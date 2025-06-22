@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupLabel, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, ChevronRight, Users, FileText, GraduationCap, Building2, ClipboardList, Settings, BarChart3 } from 'lucide-react';
+import { LayoutGrid, ChevronRight, Users, FileText, GraduationCap, Building2, ClipboardList, Settings, BarChart3, Globe2, GlobeIcon } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { usePermission } from '@/hooks/use-permission';
@@ -17,6 +17,20 @@ const mainNavItems: NavItem[] = [
         isActive: false,
         roles: ['super-admin'],
     },
+     {
+        title: "Countries",
+        href: "/agents/countries",
+        icon: Globe2,
+        isActive: false,
+        roles: ['super-admin'],
+    },
+     {
+        title: "Representing Countries",
+        href: "/agents/representing-countries",
+        icon: GlobeIcon,
+        isActive: false,
+        roles: ['super-admin'],
+    },
     {
         title: "Dashboard",
         href: "/counsellors/dashboard",
@@ -25,23 +39,23 @@ const mainNavItems: NavItem[] = [
         roles: ['counsellor'],
     },
 
-    {
-        title: "All Countries",
-        href: "/agents/countries",
-        icon: Users,
-        isActive: false,
-        roles: ['super-admin'],
-        items: [
-            {
-                title: "Representing Countries",
-                href: "/agents/representing-countries",
-            },
-            {
-                title: "Countries",
-                href: "/agents/countries",
-            },
-        ],
-    }
+    // {
+    //     title: "All Countries",
+    //     href: "/agents/representing-countries",
+    //     icon: Users,
+    //     isActive: false,
+    //     roles: ['super-admin'],
+    //     items: [
+    //         {
+    //             title: "Representing Countries",
+    //             href: "/agents/representing-countries",
+    //         },
+    //         {
+    //             title: "Countries",
+    //             href: "/agents/countries",
+    //         },
+    //     ],
+    // }
 ];
 
 // const footerNavItems: NavItem[] = [
