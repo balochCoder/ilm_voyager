@@ -20,12 +20,23 @@ class RepCountryController extends Controller
 
     public function index(Request $request)
     {
-        $repCountries = RepCountry::with('country')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = RepCountry::with('country')->orderBy('created_at', 'desc');
+
+        // Filter by country if specified
+        if ($request->filled('country_id') && $request->country_id !== 'all') {
+            $query->where('country_id', $request->country_id);
+        }
+
+        $repCountries = $query->paginate(10);
+
+        // Get all available countries for the filter dropdown
+        $availableCountries = Country::whereHas('repCountry')
+            ->orderBy('name')
+            ->get(['id', 'name', 'flag']);
 
         return $this->factory->render('agents/rep-countries/index', [
             'repCountries' => RepCountryResource::collection($repCountries)->resolve(),
+            'availableCountries' => $availableCountries,
             'pagination' => [
                 'current_page' => $repCountries->currentPage(),
                 'last_page' => $repCountries->lastPage(),

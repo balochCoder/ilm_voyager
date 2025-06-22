@@ -69,3 +69,14 @@ export interface RepCountry {
         string: string;
     };
 }
+
+export interface PaginationData {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+    has_more_pages: boolean;
+    has_previous_page: boolean;
+}

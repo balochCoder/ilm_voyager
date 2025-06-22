@@ -1,39 +1,45 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, RepCountry, SharedData } from '@/types';
+import { BreadcrumbItem, Country, PaginationData, RepCountry, SharedData } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AccordionItem } from '@/components/ui/accordion';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-    Pagination, 
-    PaginationContent, 
-    PaginationEllipsis, 
-    PaginationItem, 
-    PaginationLink, 
-    PaginationNext, 
-    PaginationPrevious 
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious
 } from '@/components/ui/pagination';
-import { Plus, Minus } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Minus, Check, ChevronsUpDown } from 'lucide-react';
 import Heading from '@/components/heading';
 import { toast } from 'sonner';
-
-interface PaginationData {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-    has_more_pages: boolean;
-    has_previous_page: boolean;
-}
+import { Label } from '@/components/ui/label';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface Props {
     repCountries: RepCountry[];
+    availableCountries: Country[];
     pagination: PaginationData;
 }
 
@@ -57,9 +63,12 @@ const mockApplicationProcess = [
     { id: 5, step: 'Final Approval', status: 'Not Started', actions: 'Await' },
 ];
 
-export default function RepCountriesIndex({ repCountries, pagination }: Props) {
+export default function RepCountriesIndex({ repCountries, availableCountries, pagination }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({});
+    const [selectedCountry, setSelectedCountry] = useState<string>('all');
+    const [isLoading, setIsLoading] = useState(false);
+    const [open, setOpen] = useState(false);
     const [activeStates, setActiveStates] = useState<{ [key: string]: boolean }>(() => {
         // Initialize with the current active states from props
         const initialStates: { [key: string]: boolean } = {};
@@ -68,6 +77,28 @@ export default function RepCountriesIndex({ repCountries, pagination }: Props) {
         });
         return initialStates;
     });
+
+    const handleCountryFilter = (countryId: string) => {
+        setSelectedCountry(countryId);
+        setOpen(false);
+        setIsLoading(true);
+
+        // Build the URL with the filter parameter
+        const url = new URL(window.location.href);
+        if (countryId === 'all') {
+            url.searchParams.delete('country_id');
+        } else {
+            url.searchParams.set('country_id', countryId);
+        }
+        // Reset to first page when filtering
+        url.searchParams.delete('page');
+
+        // Navigate to the filtered results
+        router.visit(url.toString(), {
+            onFinish: () => setIsLoading(false),
+            onError: () => setIsLoading(false),
+        });
+    };
 
     const toggleAccordion = (countryId: string) => {
         setOpenAccordions(prev => ({
@@ -106,31 +137,38 @@ export default function RepCountriesIndex({ repCountries, pagination }: Props) {
         const pages = [];
         const current = pagination.current_page;
         const last = pagination.last_page;
-        
+
         // Always show first page
         pages.push(1);
-        
+
         if (current > 3) {
             pages.push('...');
         }
-        
+
         // Show pages around current page
         for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
             if (i !== 1 && i !== last) {
                 pages.push(i);
             }
         }
-        
+
         if (current < last - 2) {
             pages.push('...');
         }
-        
+
         // Always show last page if there's more than one page
         if (last > 1) {
             pages.push(last);
         }
-        
+
         return pages;
+    };
+
+    // Get the selected country name for display
+    const getSelectedCountryName = () => {
+        if (selectedCountry === 'all') return 'All Countries';
+        const country = availableCountries.find(c => c.id === selectedCountry);
+        return country ? country.name : 'All Countries';
     };
 
     useEffect(() => {
@@ -140,6 +178,15 @@ export default function RepCountriesIndex({ repCountries, pagination }: Props) {
             toast.success(flash?.success); // Replace with your toast implementation
         }
     }, [flash]);
+
+    // Initialize selected country from URL params
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const countryId = urlParams.get('country_id');
+        if (countryId) {
+            setSelectedCountry(countryId);
+        }
+    }, []);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -156,114 +203,227 @@ export default function RepCountriesIndex({ repCountries, pagination }: Props) {
                     </Link>
                 </div>
 
-                <div className="space-y-4">
-                    {repCountries.map((repCountry) => (
-                        <div key={repCountry.id} className="border overflow-hidden shadow-sm">
-                            {/* Alert with Country Information */}
-                            <Alert className="border-l-4 bg-main border-blue-500 rounded-b-none border-b-0 rounded-t-none border-t-0 border-b-transparent">
-                                <AlertDescription className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
-                                        <img
-                                            src={repCountry.country.flag}
-                                            alt={repCountry.country.name}
-                                            className="w-8 h-6 rounded shadow-sm"
-                                        />
-                                        <span className="font-semibold text-lg text-gray-900">
-                                            {repCountry.country.name}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                        <span className="text-sm text-black">
-                                            {activeStates[repCountry.id] ? 'Active' : 'Inactive'}
-                                        </span>
-                                        <Switch
-                                            checked={activeStates[repCountry.id]}
-                                            onCheckedChange={() => toggleActiveStatus(repCountry.id)}
-                                            className="data-[state=checked]:bg-blue-500"
-                                        />
-                                    </div>
-                                </AlertDescription>
-                            </Alert>
-
-                            {/* Accordion for Application Process Management */}
-                            <AccordionItem className="border-0">
-                                <div className="flex items-center border-l-4 border-blue-500 justify-between w-full p-4 bg-white hover:bg-gray-50 rounded-t-none border-t-0 rounded-b-none border-b-0 shadow-none">
+                {/* Country Filter Combobox */}
+                <div className="flex flex-col space-y-2">
+                    <Label htmlFor="country-filter" className="text-sm font-medium text-gray-700">
+                        Filter by Country:
+                    </Label>
+                    <div className="flex items-center space-x-2">
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="noShadow"
+                                    role="combobox"
+                                    aria-expanded={open}
+                                    className="w-64 justify-between"
+                                    disabled={isLoading}
+                                >
                                     <div className="flex items-center space-x-2">
-                                        <button
-                                            onClick={() => toggleAccordion(repCountry.id)}
-                                            className="font-medium hover:text-gray-900 text-blue-600 transition-colors cursor-pointer"
-                                        >
-                                            View Application Process
-                                        </button>
-                                    </div>
-                                    <button
-                                        onClick={() => toggleAccordion(repCountry.id)}
-                                        className="p-2 rounded hover:bg-gray-100 transition-colors cursor-pointer   "
-                                    >
-                                        {openAccordions[repCountry.id] ? (
-                                            <Minus className="w-4 h-4 text-blue-600" />
-                                        ) : (
-                                            <Plus className="w-4 h-4 text-blue-600" />
+                                        {selectedCountry !== 'all' && (
+                                            <img
+                                                src={availableCountries.find(c => c.id === selectedCountry)?.flag}
+                                                alt=""
+                                                className="w-4 h-3 rounded"
+                                            />
                                         )}
-                                    </button>
-                                </div>
-
-                                {/* Accordion Content with Table */}
-                                {openAccordions[repCountry.id] && (
-                                    <div className="bg-white border-l-4 border-blue-500">
-
-                                        {/* Application Process Table */}
-                                        <div className="overflow-x-auto">
-                                            <Table className='border-l-0 border-b-0 border-r-0'>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead>S.No</TableHead>
-                                                        <TableHead>Steps</TableHead>
-                                                        <TableHead>Status</TableHead>
-                                                        <TableHead>Actions</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {mockApplicationProcess.map((process, index) => (
-                                                        <TableRow key={process.id}>
-                                                            <TableCell>{index + 1}</TableCell>
-                                                            <TableCell className="font-medium">{process.step}</TableCell>
-                                                            <TableCell>
-                                                                <Badge
-                                                                    variant={
-                                                                        process.status === 'Completed' ? 'default' :
-                                                                        process.status === 'In Progress' ? 'default' :
-                                                                        process.status === 'Pending' ? 'neutral' : 'neutral'
-                                                                    }
-                                                                >
-                                                                    {process.status}
-                                                                </Badge>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Button variant="neutral" size="sm">
-                                                                    {process.actions}
-                                                                </Button>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
+                                        <span>{getSelectedCountryName()}</span>
                                     </div>
-                                )}
-                            </AccordionItem>
-                        </div>
-                    ))}
-
-                    {repCountries.length === 0 && (
-                        <div className="text-center py-8 text-gray-500">
-                            No representing countries found. Create your first one!
-                        </div>
-                    )}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 p-0">
+                                <Command>
+                                    <CommandInput placeholder="Search countries..." />
+                                    <CommandList>
+                                        <CommandEmpty>No country found.</CommandEmpty>
+                                        <CommandGroup>
+                                            <CommandItem
+                                                value="all"
+                                                onSelect={() => handleCountryFilter('all')}
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        selectedCountry === "all" ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                All Countries
+                                            </CommandItem>
+                                            {availableCountries.map((country) => (
+                                                <CommandItem
+                                                    key={country.id}
+                                                    value={country.name}
+                                                    onSelect={() => handleCountryFilter(country.id)}
+                                                >
+                                                    <Check
+                                                        className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            selectedCountry === country.id ? "opacity-100" : "opacity-0"
+                                                        )}
+                                                    />
+                                                    <div className="flex items-center space-x-2">
+                                                        <img
+                                                            src={country.flag}
+                                                            alt={country.name}
+                                                            className="w-4 h-3 rounded"
+                                                        />
+                                                        <span>{country.name}</span>
+                                                    </div>
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                        {isLoading && (
+                            <Skeleton className="w-4 h-4 rounded" />
+                        )}
+                    </div>
+                    <div className="text-sm text-gray-600 mt-4">
+                        Total Representing Countries: {pagination.total}
+                    </div>
                 </div>
 
+                {/* Loading State */}
+                {isLoading && (
+                    <div className="space-y-4">
+                        {[...Array(3)].map((_, index) => (
+                            <div key={index} className="border overflow-hidden shadow-sm">
+                                {/* Skeleton for Alert */}
+                                <div className="border-l-4 border-blue-500 bg-main p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                            <Skeleton className="w-8 h-6 rounded" />
+                                            <Skeleton className="w-32 h-6 rounded" />
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <Skeleton className="w-16 h-4 rounded" />
+                                            <Skeleton className="w-10 h-6 rounded" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Skeleton for Accordion Trigger */}
+                                <div className="flex items-center border-l-4 border-blue-500 justify-between w-full p-4 bg-white">
+                                    <Skeleton className="w-48 h-6 rounded" />
+                                    <Skeleton className="w-8 h-8 rounded" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Content */}
+                {!isLoading && (
+                    <div className="space-y-4">
+                        {repCountries.map((repCountry) => (
+                            <div key={repCountry.id} className="border overflow-hidden shadow-sm">
+                                {/* Alert with Country Information */}
+                                <Alert className="border-l-4 bg-main border-blue-500 rounded-b-none border-b-0 rounded-t-none border-t-0 border-b-transparent">
+                                    <AlertDescription className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                            <img
+                                                src={repCountry.country.flag}
+                                                alt={repCountry.country.name}
+                                                className="w-8 h-6 rounded shadow-sm"
+                                            />
+                                            <span className="font-semibold text-lg text-gray-900">
+                                                {repCountry.country.name}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <span className="text-sm text-black">
+                                                {activeStates[repCountry.id] ? 'Active' : 'Inactive'}
+                                            </span>
+                                            <Switch
+                                                checked={activeStates[repCountry.id]}
+                                                onCheckedChange={() => toggleActiveStatus(repCountry.id)}
+                                                className="data-[state=checked]:bg-blue-500"
+                                            />
+                                        </div>
+                                    </AlertDescription>
+                                </Alert>
+
+                                {/* Accordion for Application Process Management */}
+                                <AccordionItem className="border-0">
+                                    <div className="flex items-center border-l-4 border-blue-500 justify-between w-full p-4 bg-white hover:bg-gray-50 rounded-t-none border-t-0 rounded-b-none border-b-0 shadow-none">
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                onClick={() => toggleAccordion(repCountry.id)}
+                                                className="font-medium hover:text-gray-900 text-blue-600 transition-colors cursor-pointer"
+                                            >
+                                                View Application Process
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => toggleAccordion(repCountry.id)}
+                                            className="p-2 rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                                        >
+                                            {openAccordions[repCountry.id] ? (
+                                                <Minus className="w-4 h-4 text-blue-600" />
+                                            ) : (
+                                                <Plus className="w-4 h-4 text-blue-600" />
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    {/* Accordion Content with Table */}
+                                    {openAccordions[repCountry.id] && (
+                                        <div className="bg-white border-l-4 border-blue-500">
+                                            {/* Application Process Table */}
+                                            <div className="overflow-x-auto">
+                                                <Table className='border-l-0 border-b-0 border-r-0'>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead>S.No</TableHead>
+                                                            <TableHead>Steps</TableHead>
+                                                            <TableHead>Status</TableHead>
+                                                            <TableHead>Actions</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {mockApplicationProcess.map((process, index) => (
+                                                            <TableRow key={process.id}>
+                                                                <TableCell>{index + 1}</TableCell>
+                                                                <TableCell className="font-medium">{process.step}</TableCell>
+                                                                <TableCell>
+                                                                    <Badge
+                                                                        variant={
+                                                                            process.status === 'Completed' ? 'default' :
+                                                                            process.status === 'In Progress' ? 'default' :
+                                                                            process.status === 'Pending' ? 'neutral' : 'neutral'
+                                                                        }
+                                                                    >
+                                                                        {process.status}
+                                                                    </Badge>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Button variant="neutral" size="sm">
+                                                                        {process.actions}
+                                                                    </Button>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </AccordionItem>
+                            </div>
+                        ))}
+
+                        {repCountries.length === 0 && (
+                            <div className="text-center py-8 text-gray-500">
+                                No representing countries found. Create your first one!
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Pagination */}
-                {pagination.last_page > 1 && (
+                {!isLoading && pagination.last_page > 1 && (
                     <div className="flex items-center justify-between w-full">
                         <div className="text-sm text-gray-700 whitespace-nowrap">
                             Showing {pagination.from} to {pagination.to} of {pagination.total} results
@@ -273,19 +433,19 @@ export default function RepCountriesIndex({ repCountries, pagination }: Props) {
                                 <PaginationContent>
                                     {pagination.current_page > 1 && (
                                         <PaginationItem>
-                                            <PaginationPrevious 
-                                                href={`${route('agents:rep-countries:index')}?page=${pagination.current_page - 1}`}
+                                            <PaginationPrevious
+                                                href={`${route('agents:rep-countries:index')}?page=${pagination.current_page - 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
                                             />
                                         </PaginationItem>
                                     )}
-                                    
+
                                     {getPageNumbers().map((page, index) => (
                                         <PaginationItem key={index}>
                                             {page === '...' ? (
                                                 <PaginationEllipsis />
                                             ) : (
                                                 <PaginationLink
-                                                    href={`${route('agents:rep-countries:index')}?page=${page}`}
+                                                    href={`${route('agents:rep-countries:index')}?page=${page}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
                                                     isActive={page === pagination.current_page}
                                                 >
                                                     {page}
@@ -293,11 +453,11 @@ export default function RepCountriesIndex({ repCountries, pagination }: Props) {
                                             )}
                                         </PaginationItem>
                                     ))}
-                                    
+
                                     {pagination.has_more_pages && (
                                         <PaginationItem>
-                                            <PaginationNext 
-                                                href={`${route('agents:rep-countries:index')}?page=${pagination.current_page + 1}`}
+                                            <PaginationNext
+                                                href={`${route('agents:rep-countries:index')}?page=${pagination.current_page + 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
                                             />
                                         </PaginationItem>
                                     )}
