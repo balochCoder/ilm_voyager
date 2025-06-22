@@ -431,13 +431,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                         <div className="flex-shrink-0">
                             <Pagination>
                                 <PaginationContent>
-                                    {pagination.current_page > 1 && (
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                href={`${route('agents:rep-countries:index')}?page=${pagination.current_page - 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
-                                            />
-                                        </PaginationItem>
-                                    )}
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href={`${route('agents:rep-countries:index')}?page=${pagination.current_page - 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
+                                            className={pagination.current_page <= 1 ? "pointer-events-none opacity-50" : ""}
+                                        />
+                                    </PaginationItem>
 
                                     {getPageNumbers().map((page, index) => (
                                         <PaginationItem key={index}>
@@ -454,13 +453,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                         </PaginationItem>
                                     ))}
 
-                                    {pagination.has_more_pages && (
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                href={`${route('agents:rep-countries:index')}?page=${pagination.current_page + 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
-                                            />
-                                        </PaginationItem>
-                                    )}
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href={`${route('agents:rep-countries:index')}?page=${pagination.current_page + 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
+                                            className={!pagination.has_more_pages ? "pointer-events-none opacity-50" : ""}
+                                        />
+                                    </PaginationItem>
                                 </PaginationContent>
                             </Pagination>
                         </div>

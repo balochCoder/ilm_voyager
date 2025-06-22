@@ -27,7 +27,7 @@ class RepCountryController extends Controller
             $query->where('country_id', $request->country_id);
         }
 
-        $repCountries = $query->paginate(5);
+        $repCountries = $query->paginate(10);
 
         // Get all available countries for the filter dropdown
         $availableCountries = Country::whereHas('repCountry')
