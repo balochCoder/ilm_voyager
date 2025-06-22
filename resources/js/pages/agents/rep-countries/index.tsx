@@ -192,7 +192,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Representing Countries" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col p-4">
                 <div className="flex justify-between items-center">
                     <Heading title='Representing Countries' />
                     <Link href={route('agents:rep-countries:create')} prefetch>
@@ -204,7 +204,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                 </div>
 
                 {/* Country Filter Combobox */}
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col">
                     <Label htmlFor="country-filter" className="text-sm font-medium text-gray-700">
                         Filter by Country:
                     </Label>
@@ -280,7 +280,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                             <Skeleton className="w-4 h-4 rounded" />
                         )}
                     </div>
-                    <div className="text-sm text-gray-600 mt-4">
+                    <div className="text-sm text-gray-600 mt-6">
                         Total Representing Countries: {pagination.total}
                     </div>
                 </div>
@@ -424,7 +424,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
                 {/* Pagination */}
                 {!isLoading && pagination.last_page > 1 && (
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center justify-between w-full mt-3">
                         <div className="text-sm text-gray-700 whitespace-nowrap">
                             Showing {pagination.from} to {pagination.to} of {pagination.total} results
                         </div>

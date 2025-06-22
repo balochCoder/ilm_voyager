@@ -1,14 +1,8 @@
 import { Head } from '@inertiajs/react';
 import CountriesList from '@/components/countries-list';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem } from '@/types';
-
-interface Country {
-    id: string;
-    name: string;
-    flag: string;
-    is_active: boolean;
-}
+import { BreadcrumbItem, Country } from '@/types';
+import Heading from '@/components/heading';
 
 interface Props {
     countries: Country[];
@@ -16,7 +10,7 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title:'Dashboard',
+        title: 'Dashboard',
         href: '/dashboard',
     },
     {
@@ -30,7 +24,8 @@ export default function CountriesIndex({ countries }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Countries" />
 
-            <div className="container mx-auto py-6">
+            <div className="flex h-full flex-1 flex-col  rounded-xl p-4">
+                <Heading title='Countries List' />
                 <CountriesList countries={countries} />
             </div>
         </AppLayout>

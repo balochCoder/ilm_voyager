@@ -1,11 +1,5 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-interface Country {
-    id: string;
-    name: string;
-    flag: string;
-    is_active: boolean;
-}
+import { Country } from '@/types';
 
 interface CountriesListProps {
     countries: Country[];
@@ -13,7 +7,7 @@ interface CountriesListProps {
 
 export default function CountriesList({ countries }: CountriesListProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             {countries.map((country, index) => (
                 <Alert key={country.id} className="flex items-center justify-between">
                     <AlertDescription className="flex items-center gap-2">

@@ -27,7 +27,7 @@ class RepCountryController extends Controller
             $query->where('country_id', $request->country_id);
         }
 
-        $repCountries = $query->paginate(10);
+        $repCountries = $query->paginate(5);
 
         // Get all available countries for the filter dropdown
         $availableCountries = Country::whereHas('repCountry')
@@ -67,7 +67,7 @@ class RepCountryController extends Controller
         $action->execute($request);
 
         return redirect()->route('agents:rep-countries:index')
-            ->with('success', 'Rep Country created successfully.');
+            ->with('success', 'Representing Country created successfully.');
     }
 
     public function toggleStatus(ToggleStatusRequest $request, RepCountry $repCountry, ToggleStatusAction $action)
