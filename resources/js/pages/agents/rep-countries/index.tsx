@@ -342,10 +342,21 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                         <div className="flex items-center space-x-2">
                                             <button
                                                 onClick={() => toggleAccordion(repCountry.id)}
-                                                className="font-medium hover:text-gray-900 text-blue-600 transition-colors cursor-pointer"
+                                                className="text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer"
                                             >
                                                 View Application Process
                                             </button>
+                                            <span className="mx-1 text-gray-400">|</span>
+                                            <span className="text-xs text-gray-500">Country Added: {(() => {
+                                                const dateStr = repCountry.created?.string?.split('T')[0] || '';
+                                                if (!dateStr) return '';
+                                                const [y, m, d] = dateStr.split('-');
+                                                return `${d}-${m}-${y}`;
+                                            })()}</span>
+                                            <span className="mx-1 text-gray-400">|</span>
+                                            <Link href={route('agents:rep-countries:add-notes', repCountry.id)} className='text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer'>
+                                                Status Notes
+                                            </Link>
                                         </div>
                                         <button
                                             onClick={() => toggleAccordion(repCountry.id)}

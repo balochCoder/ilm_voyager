@@ -82,4 +82,22 @@ class RepCountryController extends Controller
         return redirect()->route('agents:rep-countries:index')
             ->with('success', 'Status updated successfully.');
     }
+
+    public function addNotes(RepCountry $repCountry)
+    {
+        $repCountry->load('statuses');
+        return $this->factory->render('agents/rep-countries/add-notes', [
+            'repCountry' => $repCountry,
+            'statuses' => $repCountry->statuses,
+        ]);
+    }
+
+    public function storeNotes(Request $request, RepCountry $repCountry)
+    {
+        $notes = $request->input('status_notes', []);
+        foreach ($notes as $statusId => $note) {
+            $repCountry->statuses()->updateExistingPivot($statusId, ['notes' => $note]);
+        }
+        return redirect()->back()->with('success', 'Notes updated successfully.');
+    }
 }
