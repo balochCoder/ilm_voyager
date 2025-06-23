@@ -1,29 +1,38 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
 import { Textarea } from '@/components/ui/textarea';
+import { BreadcrumbItem, RepCountry, SharedData, Status } from '@/types';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
-interface Status {
-    id: string;
-    name: string;
-    pivot?: {
-        notes: string | null;
-    };
-}
 
-interface RepCountry {
-    id: string;
-    country: { name: string };
-}
+
 
 interface Props {
     repCountry: RepCountry;
     statuses: Status[];
 }
 
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/agents/dashboard',
+    },
+    {
+        title: 'Representing Countries',
+        href: '/agents/representing-countries',
+    },
+    {
+        title: 'Status Notes',
+        href: '/agents/representing-countries/add-notes',
+    },
+];
+
 export default function AddNotes({ repCountry, statuses }: Props) {
+    const { flash } = usePage<SharedData>().props;
     // Initialize status_notes as an object with status ids as keys
     const initialStatusNotes: Record<string, string> = {};
     statuses.forEach(status => {
@@ -47,12 +56,17 @@ export default function AddNotes({ repCountry, statuses }: Props) {
         e.preventDefault();
         post(route('agents:rep-countries:store-notes', repCountry.id));
     };
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+    }, [flash]);
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Notes Representing Countries" />
             <div className="flex h-full flex-1 flex-col p-4">
-                <Heading title='Status Notes'/>
+                <Heading title='Status Notes' />
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
                     {statuses.map((status, idx) => (
                         <div key={status.id}>
