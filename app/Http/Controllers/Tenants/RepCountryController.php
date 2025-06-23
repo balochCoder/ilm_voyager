@@ -12,6 +12,7 @@ use App\Http\Requests\RepCountry\StoreRepCountryRequest;
 use App\Http\Requests\RepCountry\ToggleStatusRequest;
 use App\Actions\RepCountry\StoreRepCountryAction;
 use App\Actions\RepCountry\ToggleStatusAction;
+use App\Models\Status;
 use Illuminate\Http\Request;
 
 class RepCountryController extends Controller
@@ -20,23 +21,25 @@ class RepCountryController extends Controller
 
     public function index(Request $request)
     {
-        $query = RepCountry::with('country')->orderBy('created_at', 'desc');
+        $query = RepCountry::with(['country', 'statuses'])->orderBy('created_at', 'desc');
 
-        // Filter by country if specified
+
         if ($request->filled('country_id') && $request->country_id !== 'all') {
             $query->where('country_id', $request->country_id);
         }
 
         $repCountries = $query->paginate(10);
 
-        // Get all available countries for the filter dropdown
         $availableCountries = Country::whereHas('repCountry')
             ->orderBy('name')
             ->get(['id', 'name', 'flag']);
 
+        $statuses = Status::ordered()->get();
+
         return $this->factory->render('agents/rep-countries/index', [
             'repCountries' => RepCountryResource::collection($repCountries)->resolve(),
             'availableCountries' => $availableCountries,
+            'statuses' => $statuses,
             'pagination' => [
                 'current_page' => $repCountries->currentPage(),
                 'last_page' => $repCountries->lastPage(),
@@ -56,9 +59,10 @@ class RepCountryController extends Controller
             ->whereDoesntHave('repCountry')
             ->orderBy('name')
             ->get();
-
+        $statuses = Status::ordered()->get(['id', 'name']);
         return $this->factory->render('agents/rep-countries/create', [
             'countries' => CountryResource::collection($countries)->resolve(),
+            'statuses' => $statuses,
         ]);
     }
 

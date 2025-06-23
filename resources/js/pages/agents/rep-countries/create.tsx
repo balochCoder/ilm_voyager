@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Country } from '@/types';
+import { BreadcrumbItem, Country, Status } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,10 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
+import { MultiSelect } from '@/components/ui/multi-select';
+
 
 
 interface Props {
     countries: Country[];
+    statuses: Status[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -30,7 +33,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RepCountriesCreate({ countries }: Props) {
+export default function RepCountriesCreate({ countries, statuses }: Props) {
+    // Find the 'New' status id
+    const newStatus = statuses.find(s => s.name === 'New');
+    const newStatusId = newStatus ? newStatus.id : '';
     const { data, setData, post, processing, errors } = useForm({
         monthly_living_cost: '',
         visa_requirements: '',
@@ -38,6 +44,7 @@ export default function RepCountriesCreate({ countries }: Props) {
         country_benefits: '',
         is_active: false,
         country_id: '',
+        status_ids: newStatusId ? [newStatusId] : [],
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -148,6 +155,26 @@ export default function RepCountriesCreate({ countries }: Props) {
                         )}
                     </div>
 
+                    <div>
+                        <Label htmlFor="status_ids">Statuses</Label>
+                        <MultiSelect
+                            options={statuses.map(status => ({ label: status.name, value: status.id, disabled: status.id === newStatusId }))}
+                            onValueChange={selected => {
+                                // Always keep 'New' selected
+                                if (!selected.includes(newStatusId)) {
+                                    setData('status_ids', [newStatusId, ...selected]);
+                                } else {
+                                    setData('status_ids', Array.from(new Set([newStatusId, ...selected])));
+                                }
+                            }}
+                            defaultValue={data.status_ids}
+                            placeholder="Select statuses"
+                            className="w-1/2"
+                        />
+                        {errors.status_ids && (
+                            <p className="text-sm text-red-600 mt-1">{errors.status_ids}</p>
+                        )}
+                    </div>
 
                     <div className="flex justify-end space-x-4">
                         <Link href="/agents/rep-countries">
@@ -156,7 +183,7 @@ export default function RepCountriesCreate({ countries }: Props) {
                             </Button>
                         </Link>
                         <Button type="submit" disabled={processing}>
-                            {processing ? 'Creating...' : 'Add Rep Country'}
+                            {processing ? 'Creating...' : 'Add Representing Country'}
                         </Button>
                     </div>
                 </form>

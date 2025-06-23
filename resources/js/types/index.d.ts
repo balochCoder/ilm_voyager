@@ -56,6 +56,18 @@ export interface Country {
     flag: string;
 }
 
+export interface Status {
+    id: string;
+    name: string;
+    color: string;
+    order: number;
+    pivot?: {
+        notes: string | null;
+        completed_at: string | null;
+        is_current: boolean;
+    };
+}
+
 export interface RepCountry {
     id: string;
     monthly_living_cost: string | null;
@@ -64,6 +76,8 @@ export interface RepCountry {
     country_benefits: string | null;
     is_active: boolean;
     country: Country;
+    statuses?: Status[];
+    current_status?: Status;
     created: {
         human: string;
         string: string;
@@ -79,4 +93,8 @@ export interface PaginationData {
     to: number;
     has_more_pages: boolean;
     has_previous_page: boolean;
+}
+export interface Status {
+    id: string;
+    name: string;
 }

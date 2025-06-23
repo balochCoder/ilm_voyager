@@ -4,6 +4,7 @@ namespace App\Actions\RepCountry;
 
 use App\Models\RepCountry;
 use App\Http\Requests\RepCountry\StoreRepCountryRequest;
+use App\Models\Status;
 
 class StoreRepCountryAction
 {
@@ -13,7 +14,15 @@ class StoreRepCountryAction
     public function execute(StoreRepCountryRequest $request): RepCountry
     {
         $validated = $request->validated();
+        $statusIds = $request->input('status_ids', []);
+        $repCountry = RepCountry::create($validated);
 
-        return RepCountry::create($validated);
+        $newStatus = Status::where('name', 'New')->first();
+        $allStatusIds = $newStatus ? array_unique(array_merge([$newStatus->id], $statusIds)) : $statusIds;
+        if (!empty($allStatusIds)) {
+            $repCountry->statuses()->attach($allStatusIds);
+        }
+
+        return $repCountry;
     }
-} 
+}

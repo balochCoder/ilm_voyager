@@ -1,9 +1,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Country, PaginationData, RepCountry, SharedData } from '@/types';
+import { BreadcrumbItem, Country, PaginationData, RepCountry, SharedData, Status } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AccordionItem } from '@/components/ui/accordion';
 import { Switch } from '@/components/ui/switch';
@@ -40,6 +39,7 @@ import { cn } from '@/lib/utils';
 interface Props {
     repCountries: RepCountry[];
     availableCountries: Country[];
+    statuses: Status[];
     pagination: PaginationData;
 }
 
@@ -54,16 +54,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Mock application process data - you can replace this with real data from your backend
-const mockApplicationProcess = [
-    { id: 1, step: 'Document Preparation', status: 'Completed', actions: 'View Details' },
-    { id: 2, step: 'Application Submission', status: 'In Progress', actions: 'Continue' },
-    { id: 3, step: 'Visa Processing', status: 'Pending', actions: 'Track Status' },
-    { id: 4, step: 'Interview Scheduling', status: 'Not Started', actions: 'Schedule' },
-    { id: 5, step: 'Final Approval', status: 'Not Started', actions: 'Await' },
-];
-
-export default function RepCountriesIndex({ repCountries, availableCountries, pagination }: Props) {
+export default function RepCountriesIndex({ repCountries, availableCountries, statuses, pagination }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({});
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
@@ -370,7 +361,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
                                     {/* Accordion Content with Table */}
                                     {openAccordions[repCountry.id] && (
-                                        <div className="bg-white border-l-4 border-blue-500">
+                                        <div className="bg-white border-l-4 border-b-4 border-blue-500">
                                             {/* Application Process Table */}
                                             <div className="overflow-x-auto">
                                                 <Table className='border-l-0 border-b-0 border-r-0'>
@@ -378,33 +369,21 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                         <TableRow>
                                                             <TableHead>S.No</TableHead>
                                                             <TableHead>Steps</TableHead>
-                                                            <TableHead>Status</TableHead>
+                                                            <TableHead>Status Name</TableHead>
                                                             <TableHead>Actions</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {mockApplicationProcess.map((process, index) => (
-                                                            <TableRow key={process.id}>
-                                                                <TableCell>{index + 1}</TableCell>
-                                                                <TableCell className="font-medium">{process.step}</TableCell>
-                                                                <TableCell>
-                                                                    <Badge
-                                                                        variant={
-                                                                            process.status === 'Completed' ? 'default' :
-                                                                            process.status === 'In Progress' ? 'default' :
-                                                                            process.status === 'Pending' ? 'neutral' : 'neutral'
-                                                                        }
-                                                                    >
-                                                                        {process.status}
-                                                                    </Badge>
-                                                                </TableCell>
-                                                                <TableCell>
-                                                                    <Button variant="neutral" size="sm">
-                                                                        {process.actions}
-                                                                    </Button>
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        ))}
+                                                        {(repCountry.statuses ?? []).map((status: Status, index: number) => {
+                                                            return (
+                                                                <TableRow key={status.id}>
+                                                                    <TableCell>{index + 1}</TableCell>
+                                                                    <TableCell>{`Status ${status.order}`}</TableCell>
+                                                                    <TableCell className="font-medium">{status.name}</TableCell>
+                                                                    <TableCell>{/* Actions will be added later */}</TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
                                                     </TableBody>
                                                 </Table>
                                             </div>
