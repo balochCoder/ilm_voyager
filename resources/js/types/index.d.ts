@@ -65,6 +65,7 @@ export interface Status {
         notes: string | null;
         completed_at: string | null;
         is_current: boolean;
+        order: number;
     };
 }
 

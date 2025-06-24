@@ -21,7 +21,9 @@ class RepCountryController extends Controller
 
     public function index(Request $request)
     {
-        $query = RepCountry::with(['country', 'statuses'])->orderBy('created_at', 'desc');
+        $query = RepCountry::with(['country', 'statuses' => function ($query) {
+            $query->orderBy('rep_country_status.order', 'asc');
+        }])->orderBy('created_at', 'desc');
 
 
         if ($request->filled('country_id') && $request->country_id !== 'all') {
@@ -99,5 +101,44 @@ class RepCountryController extends Controller
             $repCountry->statuses()->updateExistingPivot($statusId, ['notes' => $note]);
         }
         return redirect()->back()->with('success', 'Notes updated successfully.');
+    }
+
+    public function reorderStatuses(RepCountry $repCountry)
+    {
+        $repCountry->load(['country', 'statuses' => function ($query) {
+            $query->orderBy('rep_country_status.order', 'asc');
+        }]);
+
+        return $this->factory->render('agents/rep-countries/reorder-statuses', [
+            'repCountry' => RepCountryResource::make($repCountry)->resolve(),
+        ]);
+    }
+
+    public function saveStatusOrder(Request $request, RepCountry $repCountry)
+    {
+        $request->validate([
+            'status_order' => 'required|array',
+            'status_order.*.status_id' => 'required|string|exists:statuses,id',
+            'status_order.*.order' => 'required|integer|min:1',
+        ]);
+
+        $statusOrder = $request->input('status_order', []);
+
+        // Get the ID of the 'New' status
+        $newStatusId = \App\Models\Status::where('name', 'New')->value('id');
+
+        foreach ($statusOrder as $item) {
+            // Skip updating order for 'New'
+            if ($item['status_id'] == $newStatusId) {
+                continue;
+            }
+            $repCountry->statuses()->updateExistingPivot($item['status_id'], [
+                'order' => $item['order']
+            ]);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Status order updated successfully.');
+
     }
 }

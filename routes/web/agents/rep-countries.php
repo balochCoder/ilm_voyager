@@ -21,3 +21,7 @@ Route::patch('representing-countries/{repCountry}/toggle-status', [Tenants\RepCo
 Route::get('representing-countries/{repCountry}/add-notes', [Tenants\RepCountryController::class, 'addNotes'])->name('rep-countries:add-notes');
 
 Route::post('representing-countries/{repCountry}/add-notes', [Tenants\RepCountryController::class, 'storeNotes'])->name('rep-countries:store-notes');
+
+Route::get('representing-countries/{repCountry}/reorder-statuses', [Tenants\RepCountryController::class, 'reorderStatuses'])->name('rep-countries:reorder-statuses');
+
+Route::post('representing-countries/{repCountry}/save-status-order', [Tenants\RepCountryController::class, 'saveStatusOrder'])->name('rep-countries:save-status-order');

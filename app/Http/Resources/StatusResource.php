@@ -27,6 +27,7 @@ class StatusResource extends JsonResource
                 'notes' => $this->pivot->notes,
                 'completed_at' => $this->pivot->completed_at,
                 'is_current' => $this->pivot->is_current,
+                'order' => $this->pivot->order,
             ];
         }
 

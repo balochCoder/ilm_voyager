@@ -20,7 +20,11 @@ class StoreRepCountryAction
         $newStatus = Status::where('name', 'New')->first();
         $allStatusIds = $newStatus ? array_unique(array_merge([$newStatus->id], $statusIds)) : $statusIds;
         if (!empty($allStatusIds)) {
-            $repCountry->statuses()->attach($allStatusIds);
+            $attachData = [];
+            foreach ($allStatusIds as $index => $statusId) {
+                $attachData[$statusId] = ['order' => $index + 1];
+            }
+            $repCountry->statuses()->attach($attachData);
         }
 
         return $repCountry;

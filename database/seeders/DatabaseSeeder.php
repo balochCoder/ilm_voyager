@@ -35,6 +35,7 @@ final class DatabaseSeeder extends Seeder
             'agency_name' => 'GEN',
             'email' => "info@gen.com",
             'password' => bcrypt('password'),
+            'is_approved' => true,
         ]);
         $tenant1->domains()->create(['domain' => 'gen' .'.'.config('app.domain')]);
 

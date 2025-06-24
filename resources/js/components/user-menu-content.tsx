@@ -2,11 +2,12 @@ import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSep
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { usePermission } from '@/hooks/use-permission';
+import { User } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
 
 interface UserMenuContentProps {
-    user: any;
+    user: User;
 }
 
 export function UserMenuContent({ user }: UserMenuContentProps) {

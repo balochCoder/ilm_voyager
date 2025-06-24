@@ -357,6 +357,10 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                             <Link href={route('agents:rep-countries:add-notes', repCountry.id)} className='text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer'>
                                                 Status Notes
                                             </Link>
+                                            <span className="mx-1 text-gray-400">|</span>
+                                            <Link href={route('agents:rep-countries:reorder-statuses', repCountry.id)} className='text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer'>
+                                                Reorder Steps
+                                            </Link>
                                         </div>
                                         <button
                                             onClick={() => toggleAccordion(repCountry.id)}
@@ -389,7 +393,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                                             return (
                                                                 <TableRow key={status.id}>
                                                                     <TableCell>{index + 1}</TableCell>
-                                                                    <TableCell>{`Status ${status.order}`}</TableCell>
+                                                                    <TableCell>{`Status ${status.pivot?.order}`}</TableCell>
                                                                     <TableCell className="font-medium">{status.name}</TableCell>
                                                                     <TableCell>{/* Actions will be added later */}</TableCell>
                                                                 </TableRow>

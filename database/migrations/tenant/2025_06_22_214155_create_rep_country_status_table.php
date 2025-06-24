@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('notes')->nullable(); // Additional notes for this status
             $table->date('completed_at')->nullable(); // When this status was completed
             $table->boolean('is_current')->default(false); // Mark current status
+            $table->integer('order')->default(0); // Order of status in the process
             $table->timestamps();
 
             // Ensure unique combination of rep_country and status

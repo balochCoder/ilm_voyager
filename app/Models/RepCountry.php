@@ -32,7 +32,7 @@ class RepCountry extends Model
     public function statuses(): BelongsToMany
     {
         return $this->belongsToMany(Status::class, 'rep_country_status')
-                    ->withPivot(['notes', 'completed_at', 'is_current'])
+                    ->withPivot(['notes', 'completed_at', 'is_current', 'order'])
                     ->withTimestamps();
     }
 
