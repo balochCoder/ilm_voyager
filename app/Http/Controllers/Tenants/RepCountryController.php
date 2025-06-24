@@ -141,4 +141,32 @@ class RepCountryController extends Controller
             ->with('success', 'Status order updated successfully.');
 
     }
+
+    public function addStatus(Request $request, RepCountry $repCountry)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        // Check if status already exists (case-insensitive)
+        $status = \App\Models\Status::whereRaw('LOWER(name) = ?', [strtolower($request->name)])->first();
+        if (!$status) {
+            $status = \App\Models\Status::create([
+                'name' => $request->name,
+                'color' => 'gray',
+                'order' => \App\Models\Status::max('order') + 1,
+            ]);
+        }
+
+        // Attach to repCountry if not already attached
+        $alreadyAttached = $repCountry->statuses()->where('statuses.id', $status->id)->exists();
+        if (!$alreadyAttached) {
+            $maxOrder = $repCountry->statuses()->max('rep_country_status.order') ?? 0;
+            $repCountry->statuses()->attach($status->id, ['order' => $maxOrder + 1]);
+        }
+
+        // Reload the status with pivot
+        $newStatus = $repCountry->statuses()->where('statuses.id', $status->id)->first();
+        return redirect()->back()->with('newStatus', (new \App\Http\Resources\StatusResource($newStatus))->resolve());
+    }
 }

@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Country, PaginationData, RepCountry, SharedData, Status } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,9 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+import { useAddStatusSheet } from '@/hooks/useAddStatusSheet';
 
 interface Props {
     repCountries: RepCountry[];
@@ -68,6 +71,9 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
         });
         return initialStates;
     });
+
+    // Use the custom hook for add status sheet
+    const addStatusSheet = useAddStatusSheet();
 
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
@@ -361,6 +367,13 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                             <Link href={route('agents:rep-countries:reorder-statuses', repCountry.id)} className='text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer'>
                                                 Reorder Steps
                                             </Link>
+                                            <span className="mx-1 text-gray-400">|</span>
+                                            <button
+                                                onClick={() => addStatusSheet.openSheet(repCountry.id, repCountry.country.name)}
+                                                className='text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer'
+                                            >
+                                                Add a status
+                                            </button>
                                         </div>
                                         <button
                                             onClick={() => toggleAccordion(repCountry.id)}
@@ -458,6 +471,41 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                         </div>
                     </div>
                 )}
+
+                {/* Single Add Status Sheet */}
+                <Sheet open={addStatusSheet.isOpen} onOpenChange={addStatusSheet.closeSheet}>
+                    <SheetContent side="right" >
+                        <SheetHeader>
+                            <SheetTitle>Add a Status for {addStatusSheet.currentRepCountryName}</SheetTitle>
+                        </SheetHeader>
+                            <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                                <div className="grid gap-3">
+                                    <Label htmlFor="status-name">Status Name</Label>
+                                    <Input
+                                        ref={addStatusSheet.inputRef}
+                                        value={addStatusSheet.newStatusName}
+                                        onChange={(e) => addStatusSheet.setNewStatusName(e.target.value)}
+                                        placeholder="Status name"
+                                        disabled={addStatusSheet.isAdding}
+                                        autoFocus
+                                        id='status-name'
+                                    />
+                                </div>
+                            </div>
+
+
+
+                            <SheetFooter>
+                                <Button type="submit"  disabled={addStatusSheet.isAdding || !addStatusSheet.newStatusName.trim()} onClick={addStatusSheet.handleAddStatus} className="w-full">
+                                    {addStatusSheet.isAdding ? 'Adding...' : 'Add Status'}
+                                </Button>
+                                <SheetClose asChild>
+                                    <Button variant="neutral">Close</Button>
+                                </SheetClose>
+                            </SheetFooter>
+
+                    </SheetContent>
+                </Sheet>
             </div>
         </AppLayout>
     );

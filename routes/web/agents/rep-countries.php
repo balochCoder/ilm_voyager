@@ -25,3 +25,5 @@ Route::post('representing-countries/{repCountry}/add-notes', [Tenants\RepCountry
 Route::get('representing-countries/{repCountry}/reorder-statuses', [Tenants\RepCountryController::class, 'reorderStatuses'])->name('rep-countries:reorder-statuses');
 
 Route::post('representing-countries/{repCountry}/save-status-order', [Tenants\RepCountryController::class, 'saveStatusOrder'])->name('rep-countries:save-status-order');
+
+Route::post('representing-countries/{repCountry}/add-status', [Tenants\RepCountryController::class, 'addStatus'])->name('rep-countries:add-status');
