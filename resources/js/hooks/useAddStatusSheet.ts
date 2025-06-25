@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface UseAddStatusSheetReturn {
@@ -36,38 +36,44 @@ export function useAddStatusSheet(): UseAddStatusSheetReturn {
 
     const closeSheet = () => {
         setIsOpen(false);
-        setCurrentRepCountryId(null);
-        setCurrentRepCountryName(null);
-        setNewStatusName('');
-        setIsAdding(false);
+        setTimeout(() => {
+            setCurrentRepCountryId(null);
+            setCurrentRepCountryName(null);
+            setNewStatusName('');
+            setIsAdding(false);
+        }, 2000);
     };
 
     const handleAddStatus = (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentRepCountryId || !newStatusName.trim()) return;
-        
+
         setIsAdding(true);
-        router.post(route('agents:rep-countries:add-status', currentRepCountryId), {
-            name: newStatusName.trim(),
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Reset input instead of closing sheet
-                setNewStatusName('');
-                toast.success('Status added successfully!');
-                // Focus input again for next entry
-                setTimeout(() => {
-                    inputRef.current?.focus();
-                }, 100);
+        router.post(
+            route('agents:rep-countries:add-status', currentRepCountryId),
+            {
+                name: newStatusName.trim(),
             },
-            onError: (errors) => {
-                toast.error('Failed to add status');
-                console.error('Error adding status:', errors);
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Reset input instead of closing sheet
+                    setNewStatusName('');
+                    toast.success('Status added successfully!');
+                    // Focus input again for next entry
+                    setTimeout(() => {
+                        inputRef.current?.focus();
+                    }, 100);
+                },
+                onError: (errors) => {
+                    toast.error('Failed to add status');
+                    console.error('Error adding status:', errors);
+                },
+                onFinish: () => {
+                    setIsAdding(false);
+                },
             },
-            onFinish: () => {
-                setIsAdding(false);
-            }
-        });
+        );
     };
 
     return {
@@ -82,4 +88,4 @@ export function useAddStatusSheet(): UseAddStatusSheetReturn {
         setNewStatusName,
         handleAddStatus,
     };
-} 
+}
