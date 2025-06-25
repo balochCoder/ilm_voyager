@@ -35,9 +35,9 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
-import { useAddStatusSheet } from '@/hooks/useAddStatusSheet';
+import { useAddStatusDialog } from '@/hooks/useAddStatusSheet';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
     repCountries: RepCountry[];
@@ -73,7 +73,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
     });
 
     // Use the custom hook for add status sheet
-    const addStatusSheet = useAddStatusSheet();
+    const addStatusDialog = useAddStatusDialog();
 
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
@@ -369,7 +369,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                             </Link>
                                             <span className="mx-1 text-gray-400">|</span>
                                             <button
-                                                onClick={() => addStatusSheet.openSheet(repCountry.id, repCountry.country.name)}
+                                                onClick={() => addStatusDialog.openDialog(repCountry.id, repCountry.country.name)}
                                                 className='text-sm hover:text-gray-900 text-blue-600 transition-colors cursor-pointer'
                                             >
                                                 Add a status
@@ -472,40 +472,36 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                     </div>
                 )}
 
-                {/* Single Add Status Sheet */}
-                <Sheet open={addStatusSheet.isOpen} onOpenChange={addStatusSheet.closeSheet}>
-                    <SheetContent side="right">
-                        <SheetHeader>
-                            <SheetTitle>Add a Status for {addStatusSheet.currentRepCountryName}</SheetTitle>
-                        </SheetHeader>
+                {/* Single Add Status Dialog */}
+                <Dialog open={addStatusDialog.isOpen} onOpenChange={addStatusDialog.closeDialog}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add a Status for {addStatusDialog.currentRepCountryName}</DialogTitle>
+                        </DialogHeader>
                         <div className="grid flex-1 auto-rows-min gap-6 px-4">
                             <div className="grid gap-3">
                                 <Label htmlFor="status-name">Status Name</Label>
                                 <Input
-                                    ref={addStatusSheet.inputRef}
-                                    value={addStatusSheet.newStatusName}
-                                    onChange={(e) => addStatusSheet.setNewStatusName(e.target.value)}
+                                    ref={addStatusDialog.inputRef}
+                                    value={addStatusDialog.newStatusName}
+                                    onChange={(e) => addStatusDialog.setNewStatusName(e.target.value)}
                                     placeholder="Status name"
-                                    disabled={addStatusSheet.isAdding}
+                                    disabled={addStatusDialog.isAdding}
                                     autoFocus
                                     id='status-name'
                                 />
                             </div>
                         </div>
-
-
-
-                        <SheetFooter>
-                            <Button type="submit" disabled={addStatusSheet.isAdding || !addStatusSheet.newStatusName.trim()} onClick={addStatusSheet.handleAddStatus} className="w-full">
-                                {addStatusSheet.isAdding ? 'Adding...' : 'Add Status'}
+                        <DialogFooter>
+                            <Button type="submit" disabled={addStatusDialog.isAdding || !addStatusDialog.newStatusName.trim()} onClick={addStatusDialog.handleAddStatus} >
+                                {addStatusDialog.isAdding ? 'Adding...' : 'Add Status'}
                             </Button>
-                            <SheetClose asChild>
+                            <DialogClose asChild>
                                 <Button variant="neutral">Close</Button>
-                            </SheetClose>
-                        </SheetFooter>
-
-                    </SheetContent>
-                </Sheet>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
