@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Country, PaginationData, RepCountry, SharedData, Status } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,6 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useAddStatusDialog } from '@/hooks/useAddStatusSheet';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Props {
     repCountries: RepCountry[];
@@ -58,7 +57,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RepCountriesIndex({ repCountries, availableCountries, statuses, pagination }: Props) {
+export default function RepCountriesIndex({ repCountries, availableCountries, pagination }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({});
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
@@ -193,7 +192,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
             <div className="flex h-full flex-1 flex-col p-4">
                 <div className="flex justify-between items-center">
                     <Heading title='Representing Countries' />
-                    <Link href={route('agents:rep-countries:create')} prefetch>
+                    <Link href={route('agents:rep-countries:create')}>
                         <Button className='cursor-pointer'>
                             <Plus className="w-4 h-4" />
                             Add Representing Country
@@ -403,7 +402,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {(repCountry.statuses ?? []).map((status: any, index: number) => {
+                                                        {(repCountry.statuses ?? []).map((status, index: number) => {
                                                             return (
                                                                 <TableRow key={status.status_name}>
                                                                     <TableCell>{index + 1}</TableCell>
@@ -475,11 +474,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
 
                 {/* Single Add Status Dialog */}
                 <Dialog open={addStatusDialog.isOpen} onOpenChange={addStatusDialog.closeDialog}>
-                    <DialogContent>
+                          <DialogContent className="sm:max-w-[550px]">
+
                         <DialogHeader>
                             <DialogTitle>Add a Status for {addStatusDialog.currentRepCountryName}</DialogTitle>
                         </DialogHeader>
-                        <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                        <div className="grid gap-4">
                             <div className="grid gap-3">
                                 <Label htmlFor="status-name">Status Name</Label>
                                 <Input

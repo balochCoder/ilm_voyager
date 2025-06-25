@@ -24,4 +24,4 @@ class CountryResource extends JsonResource
             'rep_country' => $this->whenLoaded('repCountry'),
         ];
     }
-} 
+}

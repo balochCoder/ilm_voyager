@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Country, Status } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { MultiSelect } from '@/components/ui/multi-select';
-
-
 
 interface Props {
     countries: Country[];
@@ -49,7 +47,11 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('agents:rep-countries:store'));
+        post(route('agents:rep-countries:store'), {
+            onSuccess: () => {
+                router.reload({ only: ['countries'] });
+            }
+        });
     };
 
     return (

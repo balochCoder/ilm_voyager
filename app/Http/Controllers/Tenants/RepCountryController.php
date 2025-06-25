@@ -62,7 +62,7 @@ class RepCountryController extends Controller
             ->get();
         $statuses = Status::ordered()->get(['id', 'name']);
         return $this->factory->render('agents/rep-countries/create', [
-            'countries' => CountryResource::collection($countries)->resolve(),
+            'countries' => CountryResource::collection($countries),
             'statuses' => $statuses,
         ]);
     }

@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, RepCountry, Status } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -105,6 +105,11 @@ function SortableItem({ status, index }: SortableItemProps) {
 
 export default function ReorderStatuses({ repCountry }: Props) {
     const [statuses, setStatuses] = useState<RepCountryStatus[]>(repCountry.statuses || []);
+    const prevOrderRef = useRef<string[]>(statuses.map(s => s.status_name));
+
+    useEffect(() => {
+        prevOrderRef.current = statuses.map(s => s.status_name);
+    }, [statuses]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -131,24 +136,34 @@ export default function ReorderStatuses({ repCountry }: Props) {
 
             const newItems = arrayMove(items, oldIndex, overIndex);
 
-            // Save the new order immediately
-            const statusOrder = newItems.map((status, index) => ({
-                status_name: status.status_name,
-                order: index + 1
-            }));
+            // Compare previous and new order
+            const prevOrder = prevOrderRef.current;
+            const newOrder = newItems.map(s => s.status_name);
+            const isSameOrder = prevOrder.length === newOrder.length && prevOrder.every((val, idx) => val === newOrder[idx]);
 
-            router.post(route('agents:rep-countries:save-status-order', repCountry.id), {
-                status_order: statusOrder
-            }, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success('Status order updated!');
-                },
-                onError: (errors) => {
-                    toast.error('Failed to update status order');
-                    console.error('Error updating status order:', errors);
-                }
-            });
+            if (!isSameOrder) {
+                // Save the new order immediately
+                const statusOrder = newItems.map((status, index) => ({
+                    status_name: status.status_name,
+                    order: index + 1
+                }));
+
+                router.post(route('agents:rep-countries:save-status-order', repCountry.id), {
+                    status_order: statusOrder
+                }, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        toast.success('Status order updated!');
+                    },
+                    onError: (errors) => {
+                        toast.error('Failed to update status order');
+                        console.error('Error updating status order:', errors);
+                    }
+                });
+
+                // Update the ref to the new order
+                prevOrderRef.current = newOrder;
+            }
 
             return newItems;
         });
