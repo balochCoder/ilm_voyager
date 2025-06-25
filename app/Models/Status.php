@@ -18,11 +18,4 @@ class Status extends Model
     {
         return $query->orderBy('order');
     }
-
-    public function repCountries(): BelongsToMany
-    {
-        return $this->belongsToMany(RepCountry::class, 'rep_country_status')
-                    ->withPivot(['notes', 'completed_at', 'is_current'])
-                    ->withTimestamps();
-    }
 }

@@ -24,8 +24,16 @@ class RepCountryResource extends JsonResource
             'created' => DateResource::make($this->created_at),
             'updated' => DateResource::make($this->updated_at),
             'country' => CountryResource::make($this->whenLoaded('country')),
-            'statuses' => StatusResource::collection($this->whenLoaded('statuses')),
-            'current_status' => StatusResource::make($this->currentStatus()),
+            'statuses' => $this->repCountryStatuses->map(function ($pivot) {
+                return [
+                    'status_name' => $pivot->status_name,
+                    'order' => $pivot->order,
+                    'notes' => $pivot->notes,
+                    'completed_at' => $pivot->completed_at,
+                    'is_current' => $pivot->is_current,
+                ];
+            }),
+            'current_status' => $this->repCountryStatuses->firstWhere('is_current', true),
         ];
     }
 }

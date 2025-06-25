@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RepCountry extends Model
 {
@@ -39,5 +40,15 @@ class RepCountry extends Model
     public function currentStatus()
     {
         return $this->statuses()->wherePivot('is_current', true)->first();
+    }
+
+    public function repCountryStatuses()
+    {
+        return $this->hasMany(\App\Models\RepCountryStatus::class);
+    }
+
+    public function getStatusesAttribute()
+    {
+        return $this->repCountryStatuses;
     }
 }

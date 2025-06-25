@@ -21,10 +21,9 @@ class RepCountryController extends Controller
 
     public function index(Request $request)
     {
-        $query = RepCountry::with(['country', 'statuses' => function ($query) {
-            $query->orderBy('rep_country_status.order', 'asc');
+        $query = RepCountry::with(['country', 'repCountryStatuses' => function ($query) {
+            $query->orderBy('order', 'asc');
         }])->orderBy('created_at', 'desc');
-
 
         if ($request->filled('country_id') && $request->country_id !== 'all') {
             $query->where('country_id', $request->country_id);
@@ -87,7 +86,9 @@ class RepCountryController extends Controller
 
     public function addNotes(RepCountry $repCountry)
     {
-        $repCountry->load('statuses');
+        $repCountry->load(['repCountryStatuses' => function ($query) {
+            $query->orderBy('order', 'asc');
+        }]);
         return $this->factory->render('agents/rep-countries/add-notes', [
             'repCountry' => $repCountry,
             'statuses' => $repCountry->statuses,
@@ -97,16 +98,16 @@ class RepCountryController extends Controller
     public function storeNotes(Request $request, RepCountry $repCountry)
     {
         $notes = $request->input('status_notes', []);
-        foreach ($notes as $statusId => $note) {
-            $repCountry->statuses()->updateExistingPivot($statusId, ['notes' => $note]);
+        foreach ($notes as $statusName => $note) {
+            $repCountry->repCountryStatuses()->where('status_name', $statusName)->update(['notes' => $note]);
         }
         return redirect()->back()->with('success', 'Notes updated successfully.');
     }
 
     public function reorderStatuses(RepCountry $repCountry)
     {
-        $repCountry->load(['country', 'statuses' => function ($query) {
-            $query->orderBy('rep_country_status.order', 'asc');
+        $repCountry->load(['country', 'repCountryStatuses' => function ($query) {
+            $query->orderBy('order', 'asc');
         }]);
 
         return $this->factory->render('agents/rep-countries/reorder-statuses', [
@@ -118,28 +119,20 @@ class RepCountryController extends Controller
     {
         $request->validate([
             'status_order' => 'required|array',
-            'status_order.*.status_id' => 'required|string|exists:statuses,id',
+            'status_order.*.status_name' => 'required|string',
             'status_order.*.order' => 'required|integer|min:1',
         ]);
 
         $statusOrder = $request->input('status_order', []);
 
-        // Get the ID of the 'New' status
-        $newStatusId = \App\Models\Status::where('name', 'New')->value('id');
-
         foreach ($statusOrder as $item) {
-            // Skip updating order for 'New'
-            if ($item['status_id'] == $newStatusId) {
-                continue;
-            }
-            $repCountry->statuses()->updateExistingPivot($item['status_id'], [
+            $repCountry->repCountryStatuses()->where('status_name', $item['status_name'])->update([
                 'order' => $item['order']
             ]);
         }
 
         return redirect()->back()
             ->with('success', 'Status order updated successfully.');
-
     }
 
     public function addStatus(Request $request, RepCountry $repCountry)
@@ -148,25 +141,15 @@ class RepCountryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        // Check if status already exists (case-insensitive)
-        $status = \App\Models\Status::whereRaw('LOWER(name) = ?', [strtolower($request->name)])->first();
-        if (!$status) {
-            $status = \App\Models\Status::create([
-                'name' => $request->name,
-                'color' => 'gray',
-                'order' => \App\Models\Status::max('order') + 1,
-            ]);
-        }
-
-        // Attach to repCountry if not already attached
-        $alreadyAttached = $repCountry->statuses()->where('statuses.id', $status->id)->exists();
-        if (!$alreadyAttached) {
-            $maxOrder = $repCountry->statuses()->max('rep_country_status.order') ?? 0;
-            $repCountry->statuses()->attach($status->id, ['order' => $maxOrder + 1]);
-        }
+        $statusName = $request->name;
+        $maxOrder = $repCountry->repCountryStatuses()->max('order') ?? 0;
+        $repCountry->repCountryStatuses()->create([
+            'status_name' => $statusName,
+            'order' => $maxOrder + 1,
+        ]);
 
         // Reload the status with pivot
-        $newStatus = $repCountry->statuses()->where('statuses.id', $status->id)->first();
-        return redirect()->back()->with('newStatus', (new \App\Http\Resources\StatusResource($newStatus))->resolve());
+        $newStatus = $repCountry->repCountryStatuses()->where('status_name', $statusName)->first();
+        return redirect()->back()->with('newStatus', $newStatus);
     }
 }

@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 
 interface Props {
     repCountry: RepCountry;
-    statuses: Status[];
+    statuses: any[]; // repCountryStatuses structure
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -33,10 +33,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function AddNotes({ repCountry, statuses }: Props) {
     const { flash } = usePage<SharedData>().props;
-    // Initialize status_notes as an object with status ids as keys
+    // Initialize status_notes as an object with status_name as keys
     const initialStatusNotes: Record<string, string> = {};
     statuses.forEach(status => {
-        initialStatusNotes[status.id] = status.pivot?.notes || '';
+        initialStatusNotes[status.status_name] = status.notes || '';
     });
 
     const { data, setData, post, processing, errors } = useForm<{
@@ -45,10 +45,10 @@ export default function AddNotes({ repCountry, statuses }: Props) {
         status_notes: initialStatusNotes,
     });
 
-    const handleChange = (statusId: string, value: string) => {
+    const handleChange = (statusName: string, value: string) => {
         setData('status_notes', {
             ...data.status_notes,
-            [statusId]: value,
+            [statusName]: value,
         });
     };
 
@@ -69,17 +69,17 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                 <Heading title='Status Notes' />
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
                     {statuses.map((status, idx) => (
-                        <div key={status.id}>
-                            <Label htmlFor={`status-${status.id}`}>{`${idx + 1}. ${status.name}`}</Label>
+                        <div key={status.status_name}>
+                            <Label htmlFor={`status-${status.status_name}`}>{`${idx + 1}. ${status.status_name}`}</Label>
                             <Textarea
-                                id={`status-${status.id}`}
+                                id={`status-${status.status_name}`}
                                 className="w-full mt-1"
-                                value={data.status_notes[status.id] || ''}
-                                onChange={e => handleChange(status.id, e.target.value)}
+                                value={data.status_notes[status.status_name] || ''}
+                                onChange={e => handleChange(status.status_name, e.target.value)}
                                 rows={2}
                             />
-                            {errors?.status_notes && typeof errors.status_notes === 'object' && errors.status_notes[status.id] && (
-                                <p className="text-sm text-red-600 mt-1">{errors.status_notes[status.id]}</p>
+                            {errors?.status_notes && typeof errors.status_notes === 'object' && errors.status_notes[status.status_name] && (
+                                <p className="text-sm text-red-600 mt-1">{errors.status_notes[status.status_name]}</p>
                             )}
                         </div>
                     ))}

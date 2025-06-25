@@ -28,8 +28,20 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+interface RepCountryStatus {
+    status_name: string;
+    order: number;
+    notes?: string | null;
+    completed_at?: string | null;
+    is_current?: boolean;
+}
+
 interface Props {
-    repCountry: RepCountry;
+    repCountry: {
+        statuses: RepCountryStatus[];
+        country: { name: string };
+        id: string;
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -48,12 +60,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface SortableItemProps {
-    status: Status;
+    status: RepCountryStatus;
     index: number;
 }
 
 function SortableItem({ status, index }: SortableItemProps) {
-    const isNew = status.name === "New";
+    const isNew = status.status_name === "New";
     const {
         attributes,
         listeners,
@@ -61,7 +73,7 @@ function SortableItem({ status, index }: SortableItemProps) {
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: status.id, disabled: isNew });
+    } = useSortable({ id: status.status_name, disabled: isNew });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -81,7 +93,7 @@ function SortableItem({ status, index }: SortableItemProps) {
         >
             <GripVertical className={`w-5 h-5 ${isNew ? "text-gray-300" : "text-gray-400"}`} />
             <div className="flex-1">
-                <div className="font-medium text-gray-900">{status.name}</div>
+                <div className="font-medium text-gray-900">{status.status_name}</div>
                 <div className="text-sm text-gray-500">Step {index + 1}</div>
             </div>
             {isNew && (
@@ -92,8 +104,7 @@ function SortableItem({ status, index }: SortableItemProps) {
 }
 
 export default function ReorderStatuses({ repCountry }: Props) {
-    const [statuses, setStatuses] = useState<Status[]>(repCountry.statuses || []);
-
+    const [statuses, setStatuses] = useState<RepCountryStatus[]>(repCountry.statuses || []);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -106,15 +117,15 @@ export default function ReorderStatuses({ repCountry }: Props) {
         const { active, over } = event;
 
         // Find the "New" status index
-        const newIndex = statuses.findIndex(s => s.name === "New");
-        if (!over || !active.id || active.id === statuses[newIndex]?.id) return;
+        const newIndex = statuses.findIndex(s => s.status_name === "New");
+        if (!over || !active.id || active.id === statuses[newIndex]?.status_name) return;
 
         // Prevent moving "New" or moving any status to the "New" position
-        const overIndex = statuses.findIndex(s => s.id === over.id);
+        const overIndex = statuses.findIndex(s => s.status_name === over.id);
         if (overIndex === newIndex) return;
 
         setStatuses((items) => {
-            const oldIndex = items.findIndex((item) => item.id === active.id);
+            const oldIndex = items.findIndex((item) => item.status_name === active.id);
             // Prevent moving to or from the "New" position
             if (oldIndex === newIndex || overIndex === newIndex) return items;
 
@@ -122,7 +133,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
 
             // Save the new order immediately
             const statusOrder = newItems.map((status, index) => ({
-                status_id: status.id,
+                status_name: status.status_name,
                 order: index + 1
             }));
 
@@ -177,13 +188,13 @@ export default function ReorderStatuses({ repCountry }: Props) {
                             onDragEnd={handleDragEnd}
                         >
                             <SortableContext
-                                items={statuses.map(status => status.id)}
+                                items={statuses.map(status => status.status_name)}
                                 strategy={verticalListSortingStrategy}
                             >
                                 <div className="space-y-3">
                                     {statuses.map((status, index) => (
                                         <SortableItem
-                                            key={status.id}
+                                            key={status.status_name}
                                             status={status}
                                             index={index}
                                         />

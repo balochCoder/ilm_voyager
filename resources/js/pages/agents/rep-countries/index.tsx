@@ -38,6 +38,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useAddStatusDialog } from '@/hooks/useAddStatusSheet';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Props {
     repCountries: RepCountry[];
@@ -402,12 +403,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {(repCountry.statuses ?? []).map((status: Status, index: number) => {
+                                                        {(repCountry.statuses ?? []).map((status: any, index: number) => {
                                                             return (
-                                                                <TableRow key={status.id}>
+                                                                <TableRow key={status.status_name}>
                                                                     <TableCell>{index + 1}</TableCell>
-                                                                    <TableCell>{`Status ${status.pivot?.order}`}</TableCell>
-                                                                    <TableCell className="font-medium">{status.name}</TableCell>
+                                                                    <TableCell>{`Status ${status.order}`}</TableCell>
+                                                                    <TableCell className="font-medium">{status.status_name}</TableCell>
                                                                     <TableCell>{/* Actions will be added later */}</TableCell>
                                                                 </TableRow>
                                                             );
@@ -482,13 +483,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                             <div className="grid gap-3">
                                 <Label htmlFor="status-name">Status Name</Label>
                                 <Input
-                                    ref={addStatusDialog.inputRef}
+                                    id="status-name"
                                     value={addStatusDialog.newStatusName}
-                                    onChange={(e) => addStatusDialog.setNewStatusName(e.target.value)}
+                                    onChange={e => addStatusDialog.setNewStatusName(e.target.value)}
                                     placeholder="Status name"
                                     disabled={addStatusDialog.isAdding}
                                     autoFocus
-                                    id='status-name'
                                 />
                             </div>
                         </div>
