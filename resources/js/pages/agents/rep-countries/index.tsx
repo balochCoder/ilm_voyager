@@ -474,35 +474,35 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
 
                 {/* Single Add Status Sheet */}
                 <Sheet open={addStatusSheet.isOpen} onOpenChange={addStatusSheet.closeSheet}>
-                    <SheetContent side="right" >
+                    <SheetContent side="right">
                         <SheetHeader>
                             <SheetTitle>Add a Status for {addStatusSheet.currentRepCountryName}</SheetTitle>
                         </SheetHeader>
-                            <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                                <div className="grid gap-3">
-                                    <Label htmlFor="status-name">Status Name</Label>
-                                    <Input
-                                        ref={addStatusSheet.inputRef}
-                                        value={addStatusSheet.newStatusName}
-                                        onChange={(e) => addStatusSheet.setNewStatusName(e.target.value)}
-                                        placeholder="Status name"
-                                        disabled={addStatusSheet.isAdding}
-                                        autoFocus
-                                        id='status-name'
-                                    />
-                                </div>
+                        <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                            <div className="grid gap-3">
+                                <Label htmlFor="status-name">Status Name</Label>
+                                <Input
+                                    ref={addStatusSheet.inputRef}
+                                    value={addStatusSheet.newStatusName}
+                                    onChange={(e) => addStatusSheet.setNewStatusName(e.target.value)}
+                                    placeholder="Status name"
+                                    disabled={addStatusSheet.isAdding}
+                                    autoFocus
+                                    id='status-name'
+                                />
                             </div>
+                        </div>
 
 
 
-                            <SheetFooter>
-                                <Button type="submit"  disabled={addStatusSheet.isAdding || !addStatusSheet.newStatusName.trim()} onClick={addStatusSheet.handleAddStatus} className="w-full">
-                                    {addStatusSheet.isAdding ? 'Adding...' : 'Add Status'}
-                                </Button>
-                                <SheetClose asChild>
-                                    <Button variant="neutral">Close</Button>
-                                </SheetClose>
-                            </SheetFooter>
+                        <SheetFooter>
+                            <Button type="submit" disabled={addStatusSheet.isAdding || !addStatusSheet.newStatusName.trim()} onClick={addStatusSheet.handleAddStatus} className="w-full">
+                                {addStatusSheet.isAdding ? 'Adding...' : 'Add Status'}
+                            </Button>
+                            <SheetClose asChild>
+                                <Button variant="neutral">Close</Button>
+                            </SheetClose>
+                        </SheetFooter>
 
                     </SheetContent>
                 </Sheet>
