@@ -104,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/agents/dashboard" prefetch>
+                            <Link href="/agents/dashboard">
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -140,7 +140,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                 {item.items.map((subItem) => (
                                                     <SidebarMenuSubItem key={subItem.title}>
                                                         <SidebarMenuSubButton asChild>
-                                                            <Link href={subItem.href} prefetch>
+                                                            <Link href={subItem.href}>
                                                                 <span>{subItem.title}</span>
                                                             </Link>
                                                         </SidebarMenuSubButton>
@@ -157,7 +157,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                         isActive={currentPath.startsWith(item.href)}
                                         tooltip={item.title}
                                     >
-                                        <Link href={item.href} prefetch>
+                                        <Link href={item.href}>
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
                                         </Link>

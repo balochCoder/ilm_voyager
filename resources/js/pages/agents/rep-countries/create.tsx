@@ -61,7 +61,7 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
             <div className="flex h-full flex-1 flex-col p-4">
                 <div className="flex justify-between items-center">
                     <Heading title='Add Representing Country' description='Add a new representing country in your system' />
-                    <Link href={route('agents:rep-countries:index')} prefetch>
+                    <Link href={route('agents:rep-countries:index')}>
                         <Button className='cursor-pointer' variant="neutral">
                             <ArrowLeft className="w-4 h-4" />
                             Back

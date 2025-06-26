@@ -87,7 +87,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
             <div className="flex h-full flex-1 flex-col p-4">
                 <div className="flex justify-between items-center">
                     <Heading title={`Reorder Steps - ${repCountry.country.name}`} />
-                    <Link href={route('agents:rep-countries:index')} prefetch>
+                    <Link href={route('agents:rep-countries:index')}>
                         <Button className='cursor-pointer' variant="neutral">
                             <ArrowLeft className="w-4 h-4" />
                             Back

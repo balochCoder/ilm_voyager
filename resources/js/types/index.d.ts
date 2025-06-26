@@ -58,7 +58,7 @@ export interface Country {
 
 export interface Status {
     id: string;
-    name: string;
+    name: string; 
     color: string;
     order: number;
 }

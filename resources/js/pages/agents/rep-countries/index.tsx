@@ -1,7 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Country, PaginationData, RepCountry, SharedData, Status } from '@/types';
+import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryStatus, SharedData, Status } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AccordionItem } from '@/components/ui/accordion';
@@ -17,7 +17,7 @@ import {
     PaginationPrevious
 } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Minus, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Plus, Minus, Check, ChevronsUpDown, Loader2, Loader } from 'lucide-react';
 import Heading from '@/components/heading';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
@@ -68,20 +68,13 @@ const getPageNumbers = (current: number, last: number) => {
     return pages;
 };
 
-export default function RepCountriesIndex({ repCountries, availableCountries, statuses, pagination }: Props) {
+export default function RepCountriesIndex({ repCountries, availableCountries, pagination }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({});
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
     const [open, setOpen] = useState(false);
-    const [activeStates, setActiveStates] = useState<{ [key: string]: boolean }>(() => {
-        // Initialize with the current active states from props
-        const initialStates: { [key: string]: boolean } = {};
-        repCountries.forEach(country => {
-            initialStates[country.id] = country.is_active;
-        });
-        return initialStates;
-    });
+    const [switchLoading, setSwitchLoading] = useState<{ [key: string]: boolean }>({});
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
@@ -132,28 +125,13 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
         }));
     };
 
-    const toggleActiveStatus = (countryId: string) => {
-        const newActiveState = !activeStates[countryId];
-
-        // Optimistically update the UI
-        setActiveStates(prev => ({
-            ...prev,
-            [countryId]: newActiveState
-        }));
-
-        // Use Inertia router to send the request
+    const toggleActiveStatus = (countryId: string, newValue: boolean) => {
+        setSwitchLoading(prev => ({ ...prev, [countryId]: true }));
         router.patch(route('agents:rep-countries:toggle-status', countryId), {
-            is_active: newActiveState
+            is_active: newValue
         }, {
-            onError: (errors) => {
-                // Revert the optimistic update if the request fails
-                setActiveStates(prev => ({
-                    ...prev,
-                    [countryId]: !newActiveState
-                }));
-                console.error('Error updating country status:', errors);
-            }
-
+            onFinish: () => setSwitchLoading(prev => ({ ...prev, [countryId]: false })),
+            onSuccess: () => router.reload({ only: ['repCountries'] }),
         });
     };
 
@@ -171,7 +149,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
             <div className="flex h-full flex-1 flex-col p-4">
                 <div className="flex justify-between items-center">
                     <Heading title='Representing Countries' />
-                    <Link href={route('agents:rep-countries:create')} prefetch>
+                    <Link href={route('agents:rep-countries:create')}>
                         <Button className='cursor-pointer'>
                             <Plus className="w-4 h-4" />
                             Add Representing Country
@@ -309,14 +287,20 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                             </span>
                                         </div>
                                         <div className="flex items-center space-x-3">
-                                            <span className="text-sm text-black">
-                                                {activeStates[repCountry.id] ? 'Active' : 'Inactive'}
-                                            </span>
-                                            <Switch
-                                                checked={activeStates[repCountry.id]}
-                                                onCheckedChange={() => toggleActiveStatus(repCountry.id)}
-                                                className="data-[state=checked]:bg-blue-500"
-                                            />
+                                            {!switchLoading[repCountry.id] && (
+                                                <span className="text-sm text-black">
+                                                    {repCountry.is_active ? 'Active' : 'Inactive'}
+                                                </span>
+                                            )}
+                                            {switchLoading[repCountry.id] ? (
+                                                <Loader className="w-5 h-5 mr-5 animate-spin text-blue-500" />
+                                            ) : (
+                                                <Switch
+                                                    checked={repCountry.is_active}
+                                                    onCheckedChange={val => toggleActiveStatus(repCountry.id, val)}
+                                                    className="data-[state=checked]:bg-blue-500"
+                                                />
+                                            )}
                                         </div>
                                     </AlertDescription>
                                 </Alert>
@@ -381,7 +365,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, st
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {(repCountry.statuses ?? []).map((status: any, index: number) => {
+                                                        {(repCountry.statuses ?? []).map((status: RepCountryStatus, index: number) => {
                                                             return (
                                                                 <TableRow key={status.status_name}>
                                                                     <TableCell>{index + 1}</TableCell>

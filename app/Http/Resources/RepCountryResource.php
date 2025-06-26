@@ -17,7 +17,7 @@ class RepCountryResource extends JsonResource
         $statusResource = function ($status) {
             return [
                 'status_name' => $status->status_name,
-                'order' => $status->order,
+                'order' => $status->order,                      
                 'notes' => $status->notes,
                 'completed_at' => $status->completed_at,
                 'is_current' => $status->is_current,
