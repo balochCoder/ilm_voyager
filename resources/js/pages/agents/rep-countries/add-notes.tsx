@@ -4,51 +4,39 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
 import { Textarea } from '@/components/ui/textarea';
-import { BreadcrumbItem, RepCountry, SharedData, Status } from '@/types';
+import { BreadcrumbItem, RepCountry, SharedData } from '@/types';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-
-
-
 interface Props {
     repCountry: RepCountry;
-    statuses: any[]; // repCountryStatuses structure
+    statuses: any[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/agents/dashboard',
-    },
-    {
-        title: 'Representing Countries',
-        href: '/agents/representing-countries',
-    },
-    {
-        title: 'Status Notes',
-        href: '/agents/representing-countries/add-notes',
-    },
+    { title: 'Dashboard', href: '/agents/dashboard' },
+    { title: 'Representing Countries', href: '/agents/representing-countries' },
+    { title: 'Status Notes', href: '/agents/representing-countries/add-notes' },
 ];
+
+const getInitialStatusNotes = (statuses: any[]) => {
+    const notes: Record<string, string> = {};
+    statuses.forEach(status => {
+        notes[status.status_name] = status.notes || '';
+    });
+    return notes;
+};
 
 export default function AddNotes({ repCountry, statuses }: Props) {
     const { flash } = usePage<SharedData>().props;
-    // Initialize status_notes as an object with status_name as keys
-    const initialStatusNotes: Record<string, string> = {};
-    statuses.forEach(status => {
-        initialStatusNotes[status.status_name] = status.notes || '';
-    });
-
     const { data, setData, post, processing, errors } = useForm<{
         status_notes: Record<string, string>;
-    }>({
-        status_notes: initialStatusNotes,
-    });
+    }>({ status_notes: getInitialStatusNotes(statuses) });
 
-    const handleChange = (statusName: string, value: string) => {
+    const handleChange = (statusName: string) => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setData('status_notes', {
             ...data.status_notes,
-            [statusName]: value,
+            [statusName]: e.target.value,
         });
     };
 
@@ -56,10 +44,9 @@ export default function AddNotes({ repCountry, statuses }: Props) {
         e.preventDefault();
         post(route('agents:rep-countries:store-notes', repCountry.id));
     };
+
     useEffect(() => {
-        if (flash?.success) {
-            toast.success(flash.success);
-        }
+        if (flash?.success) toast.success(flash.success);
     }, [flash]);
 
     return (
@@ -75,7 +62,7 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                                 id={`status-${status.status_name}`}
                                 className="w-full mt-1"
                                 value={data.status_notes[status.status_name] || ''}
-                                onChange={e => handleChange(status.status_name, e.target.value)}
+                                onChange={handleChange(status.status_name)}
                                 rows={2}
                             />
                             {errors?.status_notes && typeof errors.status_notes === 'object' && errors.status_notes[status.status_name] && (

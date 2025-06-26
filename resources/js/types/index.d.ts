@@ -69,6 +69,14 @@ export interface RepCountryStatus {
     notes?: string | null;
     completed_at?: string | null;
     is_current?: boolean;
+    created_at?: {
+        human: string;
+        string: string;
+    } | null;
+    updated_at?: {
+        human: string;
+        string: string;
+    } | null;
 }
 
 export interface RepCountry {
@@ -80,8 +88,12 @@ export interface RepCountry {
     is_active: boolean;
     country: Country;
     statuses?: RepCountryStatus[];
-    current_status?: RepCountryStatus;
+    current_status?: RepCountryStatus | null;
     created: {
+        human: string;
+        string: string;
+    };
+    updated: {
         human: string;
         string: string;
     };

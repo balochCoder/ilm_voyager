@@ -3,10 +3,6 @@
 use App\Http\Controllers\Tenants;
 use Illuminate\Support\Facades\Route;
 
-// Route::resource('representing-countries', Tenants\RepCountryController::class)
-//     ->names('rep-countries');
-
-
 Route::get('representing-countries', [Tenants\RepCountryController::class, 'index'])
     ->name('rep-countries:index');
 

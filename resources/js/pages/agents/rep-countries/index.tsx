@@ -57,7 +57,18 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RepCountriesIndex({ repCountries, availableCountries, pagination }: Props) {
+const getPageNumbers = (current: number, last: number) => {
+    const pages: (number | string)[] = [1];
+    if (current > 3) pages.push('...');
+    for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
+        if (i !== 1 && i !== last) pages.push(i);
+    }
+    if (current < last - 2) pages.push('...');
+    if (last > 1) pages.push(last);
+    return pages;
+};
+
+export default function RepCountriesIndex({ repCountries, availableCountries, statuses, pagination }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({});
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
@@ -74,6 +85,23 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
+
+    useEffect(() => {
+        // use toast if flash.success
+        if (flash?.success) {
+            // Show a toast notification or alert with the success message
+            toast.success(flash?.success); // Replace with your toast implementation
+        }
+    }, [flash]);
+
+    // Initialize selected country from URL params
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const countryId = urlParams.get('country_id');
+        if (countryId) {
+            setSelectedCountry(countryId);
+        }
+    }, []);
 
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
@@ -129,61 +157,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         });
     };
 
-    // Helper function to generate page numbers for pagination
-    const getPageNumbers = () => {
-        const pages = [];
-        const current = pagination.current_page;
-        const last = pagination.last_page;
-
-        // Always show first page
-        pages.push(1);
-
-        if (current > 3) {
-            pages.push('...');
-        }
-
-        // Show pages around current page
-        for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
-            if (i !== 1 && i !== last) {
-                pages.push(i);
-            }
-        }
-
-        if (current < last - 2) {
-            pages.push('...');
-        }
-
-        // Always show last page if there's more than one page
-        if (last > 1) {
-            pages.push(last);
-        }
-
-        return pages;
-    };
-
     // Get the selected country name for display
     const getSelectedCountryName = () => {
         if (selectedCountry === 'all') return 'All Countries';
         const country = availableCountries.find(c => c.id === selectedCountry);
         return country ? country.name : 'All Countries';
     };
-
-    useEffect(() => {
-        // use toast if flash.success
-        if (flash?.success) {
-            // Show a toast notification or alert with the success message
-            toast.success(flash?.success); // Replace with your toast implementation
-        }
-    }, [flash]);
-
-    // Initialize selected country from URL params
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const countryId = urlParams.get('country_id');
-        if (countryId) {
-            setSelectedCountry(countryId);
-        }
-    }, []);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -192,7 +171,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             <div className="flex h-full flex-1 flex-col p-4">
                 <div className="flex justify-between items-center">
                     <Heading title='Representing Countries' />
-                    <Link href={route('agents:rep-countries:create')}>
+                    <Link href={route('agents:rep-countries:create')} prefetch>
                         <Button className='cursor-pointer'>
                             <Plus className="w-4 h-4" />
                             Add Representing Country
@@ -402,7 +381,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {(repCountry.statuses ?? []).map((status, index: number) => {
+                                                        {(repCountry.statuses ?? []).map((status: any, index: number) => {
                                                             return (
                                                                 <TableRow key={status.status_name}>
                                                                     <TableCell>{index + 1}</TableCell>
@@ -445,11 +424,9 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                         />
                                     </PaginationItem>
 
-                                    {getPageNumbers().map((page, index) => (
+                                    {getPageNumbers(pagination.current_page, pagination.last_page).map((page, index) => (
                                         <PaginationItem key={index}>
-                                            {page === '...' ? (
-                                                <PaginationEllipsis />
-                                            ) : (
+                                            {typeof page === 'string' ? <PaginationEllipsis /> : (
                                                 <PaginationLink
                                                     href={`${route('agents:rep-countries:index')}?page=${page}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`}
                                                     isActive={page === pagination.current_page}
@@ -474,12 +451,11 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
                 {/* Single Add Status Dialog */}
                 <Dialog open={addStatusDialog.isOpen} onOpenChange={addStatusDialog.closeDialog}>
-                          <DialogContent className="sm:max-w-[550px]">
-
+                    <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Add a Status for {addStatusDialog.currentRepCountryName}</DialogTitle>
                         </DialogHeader>
-                        <div className="grid gap-4">
+                        <div className="grid flex-1 auto-rows-min gap-6 px-4">
                             <div className="grid gap-3">
                                 <Label htmlFor="status-name">Status Name</Label>
                                 <Input
