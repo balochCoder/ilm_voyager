@@ -17,6 +17,10 @@ use Illuminate\Http\Request;
 use App\Actions\RepCountry\StoreRepCountryNotesAction;
 use App\Actions\RepCountry\SaveRepCountryStatusOrderAction;
 use App\Actions\RepCountry\AddRepCountryStatusAction;
+use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
+use App\Http\Requests\RepCountry\SaveRepCountryStatusOrderRequest;
+use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
+use Illuminate\Support\Facades\Cache;
 
 class RepCountryController extends Controller
 {
@@ -24,6 +28,7 @@ class RepCountryController extends Controller
 
     public function index(Request $request)
     {
+        // Always eager load relationships to prevent N+1 queries
         $query = RepCountry::with(['country', 'repCountryStatuses' => function ($query) {
             $query->orderBy('order', 'asc');
         }])->orderBy('created_at', 'desc');
@@ -34,11 +39,17 @@ class RepCountryController extends Controller
 
         $repCountries = $query->paginate(10);
 
-        $availableCountries = Country::whereHas('repCountry')
-            ->orderBy('name')
-            ->get(['id', 'name', 'flag']);
+        // Cache available countries for 1 hour
+        $availableCountries = Cache::remember('available_countries', 3600, function () {
+            return Country::whereHas('repCountry')
+                ->orderBy('name')
+                ->get(['id', 'name', 'flag']);
+        });
 
-        $statuses = Status::ordered()->get();
+        // Cache statuses for 1 hour
+        $statuses = Cache::remember('statuses', 3600, function () {
+            return Status::ordered()->get();
+        });
 
         return $this->factory->render('agents/rep-countries/index', [
             'repCountries' => RepCountryResource::collection($repCountries)->resolve(),
@@ -59,11 +70,16 @@ class RepCountryController extends Controller
 
     public function create()
     {
-        $countries = Country::where('is_active', true)
-            ->whereDoesntHave('repCountry')
-            ->orderBy('name')
-            ->get();
-        $statuses = Status::ordered()->get(['id', 'name']);
+        // Cache countries and statuses for 1 hour
+        $countries = Cache::remember('rep_country_create_countries', 3600, function () {
+            return Country::where('is_active', true)
+                ->whereDoesntHave('repCountry')
+                ->orderBy('name')
+                ->get();
+        });
+        $statuses = Cache::remember('rep_country_create_statuses', 3600, function () {
+            return Status::ordered()->get(['id', 'name']);
+        });
         return $this->factory->render('agents/rep-countries/create', [
             'countries' => CountryResource::collection($countries),
             'statuses' => $statuses,
@@ -98,7 +114,7 @@ class RepCountryController extends Controller
         ]);
     }
 
-    public function storeNotes(Request $request, RepCountry $repCountry, StoreRepCountryNotesAction $action)
+    public function storeNotes(StoreRepCountryNotesRequest $request, RepCountry $repCountry, StoreRepCountryNotesAction $action)
     {
         $action->execute($request, $repCountry);
         return redirect()->back()->with('success', 'Notes updated successfully.');
@@ -115,13 +131,13 @@ class RepCountryController extends Controller
         ]);
     }
 
-    public function saveStatusOrder(Request $request, RepCountry $repCountry, SaveRepCountryStatusOrderAction $action)
+    public function saveStatusOrder(SaveRepCountryStatusOrderRequest $request, RepCountry $repCountry, SaveRepCountryStatusOrderAction $action)
     {
         $action->execute($request, $repCountry);
         return redirect()->back()->with('success', 'Status order updated successfully.');
     }
 
-    public function addStatus(Request $request, RepCountry $repCountry, AddRepCountryStatusAction $action)
+    public function addStatus(AddRepCountryStatusRequest $request, RepCountry $repCountry, AddRepCountryStatusAction $action)
     {
         $action->execute($request, $repCountry);
         $newStatus = $repCountry->repCountryStatuses()->where('status_name', $request->name)->first();
