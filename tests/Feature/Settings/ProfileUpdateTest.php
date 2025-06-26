@@ -50,7 +50,7 @@ test('email verification status is unchanged when the email address is unchanged
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect('/settings/profile');
+        ->assertRedirect(route('profile:edit'));
 
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
@@ -84,7 +84,7 @@ test('correct password must be provided to delete account', function (): void {
 
     $response
         ->assertSessionHasErrors('password')
-        ->assertRedirect('/settings/profile');
+        ->assertRedirect(route('profile:edit'));
 
     expect($user->fresh())->not->toBeNull();
 });

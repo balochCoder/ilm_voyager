@@ -10,6 +10,7 @@ import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { usePermission } from '@/hooks/use-permission';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,6 +20,17 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Password() {
+     const { hasRole } = usePermission();
+
+        const getBaseRoute = () => {
+            if (hasRole('super-admin')) {
+                return route('agents:password:update');
+            }
+            if (hasRole('counsellor')) {
+                return route('counsellors:password:update');
+            }
+            return route('agents:agents:update'); // Default fallback
+        };
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -31,7 +43,7 @@ export default function Password() {
     const updatePassword: FormEventHandler = (e) => {
         e.preventDefault();
 
-        put(route('agents:password:update'), {
+        put(getBaseRoute(), {
             preserveScroll: true,
             onSuccess: () => reset(),
             onError: (errors) => {

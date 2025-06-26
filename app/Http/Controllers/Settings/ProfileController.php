@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Enums\TenantRolesEnum;
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
@@ -43,8 +44,11 @@ final class ProfileController extends Controller
         }
 
         $request->user()->save();
-
-        return to_route('agents:profile:edit');
+        // route as per role
+        if ($request->user()->hasRole(TenantRolesEnum::SUPERADMIN->value)) {
+            return to_route('agents:profile:edit');
+        }
+        return to_route('counsellors:profile:edit');
     }
 
     /**

@@ -20,7 +20,6 @@ use App\Actions\RepCountry\AddRepCountryStatusAction;
 use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
 use App\Http\Requests\RepCountry\SaveRepCountryStatusOrderRequest;
 use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
-use Illuminate\Support\Facades\Cache;
 
 class RepCountryController extends Controller
 {
@@ -39,17 +38,13 @@ class RepCountryController extends Controller
 
         $repCountries = $query->paginate(10);
 
-        // Cache available countries for 1 hour
-        $availableCountries = Cache::remember('available_countries', 3600, function () {
-            return Country::whereHas('repCountry')
-                ->orderBy('name')
-                ->get(['id', 'name', 'flag']);
-        });
 
-        // Cache statuses for 1 hour
-        $statuses = Cache::remember('statuses', 3600, function () {
-            return Status::ordered()->get();
-        });
+        $availableCountries = Country::whereHas('repCountry')
+            ->orderBy('name')
+            ->get(['id', 'name', 'flag']);
+
+
+        $statuses = Status::ordered()->get();
 
         return $this->factory->render('agents/rep-countries/index', [
             'repCountries' => RepCountryResource::collection($repCountries)->resolve(),
@@ -70,16 +65,12 @@ class RepCountryController extends Controller
 
     public function create()
     {
-        // Cache countries and statuses for 1 hour
-        $countries = Cache::remember('rep_country_create_countries', 3600, function () {
-            return Country::where('is_active', true)
-                ->whereDoesntHave('repCountry')
-                ->orderBy('name')
-                ->get();
-        });
-        $statuses = Cache::remember('rep_country_create_statuses', 3600, function () {
-            return Status::ordered()->get(['id', 'name']);
-        });
+    
+        $countries = Country::where('is_active', true)
+            ->whereDoesntHave('repCountry')
+            ->orderBy('name')
+            ->get();
+        $statuses = Status::ordered()->get(['id', 'name']);
         return $this->factory->render('agents/rep-countries/create', [
             'countries' => CountryResource::collection($countries),
             'statuses' => $statuses,

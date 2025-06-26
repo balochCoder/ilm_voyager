@@ -20,11 +20,11 @@ class ToggleStatusAction
 
         // Queue notification (example: notify the owner or admin)
         // Replace with actual user logic as needed
-        $notifiable = $repCountry->user ?? \App\Models\User::first();
-        if ($notifiable) {
-            Notification::send($notifiable, new RepCountryStatusChanged($repCountry, $validated['is_active'] ? 'Active' : 'Inactive'));
-        }
+        // $notifiable = $repCountry->user ?? \App\Models\User::first();
+        // if ($notifiable) {
+        //     Notification::send($notifiable, new RepCountryStatusChanged($repCountry, $validated['is_active'] ? 'Active' : 'Inactive'));
+        // }
 
         return $repCountry->fresh();
     }
-} 
+}
