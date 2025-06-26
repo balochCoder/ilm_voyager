@@ -14,6 +14,9 @@ use App\Actions\RepCountry\StoreRepCountryAction;
 use App\Actions\RepCountry\ToggleStatusAction;
 use App\Models\Status;
 use Illuminate\Http\Request;
+use App\Actions\RepCountry\StoreRepCountryNotesAction;
+use App\Actions\RepCountry\SaveRepCountryStatusOrderAction;
+use App\Actions\RepCountry\AddRepCountryStatusAction;
 
 class RepCountryController extends Controller
 {
@@ -95,12 +98,9 @@ class RepCountryController extends Controller
         ]);
     }
 
-    public function storeNotes(Request $request, RepCountry $repCountry)
+    public function storeNotes(Request $request, RepCountry $repCountry, StoreRepCountryNotesAction $action)
     {
-        $notes = $request->input('status_notes', []);
-        foreach ($notes as $statusName => $note) {
-            $repCountry->repCountryStatuses()->where('status_name', $statusName)->update(['notes' => $note]);
-        }
+        $action->execute($request, $repCountry);
         return redirect()->back()->with('success', 'Notes updated successfully.');
     }
 
@@ -115,41 +115,16 @@ class RepCountryController extends Controller
         ]);
     }
 
-    public function saveStatusOrder(Request $request, RepCountry $repCountry)
+    public function saveStatusOrder(Request $request, RepCountry $repCountry, SaveRepCountryStatusOrderAction $action)
     {
-        $request->validate([
-            'status_order' => 'required|array',
-            'status_order.*.status_name' => 'required|string',
-            'status_order.*.order' => 'required|integer|min:1',
-        ]);
-
-        $statusOrder = $request->input('status_order', []);
-
-        foreach ($statusOrder as $item) {
-            $repCountry->repCountryStatuses()->where('status_name', $item['status_name'])->update([
-                'order' => $item['order']
-            ]);
-        }
-
-        return redirect()->back()
-            ->with('success', 'Status order updated successfully.');
+        $action->execute($request, $repCountry);
+        return redirect()->back()->with('success', 'Status order updated successfully.');
     }
 
-    public function addStatus(Request $request, RepCountry $repCountry)
+    public function addStatus(Request $request, RepCountry $repCountry, AddRepCountryStatusAction $action)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $statusName = $request->name;
-        $maxOrder = $repCountry->repCountryStatuses()->max('order') ?? 0;
-        $repCountry->repCountryStatuses()->create([
-            'status_name' => $statusName,
-            'order' => $maxOrder + 1,
-        ]);
-
-        // Reload the status with pivot
-        $newStatus = $repCountry->repCountryStatuses()->where('status_name', $statusName)->first();
+        $action->execute($request, $repCountry);
+        $newStatus = $repCountry->repCountryStatuses()->where('status_name', $request->name)->first();
         return redirect()->back()->with('newStatus', $newStatus);
     }
 }
