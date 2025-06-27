@@ -29,7 +29,6 @@ final class RepCountryController extends Controller
 
     public function index(Request $request)
     {
-        // Always eager load relationships to prevent N+1 queries
         $query = RepCountry::with(['country', 'repCountryStatuses' => function ($query) {
             $query->orderBy('order', 'asc');
         }])->orderBy('created_at', 'desc');
