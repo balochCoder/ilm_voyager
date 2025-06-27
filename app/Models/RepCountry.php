@@ -6,22 +6,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class RepCountry extends Model
+final class RepCountry extends Model
 {
     use HasUlids;
     use SoftDeletes;
-
-
-
-    protected function casts()
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
 
     public function country(): BelongsTo
     {
@@ -30,11 +21,18 @@ class RepCountry extends Model
 
     public function repCountryStatuses()
     {
-        return $this->hasMany(\App\Models\RepCountryStatus::class);
+        return $this->hasMany(RepCountryStatus::class);
     }
 
     public function getStatusesAttribute()
     {
         return $this->repCountryStatuses;
+    }
+
+    protected function casts()
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 }

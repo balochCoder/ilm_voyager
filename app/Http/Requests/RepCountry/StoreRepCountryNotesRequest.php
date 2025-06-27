@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\RepCountry;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRepCountryNotesRequest extends FormRequest
+final class StoreRepCountryNotesRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -27,4 +29,4 @@ class StoreRepCountryNotesRequest extends FormRequest
             'status_notes.*.string' => 'Each note must be a string.',
         ];
     }
-} 
+}

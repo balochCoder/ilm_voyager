@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RepCountry;
 
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
-class AddRepCountryStatusAction
+final class AddRepCountryStatusAction
 {
     public function execute(Request $request, RepCountry $repCountry): void
     {
@@ -21,7 +24,7 @@ class AddRepCountryStatusAction
                 'status_name' => $statusName,
                 'order' => $maxOrder + 1,
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to add RepCountry status', [
                 'rep_country_id' => $repCountry->id,
                 'request' => $request->all(),
@@ -30,4 +33,4 @@ class AddRepCountryStatusAction
             throw $e;
         }
     }
-} 
+}

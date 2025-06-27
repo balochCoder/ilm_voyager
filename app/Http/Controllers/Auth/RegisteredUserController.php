@@ -40,20 +40,20 @@ final class RegisteredUserController extends Controller
             'agency_name' => 'required|string|max:255',
             'website' => 'required|url|max:255',
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $tenant = Tenant::query()->create([
             'agency_name' => $request->agency_name,
-            'name' =>  $request->name,
+            'name' => $request->name,
             'website' => $request->website,
             'email' => $request->email,
-            'password' => $request->password
+            'password' => $request->password,
         ]);
 
         $tenant->domains()->create([
-            'domain' => $request->domain . '.' . config('app.domain'),
+            'domain' => $request->domain.'.'.config('app.domain'),
         ]);
 
         $tenant->run(function () use ($request) {
@@ -67,8 +67,6 @@ final class RegisteredUserController extends Controller
 
             event(new Registered($user));
         });
-
-
 
         // Auth::login($user);
 

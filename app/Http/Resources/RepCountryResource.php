@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\RepCountryStatusResource;
 
-class RepCountryResource extends JsonResource
+final class RepCountryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

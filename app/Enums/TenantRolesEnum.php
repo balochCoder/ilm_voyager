@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum TenantRolesEnum: string
 {
-
     case SUPERADMIN = 'super-admin';
     case BRANCHOFFICE = 'branch-office';
     case COUNSELLOR = 'counsellor';
@@ -15,12 +16,12 @@ enum TenantRolesEnum: string
     public function label(): string
     {
         return match ($this) {
-            static::SUPERADMIN => 'Super Admin',
-            static::BRANCHOFFICE => 'Branch Office',
-            static::COUNSELLOR => 'Counsellor',
-            static::PROCESSINGOFFICE => 'Processing Office',
-            static::FRONTOFFICE => 'Front Office',
-            static::ASSOCIATE => 'Associate'
+            self::SUPERADMIN => 'Super Admin',
+            self::BRANCHOFFICE => 'Branch Office',
+            self::COUNSELLOR => 'Counsellor',
+            self::PROCESSINGOFFICE => 'Processing Office',
+            self::FRONTOFFICE => 'Front Office',
+            self::ASSOCIATE => 'Associate'
         };
     }
 }

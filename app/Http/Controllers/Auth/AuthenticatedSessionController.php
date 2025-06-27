@@ -71,7 +71,7 @@ final class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('associates:dashboard', absolute: false));
         }
         if (auth()->user()->hasRole(TenantRolesEnum::PROCESSINGOFFICE->value)) {
-           return redirect()->intended(route('processing-offices:dashboard', absolute: false));
+            return redirect()->intended(route('processing-offices:dashboard', absolute: false));
         }
 
         Auth::logout();

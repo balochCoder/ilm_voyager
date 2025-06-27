@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\RepCountry;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddRepCountryStatusRequest extends FormRequest
+final class AddRepCountryStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -26,4 +28,4 @@ class AddRepCountryStatusRequest extends FormRequest
             'name.max' => 'Status name may not be greater than 255 characters.',
         ];
     }
-} 
+}

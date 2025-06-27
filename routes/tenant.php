@@ -2,24 +2,21 @@
 
 declare(strict_types=1);
 
-use App\Enums\TenantRolesEnum;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\CountryController;
 
 /*
-	|--------------------------------------------------------------------------
-	| Tenant Routes
-	|--------------------------------------------------------------------------
-	|
-	| Here you can register the tenant routes for your application.
-	| These routes are loaded by the TenantRouteServiceProvider.
-	|
-	| Feel free to customize them however you want. Good luck!
-	|
-	*/
+    |--------------------------------------------------------------------------
+    | Tenant Routes
+    |--------------------------------------------------------------------------
+    |
+    | Here you can register the tenant routes for your application.
+    | These routes are loaded by the TenantRouteServiceProvider.
+    |
+    | Feel free to customize them however you want. Good luck!
+    |
+    */
 
 Route::middleware([
     'web',
@@ -28,11 +25,9 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
 
-
     Route::get('/', function () {
         return to_route('login');
     });
-
 
     Route::group(
         [],

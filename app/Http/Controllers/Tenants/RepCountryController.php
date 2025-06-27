@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants;
 
+use App\Actions\RepCountry\AddRepCountryStatusAction;
+use App\Actions\RepCountry\SaveRepCountryStatusOrderAction;
+use App\Actions\RepCountry\StoreRepCountryAction;
+use App\Actions\RepCountry\StoreRepCountryNotesAction;
+use App\Actions\RepCountry\ToggleStatusAction;
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
-use App\Models\RepCountry;
-use App\Models\Country;
-use App\Http\Resources\RepCountryResource;
-use App\Http\Resources\CountryResource;
+use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
+use App\Http\Requests\RepCountry\SaveRepCountryStatusOrderRequest;
+use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
 use App\Http\Requests\RepCountry\StoreRepCountryRequest;
 use App\Http\Requests\RepCountry\ToggleStatusRequest;
-use App\Actions\RepCountry\StoreRepCountryAction;
-use App\Actions\RepCountry\ToggleStatusAction;
+use App\Http\Resources\CountryResource;
+use App\Http\Resources\RepCountryResource;
+use App\Models\Country;
+use App\Models\RepCountry;
 use App\Models\Status;
 use Illuminate\Http\Request;
-use App\Actions\RepCountry\StoreRepCountryNotesAction;
-use App\Actions\RepCountry\SaveRepCountryStatusOrderAction;
-use App\Actions\RepCountry\AddRepCountryStatusAction;
-use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
-use App\Http\Requests\RepCountry\SaveRepCountryStatusOrderRequest;
-use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
 
-class RepCountryController extends Controller
+final class RepCountryController extends Controller
 {
     use InertiaRoute;
 
@@ -38,11 +40,9 @@ class RepCountryController extends Controller
 
         $repCountries = $query->paginate(10);
 
-
         $availableCountries = Country::whereHas('repCountry')
             ->orderBy('name')
             ->get(['id', 'name', 'flag']);
-
 
         $statuses = Status::ordered()->get();
 
@@ -65,12 +65,13 @@ class RepCountryController extends Controller
 
     public function create()
     {
-    
+
         $countries = Country::where('is_active', true)
             ->whereDoesntHave('repCountry')
             ->orderBy('name')
             ->get();
         $statuses = Status::ordered()->get(['id', 'name']);
+
         return $this->factory->render('agents/rep-countries/create', [
             'countries' => CountryResource::collection($countries),
             'statuses' => $statuses,
@@ -99,6 +100,7 @@ class RepCountryController extends Controller
         $repCountry->load(['repCountryStatuses' => function ($query) {
             $query->orderBy('order', 'asc');
         }]);
+
         return $this->factory->render('agents/rep-countries/add-notes', [
             'repCountry' => $repCountry,
             'statuses' => $repCountry->statuses,
@@ -108,6 +110,7 @@ class RepCountryController extends Controller
     public function storeNotes(StoreRepCountryNotesRequest $request, RepCountry $repCountry, StoreRepCountryNotesAction $action)
     {
         $action->execute($request, $repCountry);
+
         return redirect()->back()->with('success', 'Notes updated successfully.');
     }
 
@@ -125,6 +128,7 @@ class RepCountryController extends Controller
     public function saveStatusOrder(SaveRepCountryStatusOrderRequest $request, RepCountry $repCountry, SaveRepCountryStatusOrderAction $action)
     {
         $action->execute($request, $repCountry);
+
         return redirect()->back()->with('success', 'Status order updated successfully.');
     }
 
@@ -132,6 +136,7 @@ class RepCountryController extends Controller
     {
         $action->execute($request, $repCountry);
         $newStatus = $repCountry->repCountryStatuses()->where('status_name', $request->name)->first();
+
         return redirect()->back()->with('newStatus', $newStatus);
     }
 }

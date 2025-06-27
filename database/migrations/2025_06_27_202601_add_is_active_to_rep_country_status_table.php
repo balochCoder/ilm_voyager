@@ -6,20 +6,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-final class CreateTenantsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('tenants', function (Blueprint $table) {
-            $table->ulid('id')->primary()->unique();
-
-            // your custom columns may go here
-
-            $table->timestamps();
-            $table->json('data')->nullable();
+        Schema::table('rep_country_status', function (Blueprint $table) {
+            $table->boolean('is_active')->default(true)->after('order');
         });
     }
 
@@ -28,6 +23,8 @@ final class CreateTenantsTable extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tenants');
+        Schema::table('rep_country_status', function (Blueprint $table) {
+            $table->dropColumn('is_active');
+        });
     }
-}
+};

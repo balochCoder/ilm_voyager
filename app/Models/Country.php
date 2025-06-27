@@ -8,20 +8,19 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Country extends Model
+final class Country extends Model
 {
     use HasUlids;
 
-    
-   protected function casts()
-   {
-         return [
-              'is_active' => 'boolean',
-         ];
-   }
+    public function repCountry(): HasOne
+    {
+        return $this->hasOne(RepCountry::class);
+    }
 
-   public function repCountry(): HasOne
-   {
-       return $this->hasOne(RepCountry::class);
-   }
+    protected function casts()
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 }

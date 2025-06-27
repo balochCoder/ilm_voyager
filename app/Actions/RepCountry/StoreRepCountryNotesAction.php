@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RepCountry;
 
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
-class StoreRepCountryNotesAction
+final class StoreRepCountryNotesAction
 {
     public function execute(Request $request, RepCountry $repCountry): void
     {
@@ -15,7 +18,7 @@ class StoreRepCountryNotesAction
             foreach ($notes as $statusName => $note) {
                 $repCountry->repCountryStatuses()->where('status_name', $statusName)->update(['notes' => $note]);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to store RepCountry notes', [
                 'rep_country_id' => $repCountry->id,
                 'request' => $request->all(),
@@ -24,4 +27,4 @@ class StoreRepCountryNotesAction
             throw $e;
         }
     }
-} 
+}

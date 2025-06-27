@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\RepCountry;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SaveRepCountryStatusOrderRequest extends FormRequest
+final class SaveRepCountryStatusOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -29,4 +31,4 @@ class SaveRepCountryStatusOrderRequest extends FormRequest
             'status_order.*.order.required' => 'Each status must have an order.',
         ];
     }
-} 
+}

@@ -1,16 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use App\Enums\RolesEnum;
 use App\Enums\TenantRolesEnum;
 use App\Models\Role;
-use App\Models\Tenant;
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class TenantDatabaseSeeder extends Seeder
+final class TenantDatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,10 +16,10 @@ class TenantDatabaseSeeder extends Seeder
     public function run(): void
     {
         Role::create([
-            'name' => TenantRolesEnum::SUPERADMIN->value
+            'name' => TenantRolesEnum::SUPERADMIN->value,
         ]);
         Role::create([
-            'name' => TenantRolesEnum::COUNSELLOR->value
+            'name' => TenantRolesEnum::COUNSELLOR->value,
         ]);
 
         // Seed rep countries

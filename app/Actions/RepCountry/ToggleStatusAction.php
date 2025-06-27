@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RepCountry;
 
-use App\Models\RepCountry;
 use App\Http\Requests\RepCountry\ToggleStatusRequest;
+use App\Models\RepCountry;
 use App\Notifications\RepCountryStatusChanged;
 use Illuminate\Support\Facades\Notification;
 
-class ToggleStatusAction
+final class ToggleStatusAction
 {
     /**
      * Toggle the rep country status.

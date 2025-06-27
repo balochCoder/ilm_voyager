@@ -31,10 +31,10 @@ final class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
 
+    use HasRoles;
     use HasUlids;
     use Notifiable;
     use SoftDeletes;
-    use HasRoles;
 
     /**
      * The attributes that are mass assignable.

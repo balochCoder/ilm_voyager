@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -219,7 +222,7 @@ return new class extends Migration
             $now = now();
             $records = $chunk->map(function ($country) use ($now) {
                 return [
-                    'id' => (string) \Illuminate\Support\Str::ulid(),
+                    'id' => (string) Str::ulid(),
                     'name' => $country['name'],
                     'flag' => $country['flag'],
                     'is_active' => true,
@@ -236,4 +239,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('countries');
     }
-}; 
+};

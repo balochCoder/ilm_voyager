@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RepCountry;
 
-use App\Models\RepCountry;
 use App\Http\Requests\RepCountry\StoreRepCountryRequest;
+use App\Models\RepCountry;
 use App\Models\Status;
 
-class StoreRepCountryAction
+final class StoreRepCountryAction
 {
     /**
      * Store a new rep country.
@@ -19,7 +21,7 @@ class StoreRepCountryAction
 
         $newStatus = Status::where('name', 'New')->first();
         $allStatusIds = $newStatus ? array_unique(array_merge([$newStatus->id], $statusIds)) : $statusIds;
-        if (!empty($allStatusIds)) {
+        if (! empty($allStatusIds)) {
             foreach ($allStatusIds as $index => $statusId) {
                 $status = Status::find($statusId);
                 if ($status) {

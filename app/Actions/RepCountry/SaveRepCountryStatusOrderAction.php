@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\RepCountry;
 
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
-class SaveRepCountryStatusOrderAction
+final class SaveRepCountryStatusOrderAction
 {
     public function execute(Request $request, RepCountry $repCountry): void
     {
@@ -20,10 +23,10 @@ class SaveRepCountryStatusOrderAction
             $statusOrder = $request->input('status_order', []);
             foreach ($statusOrder as $item) {
                 $repCountry->repCountryStatuses()->where('status_name', $item['status_name'])->update([
-                    'order' => $item['order']
+                    'order' => $item['order'],
                 ]);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to save RepCountry status order', [
                 'rep_country_id' => $repCountry->id,
                 'request' => $request->all(),
@@ -32,4 +35,4 @@ class SaveRepCountryStatusOrderAction
             throw $e;
         }
     }
-} 
+}

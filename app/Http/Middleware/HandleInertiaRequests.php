@@ -60,9 +60,9 @@ final class HandleInertiaRequests extends Middleware
                 // 'user' => $request->user(),
             ],
             'flash' => [
-                'success' => $request->session()->get('success')
+                'success' => $request->session()->get('success'),
             ],
-            'ziggy' => fn(): array => [
+            'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],

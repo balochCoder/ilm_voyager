@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RepCountryStatusResource extends JsonResource
+final class RepCountryStatusResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -24,4 +26,4 @@ class RepCountryStatusResource extends JsonResource
             'updated_at' => $this->updated_at ? DateResource::make($this->updated_at) : null,
         ];
     }
-} 
+}

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\TenantRolesEnum;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::as('agents:')->middleware(['role:' . TenantRolesEnum::SUPERADMIN->value])->prefix('agents')->group(function () {
-    Route::get('dashboard', fn() => Inertia::render('agents/dashboard'))->name('dashboard');
+Route::as('agents:')->middleware(['role:'.TenantRolesEnum::SUPERADMIN->value])->prefix('agents')->group(function () {
+    Route::get('dashboard', fn () => Inertia::render('agents/dashboard'))->name('dashboard');
 
     Route::group(
         [],

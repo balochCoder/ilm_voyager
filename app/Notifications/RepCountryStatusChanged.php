@@ -1,18 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
+use App\Models\RepCountry;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-use App\Models\RepCountry;
+use Illuminate\Notifications\Notification;
 
-class RepCountryStatusChanged extends Notification implements ShouldQueue
+final class RepCountryStatusChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public $repCountry;
+
     public $statusName;
 
     public function __construct(RepCountry $repCountry, string $statusName)
@@ -31,8 +34,8 @@ class RepCountryStatusChanged extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('RepCountry Status Changed')
             ->line('The status for a represented country has changed.')
-            ->line('Country: ' . $this->repCountry->country->name)
-            ->line('New Status: ' . $this->statusName)
-            ->action('View RepCountry', url('/rep-countries/' . $this->repCountry->id));
+            ->line('Country: '.$this->repCountry->country->name)
+            ->line('New Status: '.$this->statusName)
+            ->action('View RepCountry', url('/rep-countries/'.$this->repCountry->id));
     }
-} 
+}

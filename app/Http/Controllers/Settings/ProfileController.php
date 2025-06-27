@@ -48,6 +48,7 @@ final class ProfileController extends Controller
         if ($request->user()->hasRole(TenantRolesEnum::SUPERADMIN->value)) {
             return to_route('agents:profile:edit');
         }
+
         return to_route('counsellors:profile:edit');
     }
 
