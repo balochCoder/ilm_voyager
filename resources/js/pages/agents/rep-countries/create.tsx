@@ -149,7 +149,7 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                         {errors.status_ids && <p className="text-sm text-red-600 mt-1">{errors.status_ids}</p>}
                     </div>
                     <div className="flex justify-end space-x-4">
-                        <Link href="/agents/rep-countries">
+                        <Link href={route("agents:rep-countries:index")}>
                             <Button type="button" variant="neutral">Cancel</Button>
                         </Link>
                         <Button type="submit" disabled={processing}>
