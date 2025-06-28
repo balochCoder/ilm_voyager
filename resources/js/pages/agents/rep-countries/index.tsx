@@ -5,7 +5,7 @@ import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryStatus, 
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AccordionItem } from '@/components/ui/accordion';
-import { Switch } from '@/components/ui/switch';
+import { StatusSwitch } from '@/components/ui/status-switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
     Pagination,
@@ -37,6 +37,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useAddStatusDialog } from '@/hooks/useAddStatusSheet';
+import { useSwitchState } from '@/hooks/useSwitchState';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
@@ -74,11 +75,11 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
     const [open, setOpen] = useState(false);
-    const [switchLoading, setSwitchLoading] = useState<{ [key: string]: boolean }>({});
-    const [repCountryStatusSwitchLoading, setRepCountryStatusSwitchLoading] = useState<{ [key: string]: boolean }>({});
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
+    // Use the custom hook for switch states
+    const { isSwitchLoading } = useSwitchState();
 
     useEffect(() => {
         // use toast if flash.success
@@ -124,28 +125,6 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             ...prev,
             [countryId]: !prev[countryId]
         }));
-    };
-
-    const toggleActiveStatus = (countryId: string, newValue: boolean) => {
-        setSwitchLoading(prev => ({ ...prev, [countryId]: true }));
-        router.patch(route('agents:rep-countries:toggle-status', countryId), {
-            is_active: newValue
-        }, {
-            onFinish: () => setSwitchLoading(prev => ({ ...prev, [countryId]: false })),
-            onSuccess: () => router.reload({ only: ['repCountries'] }),
-            preserveScroll: true,
-        });
-    };
-
-    const toggleRepCountryStatus = (statusId: string, newValue: boolean) => {
-        setRepCountryStatusSwitchLoading(prev => ({ ...prev, [statusId]: true }));
-        router.patch(route('agents:rep-countries:toggle-rep-country-status', statusId), {
-            is_active: newValue
-        }, {
-            onFinish: () => setRepCountryStatusSwitchLoading(prev => ({ ...prev, [statusId]: false })),
-            onSuccess: () => router.reload({ only: ['repCountries'] }),
-            preserveScroll: true,
-        });
     };
 
     // Get the selected country name for display
@@ -300,18 +279,19 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                             </span>
                                         </div>
                                         <div className="flex items-center space-x-3">
-                                            {!switchLoading[repCountry.id] && (
+                                            {!isSwitchLoading(repCountry.id) && (
                                                 <span className="text-sm text-black">
                                                     {repCountry.is_active ? 'Active' : 'Inactive'}
                                                 </span>
                                             )}
-                                            {switchLoading[repCountry.id] ? (
+                                            {isSwitchLoading(repCountry.id) ? (
                                                 <Loader className="w-5 h-5 mr-5 animate-spin text-blue-500" />
                                             ) : (
-                                                <Switch
+                                                <StatusSwitch
+                                                    id={repCountry.id}
                                                     checked={repCountry.is_active}
-                                                    onCheckedChange={val => toggleActiveStatus(repCountry.id, val)}
-                                                    className="data-[state=checked]:bg-blue-500"
+                                                    route={route('agents:rep-countries:toggle-status', repCountry.id)}
+                                                    showLabel={false}
                                                 />
                                             )}
                                         </div>
@@ -387,13 +367,14 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                                     <TableCell>
                                                                         <div className="flex items-center space-x-3">
                                                                             
-                                                                            {repCountryStatusSwitchLoading[status.id] ? (
+                                                                            {isSwitchLoading(status.id) ? (
                                                                                 <Loader className="w-4 h-4 animate-spin text-blue-500" />
                                                                             ) : (
-                                                                                <Switch
+                                                                                <StatusSwitch
+                                                                                    id={status.id}
                                                                                     checked={status.is_active || false}
-                                                                                    onCheckedChange={val => toggleRepCountryStatus(status.id, val)}
-                                                                                    className="data-[state=checked]:bg-blue-500"
+                                                                                    route={route('agents:rep-countries:toggle-rep-country-status', status.id)}
+                                                                                    showLabel={false}
                                                                                 />
                                                                             )}
                                                                         </div>
