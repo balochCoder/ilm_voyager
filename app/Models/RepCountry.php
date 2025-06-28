@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Country $country
  * @property-read RepCountryStatus[] $repCountryStatuses
  *
+ * @mixin \Eloquent
  */
 final class RepCountry extends Model
 {
@@ -46,10 +47,12 @@ final class RepCountry extends Model
         return $this->hasMany(RepCountryStatus::class);
     }
 
-    /*
-     * @return array<string,string|class-string>
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    protected function casts()
+    protected function casts(): array
     {
         return [
             'is_active' => 'boolean',

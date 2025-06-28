@@ -17,13 +17,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $flag
  * @property bool $is_active
  * @property CarbonInterface|null $created_at
- * @property \Illuminate\Support\CarbonInterface|null $updated_at
+ * @property CarbonInterface|null $updated_at
  *
  * @property-read RepCountry|null $repCountry
  *
-
  */
-
 final class Country extends Model
 {
     use HasUlids;
@@ -34,10 +32,12 @@ final class Country extends Model
         return $this->hasOne(RepCountry::class);
     }
 
-    /*
-     * @return array<string,string|class-string>
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    protected function casts()
+    protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
