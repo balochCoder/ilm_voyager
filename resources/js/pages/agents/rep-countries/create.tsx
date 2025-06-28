@@ -37,6 +37,7 @@ const initialFormState = (newStatusId: string) => ({
 type FormField = 'monthly_living_cost' | 'visa_requirements' | 'part_time_work_details' | 'country_benefits' | 'is_active' | 'country_id' | 'status_ids';
 
 export default function RepCountriesCreate({ countries, statuses }: Props) {
+
     const newStatus = statuses.find(s => s.name === 'New');
     const newStatusId = newStatus ? newStatus.id : '';
     const { data, setData, post, processing, errors } = useForm(initialFormState(newStatusId));
@@ -62,41 +63,41 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Representing Country" />
-            <div className="flex h-full flex-1 flex-col p-6 space-y-6">
+            <div className="flex h-full flex-1 flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 min-w-0">
                 {/* Header Section */}
-                <div className="flex justify-between items-center">
-                    <div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
+                    <div className="flex-1 min-w-0">
                         <Heading title='Add Representing Country' />
-                        <p className="text-muted-foreground mt-1">
+                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
                             Create a new representing country with detailed information
                         </p>
                     </div>
-                    <Link href={route('agents:rep-countries:index')}>
-                        <Button variant="noShadow" className="cursor-pointer">
+                    <Link href={route('agents:rep-countries:index')} className="w-full sm:w-auto">
+                        <Button variant="noShadow" className="cursor-pointer w-full">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Countries
                         </Button>
                     </Link>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 min-w-0">
                     {/* Basic Information Card */}
                     <Card>
                         <CardHeader>
-                            <div className="flex items-center space-x-2">
-                                <div className="p-2 bg-blue-100 rounded-lg">
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 w-fit">
                                     <Globe className="w-4 h-4 text-blue-600" />
                                 </div>
-                                <div>
-                                    <CardTitle>Basic Information</CardTitle>
-                                    <p className="text-sm text-muted-foreground mt-1">
+                                <div className="min-w-0 flex-1">
+                                    <CardTitle className="text-lg sm:text-xl">Basic Information</CardTitle>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                                         Select the country and set basic details
                                     </p>
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <CardContent className="space-y-4 sm:space-y-6">
+                            <div className="grid grid-cols-1 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="country_id" className="text-sm font-medium">
                                         Country *
@@ -147,17 +148,17 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
 
                             {selectedCountry && (
                                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                    <div className="flex items-center space-x-3">
+                                    <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 min-w-0">
                                         <img
                                             src={selectedCountry.flag}
                                             alt={selectedCountry.name}
-                                            className="w-8 h-6 rounded shadow-sm"
+                                            className="w-8 h-6 rounded shadow-sm flex-shrink-0"
                                         />
-                                        <div>
-                                            <h3 className="font-medium text-blue-900">
+                                        <div className="min-w-0 flex-1">
+                                            <h3 className="font-medium text-blue-900 text-sm sm:text-base">
                                                 {selectedCountry.name} selected
                                             </h3>
-                                            <p className="text-sm text-blue-700">
+                                            <p className="text-xs sm:text-sm text-blue-700">
                                                 You're adding {selectedCountry.name} as a representing country
                                             </p>
                                         </div>
@@ -170,13 +171,13 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                     {/* Requirements Card */}
                     <Card>
                         <CardHeader>
-                            <div className="flex items-center space-x-2">
-                                <div className="p-2 bg-amber-100 rounded-lg">
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0 w-fit">
                                     <FileText className="w-4 h-4 text-amber-600" />
                                 </div>
-                                <div>
-                                    <CardTitle>Requirements & Procedures</CardTitle>
-                                    <p className="text-sm text-muted-foreground mt-1">
+                                <div className="min-w-0 flex-1">
+                                    <CardTitle className="text-lg sm:text-xl">Requirements & Procedures</CardTitle>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                                         Document visa requirements and application procedures
                                     </p>
                                 </div>
@@ -205,16 +206,16 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                     </Card>
 
                     {/* Work & Benefits Card */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-4 sm:gap-6">
                         <Card>
                             <CardHeader>
-                                <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-green-100 rounded-lg">
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                    <div className="p-2 bg-green-100 rounded-lg flex-shrink-0 w-fit">
                                         <Briefcase className="w-4 h-4 text-green-600" />
                                     </div>
-                                    <div>
-                                        <CardTitle>Work Opportunities</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-1">
+                                    <div className="min-w-0 flex-1">
+                                        <CardTitle className="text-lg sm:text-xl">Work Opportunities</CardTitle>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                                             Part-time work details and restrictions
                                         </p>
                                     </div>
@@ -242,13 +243,13 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
 
                         <Card>
                             <CardHeader>
-                                <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-purple-100 rounded-lg">
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                    <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0 w-fit">
                                         <Gift className="w-4 h-4 text-purple-600" />
                                     </div>
-                                    <div>
-                                        <CardTitle>Country Benefits</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-1">
+                                    <div className="min-w-0 flex-1">
+                                        <CardTitle className="text-lg sm:text-xl">Country Benefits</CardTitle>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                                             Advantages of studying in this country
                                         </p>
                                     </div>
@@ -278,13 +279,13 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                     {/* Application Steps Card */}
                     <Card>
                         <CardHeader>
-                            <div className="flex items-center space-x-2">
-                                <div className="p-2 bg-indigo-100 rounded-lg">
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                <div className="p-2 bg-indigo-100 rounded-lg flex-shrink-0 w-fit">
                                     <Settings className="w-4 h-4 text-indigo-600" />
                                 </div>
-                                <div>
-                                    <CardTitle>Application Process Steps</CardTitle>
-                                    <p className="text-sm text-muted-foreground mt-1">
+                                <div className="min-w-0 flex-1">
+                                    <CardTitle className="text-lg sm:text-xl">Application Process Steps</CardTitle>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                                         Configure the application process workflow
                                     </p>
                                 </div>
@@ -297,10 +298,10 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                                         Application Steps
                                     </Label>
                                     <MultiSelect
-                                        options={statuses.map(status => ({ 
-                                            label: status.name, 
-                                            value: status.id, 
-                                            disabled: status.id === newStatusId 
+                                        options={statuses.map(status => ({
+                                            label: status.name,
+                                            value: status.id,
+                                            disabled: status.id === newStatusId
                                         }))}
                                         onValueChange={handleStatusChange}
                                         defaultValue={data.status_ids}
@@ -322,8 +323,8 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                                             {data.status_ids.map(statusId => {
                                                 const status = statuses.find(s => s.id === statusId);
                                                 return status ? (
-                                                    <Badge 
-                                                        key={statusId} 
+                                                    <Badge
+                                                        key={statusId}
                                                         variant={statusId === newStatusId ? "neutral" : "default"}
                                                         className="text-xs"
                                                     >
@@ -340,17 +341,17 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                     </Card>
 
                     {/* Action Buttons */}
-                    <div className="flex justify-between items-center pt-6 border-t">
-                        <div className="text-sm text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-4 sm:pt-6 border-t space-y-4 sm:space-y-0 min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
                             <span className="font-medium">{countries.length}</span> countries available for selection
                         </div>
-                        <div className="flex space-x-3">
-                            <Link href={route("agents:rep-countries:index")}>
-                                <Button type="button" variant="noShadow">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                            <Link href={route("agents:rep-countries:index")} className="w-full sm:w-auto">
+                                <Button type="button" variant="noShadow" className="w-full">
                                     Cancel
                                 </Button>
                             </Link>
-                            <Button type="submit" disabled={processing} className="min-w-[180px]">
+                            <Button type="submit" disabled={processing} className="min-w-[180px] w-full sm:w-auto">
                                 {processing ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
