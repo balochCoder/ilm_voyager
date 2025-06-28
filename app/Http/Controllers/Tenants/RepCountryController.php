@@ -90,7 +90,7 @@ final class RepCountryController extends Controller
 
         $action->execute($repCountry, $request);
 
-        return redirect()->route('agents:rep-countries:index')
+        return redirect()->back()
             ->with('success', 'Status updated successfully.');
     }
 
