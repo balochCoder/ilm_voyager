@@ -132,6 +132,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         }, {
             onFinish: () => setSwitchLoading(prev => ({ ...prev, [countryId]: false })),
             onSuccess: () => router.reload({ only: ['repCountries'] }),
+            preserveScroll: true,
         });
     };
 
