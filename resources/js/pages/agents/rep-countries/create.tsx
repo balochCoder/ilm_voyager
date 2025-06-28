@@ -97,7 +97,7 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4 sm:space-y-6">
-                            <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="country_id" className="text-sm font-medium">
                                         Country *
@@ -297,17 +297,19 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                                     <Label htmlFor="status_ids" className="text-sm font-medium">
                                         Application Steps
                                     </Label>
-                                    <MultiSelect
-                                        options={statuses.map(status => ({
-                                            label: status.name,
-                                            value: status.id,
-                                            disabled: status.id === newStatusId
-                                        }))}
-                                        onValueChange={handleStatusChange}
-                                        defaultValue={data.status_ids}
-                                        placeholder="Select application steps"
-                                        className="w-full"
-                                    />
+                                    <div className="w-full sm:w-1/2">
+                                        <MultiSelect
+                                            options={statuses.map(status => ({ 
+                                                label: status.name, 
+                                                value: status.id, 
+                                                disabled: status.id === newStatusId 
+                                            }))}
+                                            onValueChange={handleStatusChange}
+                                            defaultValue={data.status_ids}
+                                            placeholder="Select application steps"
+                                            className="w-full"
+                                        />
+                                    </div>
                                     <p className="text-xs text-muted-foreground">
                                         The "New" step is automatically included and cannot be removed
                                     </p>
