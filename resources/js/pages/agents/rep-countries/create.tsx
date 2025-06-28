@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Globe, DollarSign, FileText, Briefcase, Gift, Settings, Plus } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
     countries: Country[];
@@ -19,7 +21,7 @@ interface Props {
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/agents/dashboard' },
     { title: 'Representing Countries', href: '/agents/representing-countries' },
-    { title: 'Add', href: '/agents/representing-countries/create' },
+    { title: 'Add Country', href: '/agents/representing-countries/create' },
 ];
 
 const initialFormState = (newStatusId: string) => ({
@@ -55,106 +57,313 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
         });
     };
 
+    const selectedCountry = countries.find(c => c.id === data.country_id);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Representing Country" />
-            <div className="flex h-full flex-1 flex-col p-4">
+            <div className="flex h-full flex-1 flex-col p-6 space-y-6">
+                {/* Header Section */}
                 <div className="flex justify-between items-center">
-                    <Heading title='Add Representing Country' description='Add a new representing country in your system' />
+                    <div>
+                        <Heading title='Add Representing Country' />
+                        <p className="text-muted-foreground mt-1">
+                            Create a new representing country with detailed information
+                        </p>
+                    </div>
                     <Link href={route('agents:rep-countries:index')}>
-                        <Button className='cursor-pointer' variant="neutral">
-                            <ArrowLeft className="w-4 h-4" />
-                            Back
+                        <Button variant="noShadow" className="cursor-pointer">
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Back to Countries
                         </Button>
                     </Link>
                 </div>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <Label htmlFor="country_id">Country *</Label>
-                            <Select
-                                value={data.country_id}
-                                onValueChange={value => setData('country_id', value)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a country" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {countries.map(country => (
-                                        <SelectItem key={country.id} value={country.id}>
-                                            <div className="flex items-center">
-                                                <img src={country.flag} alt={country.name} className="w-4 h-3 mr-2 rounded" />
-                                                {country.name}
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.country_id && <p className="text-sm text-red-600 mt-1">{errors.country_id}</p>}
+                    {/* Basic Information Card */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center space-x-2">
+                                <div className="p-2 bg-blue-100 rounded-lg">
+                                    <Globe className="w-4 h-4 text-blue-600" />
+                                </div>
+                                <div>
+                                    <CardTitle>Basic Information</CardTitle>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Select the country and set basic details
+                                    </p>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="country_id" className="text-sm font-medium">
+                                        Country *
+                                    </Label>
+                                    <Select
+                                        value={data.country_id}
+                                        onValueChange={value => setData('country_id', value)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select a country" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {countries.map(country => (
+                                                <SelectItem key={country.id} value={country.id}>
+                                                    <div className="flex items-center">
+                                                        <img src={country.flag} alt={country.name} className="w-4 h-3 mr-2 rounded" />
+                                                        {country.name}
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.country_id && (
+                                        <p className="text-sm text-red-600">{errors.country_id}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="monthly_living_cost" className="text-sm font-medium">
+                                        Monthly Living Cost
+                                    </Label>
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <Input
+                                            type='text'
+                                            id="monthly_living_cost"
+                                            value={data.monthly_living_cost}
+                                            onChange={handleInputChange('monthly_living_cost')}
+                                            placeholder="e.g., 2,000 - 3,000 USD"
+                                            className="pl-10"
+                                        />
+                                    </div>
+                                    {errors.monthly_living_cost && (
+                                        <p className="text-sm text-red-600">{errors.monthly_living_cost}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {selectedCountry && (
+                                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div className="flex items-center space-x-3">
+                                        <img
+                                            src={selectedCountry.flag}
+                                            alt={selectedCountry.name}
+                                            className="w-8 h-6 rounded shadow-sm"
+                                        />
+                                        <div>
+                                            <h3 className="font-medium text-blue-900">
+                                                {selectedCountry.name} selected
+                                            </h3>
+                                            <p className="text-sm text-blue-700">
+                                                You're adding {selectedCountry.name} as a representing country
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Requirements Card */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center space-x-2">
+                                <div className="p-2 bg-amber-100 rounded-lg">
+                                    <FileText className="w-4 h-4 text-amber-600" />
+                                </div>
+                                <div>
+                                    <CardTitle>Requirements & Procedures</CardTitle>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Document visa requirements and application procedures
+                                    </p>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="visa_requirements" className="text-sm font-medium">
+                                        Visa Requirements
+                                    </Label>
+                                    <Textarea
+                                        id="visa_requirements"
+                                        value={data.visa_requirements}
+                                        onChange={handleInputChange('visa_requirements')}
+                                        placeholder="Enter detailed visa requirements, application procedures, required documents, processing times, and any special conditions..."
+                                        rows={4}
+                                        className="resize-none"
+                                    />
+                                    {errors.visa_requirements && (
+                                        <p className="text-sm text-red-600">{errors.visa_requirements}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Work & Benefits Card */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center space-x-2">
+                                    <div className="p-2 bg-green-100 rounded-lg">
+                                        <Briefcase className="w-4 h-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <CardTitle>Work Opportunities</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            Part-time work details and restrictions
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    <Label htmlFor="part_time_work_details" className="text-sm font-medium">
+                                        Part-time Work Details
+                                    </Label>
+                                    <Textarea
+                                        id="part_time_work_details"
+                                        value={data.part_time_work_details}
+                                        onChange={handleInputChange('part_time_work_details')}
+                                        placeholder="Enter part-time work opportunities, restrictions, hours allowed, types of jobs available, and any special conditions..."
+                                        rows={4}
+                                        className="resize-none"
+                                    />
+                                    {errors.part_time_work_details && (
+                                        <p className="text-sm text-red-600">{errors.part_time_work_details}</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center space-x-2">
+                                    <div className="p-2 bg-purple-100 rounded-lg">
+                                        <Gift className="w-4 h-4 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <CardTitle>Country Benefits</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            Advantages of studying in this country
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    <Label htmlFor="country_benefits" className="text-sm font-medium">
+                                        Benefits & Advantages
+                                    </Label>
+                                    <Textarea
+                                        id="country_benefits"
+                                        value={data.country_benefits}
+                                        onChange={handleInputChange('country_benefits')}
+                                        placeholder="Enter benefits, advantages, quality of education, cultural opportunities, career prospects, and other positive aspects..."
+                                        rows={4}
+                                        className="resize-none"
+                                    />
+                                    {errors.country_benefits && (
+                                        <p className="text-sm text-red-600">{errors.country_benefits}</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Application Steps Card */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center space-x-2">
+                                <div className="p-2 bg-indigo-100 rounded-lg">
+                                    <Settings className="w-4 h-4 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <CardTitle>Application Process Steps</CardTitle>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Configure the application process workflow
+                                    </p>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="status_ids" className="text-sm font-medium">
+                                        Application Steps
+                                    </Label>
+                                    <MultiSelect
+                                        options={statuses.map(status => ({ 
+                                            label: status.name, 
+                                            value: status.id, 
+                                            disabled: status.id === newStatusId 
+                                        }))}
+                                        onValueChange={handleStatusChange}
+                                        defaultValue={data.status_ids}
+                                        placeholder="Select application steps"
+                                        className="w-full"
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        The "New" step is automatically included and cannot be removed
+                                    </p>
+                                    {errors.status_ids && (
+                                        <p className="text-sm text-red-600">{errors.status_ids}</p>
+                                    )}
+                                </div>
+
+                                {data.status_ids.length > 0 && (
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <h4 className="text-sm font-medium text-gray-900 mb-2">Selected Steps:</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {data.status_ids.map(statusId => {
+                                                const status = statuses.find(s => s.id === statusId);
+                                                return status ? (
+                                                    <Badge 
+                                                        key={statusId} 
+                                                        variant={statusId === newStatusId ? "neutral" : "default"}
+                                                        className="text-xs"
+                                                    >
+                                                        {status.name}
+                                                        {statusId === newStatusId && " (Fixed)"}
+                                                    </Badge>
+                                                ) : null;
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-between items-center pt-6 border-t">
+                        <div className="text-sm text-muted-foreground">
+                            <span className="font-medium">{countries.length}</span> countries available for selection
                         </div>
-                        <div>
-                            <Label htmlFor="monthly_living_cost">Monthly Living Cost</Label>
-                            <Input
-                                type='number'
-                                id="monthly_living_cost"
-                                value={data.monthly_living_cost}
-                                onChange={handleInputChange('monthly_living_cost')}
-                                placeholder="e.g., 2,000 - 3,000"
-                            />
-                            {errors.monthly_living_cost && <p className="text-sm text-red-600 mt-1">{errors.monthly_living_cost}</p>}
+                        <div className="flex space-x-3">
+                            <Link href={route("agents:rep-countries:index")}>
+                                <Button type="button" variant="noShadow">
+                                    Cancel
+                                </Button>
+                            </Link>
+                            <Button type="submit" disabled={processing} className="min-w-[180px]">
+                                {processing ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Add Representing Country
+                                    </>
+                                )}
+                            </Button>
                         </div>
-                    </div>
-                    <div>
-                        <Label htmlFor="visa_requirements">Visa Requirements</Label>
-                        <Textarea
-                            id="visa_requirements"
-                            value={data.visa_requirements}
-                            onChange={handleInputChange('visa_requirements')}
-                            placeholder="Enter visa requirements and procedures..."
-                            rows={4}
-                        />
-                        {errors.visa_requirements && <p className="text-sm text-red-600 mt-1">{errors.visa_requirements}</p>}
-                    </div>
-                    <div>
-                        <Label htmlFor="part_time_work_details">Part-time Work Details</Label>
-                        <Textarea
-                            id="part_time_work_details"
-                            value={data.part_time_work_details}
-                            onChange={handleInputChange('part_time_work_details')}
-                            placeholder="Enter part-time work opportunities and restrictions..."
-                            rows={4}
-                        />
-                        {errors.part_time_work_details && <p className="text-sm text-red-600 mt-1">{errors.part_time_work_details}</p>}
-                    </div>
-                    <div>
-                        <Label htmlFor="country_benefits">Country Benefits</Label>
-                        <Textarea
-                            id="country_benefits"
-                            value={data.country_benefits}
-                            onChange={handleInputChange('country_benefits')}
-                            placeholder="Enter benefits and advantages of studying in this country..."
-                            rows={4}
-                        />
-                        {errors.country_benefits && <p className="text-sm text-red-600 mt-1">{errors.country_benefits}</p>}
-                    </div>
-                    <div>
-                        <Label htmlFor="status_ids">Statuses</Label>
-                        <MultiSelect
-                            options={statuses.map(status => ({ label: status.name, value: status.id, disabled: status.id === newStatusId }))}
-                            onValueChange={handleStatusChange}
-                            defaultValue={data.status_ids}
-                            placeholder="Select statuses"
-                            className="w-1/2"
-                        />
-                        {errors.status_ids && <p className="text-sm text-red-600 mt-1">{errors.status_ids}</p>}
-                    </div>
-                    <div className="flex justify-end space-x-4">
-                        <Link href={route("agents:rep-countries:index")}>
-                            <Button type="button" variant="neutral">Cancel</Button>
-                        </Link>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? 'Creating...' : 'Add Representing Country'}
-                        </Button>
                     </div>
                 </form>
             </div>
