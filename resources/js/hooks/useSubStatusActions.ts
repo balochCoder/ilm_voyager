@@ -7,7 +7,7 @@ interface UseSubStatusActionsReturn {
     // Toggle functionality
     isToggleLoading: (id: number) => boolean;
     handleToggleSubStatus: (subStatus: SubStatus, isActive: boolean) => void;
-    
+
     // Edit functionality
     editDialog: {
         isOpen: boolean;
@@ -48,7 +48,6 @@ export function useSubStatusActions(): UseSubStatusActionsReturn {
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Sub-step status updated successfully!');
             },
             onError: (errors) => {
                 toast.error('Failed to update sub-step status');
@@ -94,7 +93,6 @@ export function useSubStatusActions(): UseSubStatusActionsReturn {
         }, {
             preserveScroll: true,
             onSuccess: () => {
-                toast.success('Sub-step name updated successfully!');
                 closeEditDialog();
             },
             onError: (errors) => {
@@ -118,4 +116,4 @@ export function useSubStatusActions(): UseSubStatusActionsReturn {
         setEditedName,
         handleEditSubStatus
     };
-} 
+}

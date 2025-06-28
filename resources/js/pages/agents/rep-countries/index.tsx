@@ -91,6 +91,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         isOpen: false,
         status: null
     });
+    const [sheetTitle, setSheetTitle] = useState<string>('');
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
@@ -106,6 +107,20 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             toast.success(flash?.success);
         }
     }, [flash]);
+
+    // Refresh sheet content when sub-statuses are updated
+    useEffect(() => {
+        if (subStatusesSheet.isOpen && subStatusesSheet.status) {
+            refreshSubStatusesInSheet();
+        }
+    }, [repCountries]);
+
+    // Refresh sheet content after successful sub-status operations
+    useEffect(() => {
+        if (subStatusesSheet.isOpen && !subStatusActions.editDialog.isOpen && !subStatusDialog.isOpen) {
+            refreshSubStatusesInSheet();
+        }
+    }, [subStatusActions.editDialog.isOpen, subStatusDialog.isOpen]);
 
     // Initialize selected country from URL params
     useEffect(() => {
@@ -177,7 +192,6 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             }, {
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success('Sub-step added successfully!');
                     setSubStatusDialog(prev => ({ ...prev, isOpen: false }));
                 },
                 onError: (errors) => {
@@ -190,12 +204,14 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                     setSubStatusDialog(prev => ({ ...prev, isAdding: false }));
                 }
             });
-        } catch (error) {
+        } catch (e) {
             setSubStatusDialog(prev => ({
                 ...prev,
                 errors: { name: 'An error occurred while adding sub-step' }
             }));
             setSubStatusDialog(prev => ({ ...prev, isAdding: false }));
+            console.log(e);
+
         }
     };
 
@@ -204,17 +220,59 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     };
 
     const openSubStatusesSheet = (status: RepCountryStatus) => {
+        setSheetTitle(`Sub-Steps for "${status.status_name}"`);
         setSubStatusesSheet({
             isOpen: true,
             status
         });
     };
 
-    const closeSubStatusesSheet = () => {
+
+    const handleSheetOpenChange = (open: boolean) => {
+        if (!open) {
+            // Add a small delay to allow the sheet to close smoothly
+            setTimeout(() => {
+                setSubStatusesSheet({
+                    isOpen: false,
+                    status: null
+                });
+                // Keep the title for a bit longer to prevent flickering
+                setTimeout(() => {
+                    setSheetTitle('');
+                }, 300);
+            }, 150);
+        } else {
+            setSubStatusesSheet(prev => ({ ...prev, isOpen: true }));
+        }
+    };
+
+    const handleAddSubStatusFromSheet = (statusId: string, statusName: string) => {
+        // Close the sheet first
         setSubStatusesSheet({
             isOpen: false,
             status: null
         });
+
+        // Then open the dialog after a short delay
+        setTimeout(() => {
+            handleAddSubStatus(statusId, statusName);
+        }, 200);
+    };
+
+    const refreshSubStatusesInSheet = () => {
+        if (subStatusesSheet.status) {
+            // Find the updated status from the repCountries data
+            const updatedStatus = repCountries
+                .flatMap(rc => rc.statuses || [])
+                .find(s => s.id === subStatusesSheet.status?.id);
+
+            if (updatedStatus) {
+                setSubStatusesSheet(prev => ({
+                    ...prev,
+                    status: updatedStatus
+                }));
+            }
+        }
     };
 
     return (
@@ -498,7 +556,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                                     <Edit className="w-3 h-3" />
                                                                 </Button>
                                                                 <Button
-                                                                    onClick={() => handleAddSubStatus(status.id, status.status_name)}
+                                                                    onClick={() => handleAddSubStatusFromSheet(status.id, status.status_name)}
                                                                     variant="noShadow"
                                                                     size="sm"
                                                                     className="h-6 w-6 p-0"
@@ -742,17 +800,21 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                 </Dialog>
 
                 {/* Sub-Statuses Sheet */}
-                <Sheet open={subStatusesSheet.isOpen} onOpenChange={closeSubStatusesSheet}>
+                <Sheet open={subStatusesSheet.isOpen} onOpenChange={handleSheetOpenChange}>
                     <SheetContent className="w-[400px] sm:w-[540px]">
                         <SheetHeader>
-                            <SheetTitle>Sub-Steps for "{subStatusesSheet.status?.status_name}"</SheetTitle>
+                            <SheetTitle>{sheetTitle}</SheetTitle>
                             <SheetDescription>
                                 Manage the sub-steps for this application step. You can toggle their status and edit their names.
                             </SheetDescription>
                         </SheetHeader>
                         <div className="mt-6 space-y-4">
-                            {subStatusesSheet.status?.sub_statuses && subStatusesSheet.status.sub_statuses.length > 0 ? (
-                                <div className="space-y-3">
+                            {!subStatusesSheet.status ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <Loader className="w-6 h-6 animate-spin text-blue-500" />
+                                </div>
+                            ) : subStatusesSheet.status.sub_statuses && subStatusesSheet.status.sub_statuses.length > 0 ? (
+                                <div className="grid flex-1 auto-rows-min gap-6 px-4">
                                     {subStatusesSheet.status.sub_statuses.map((subStatus: SubStatus, index: number) => (
                                         <div key={subStatus.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                                             <div className="flex items-center space-x-3">
@@ -777,7 +839,13 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                     />
                                                 )}
                                                 <Button
-                                                    onClick={() => subStatusActions.openEditDialog(subStatus)}
+                                                    onClick={() => {
+                                                        subStatusActions.openEditDialog(subStatus);
+                                                        // Refresh sheet content after editing
+                                                        setTimeout(() => {
+                                                            refreshSubStatusesInSheet();
+                                                        }, 100);
+                                                    }}
                                                     variant="noShadow"
                                                     size="sm"
                                                     className="h-8 w-8 p-0 hover:bg-gray-200"
@@ -800,9 +868,8 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                     </p>
                                     <Button
                                         onClick={() => {
-                                            closeSubStatusesSheet();
                                             if (subStatusesSheet.status) {
-                                                handleAddSubStatus(subStatusesSheet.status.id, subStatusesSheet.status.status_name);
+                                                handleAddSubStatusFromSheet(subStatusesSheet.status.id, subStatusesSheet.status.status_name);
                                             }
                                         }}
                                         className="bg-blue-600 hover:bg-blue-700"
