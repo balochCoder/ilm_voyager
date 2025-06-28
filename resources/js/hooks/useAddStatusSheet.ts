@@ -8,11 +8,13 @@ interface UseAddStatusDialogReturn {
     currentRepCountryName: string | null;
     newStatusName: string;
     isAdding: boolean;
+    errors: Record<string, string>;
     inputRef: React.RefObject<HTMLInputElement | null>;
     openDialog: (repCountryId: string, repCountryName: string) => void;
     closeDialog: () => void;
     setNewStatusName: (name: string) => void;
     handleAddStatus: (e: React.FormEvent) => void;
+    clearErrors: () => void;
 }
 
 export function useAddStatusDialog(): UseAddStatusDialogReturn {
@@ -21,12 +23,14 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
     const [currentRepCountryName, setCurrentRepCountryName] = useState<string | null>(null);
     const [newStatusName, setNewStatusName] = useState('');
     const [isAdding, setIsAdding] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const openDialog = (repCountryId: string, repCountryName: string) => {
         setCurrentRepCountryId(repCountryId);
         setCurrentRepCountryName(repCountryName);
         setNewStatusName('');
+        setErrors({});
         setIsOpen(true);
         // Focus input after dialog opens
         setTimeout(() => {
@@ -41,7 +45,12 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
             setCurrentRepCountryName(null);
             setNewStatusName('');
             setIsAdding(false);
+            setErrors({});
         }, 500);
+    };
+
+    const clearErrors = () => {
+        setErrors({});
     };
 
     const handleAddStatus = (e: React.FormEvent) => {
@@ -49,6 +58,7 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
         if (!currentRepCountryId || !newStatusName.trim()) return;
 
         setIsAdding(true);
+        setErrors({});
         router.post(
             route('agents:rep-countries:add-status', currentRepCountryId),
             {
@@ -59,6 +69,7 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
                 onSuccess: () => {
                     // Reset input instead of closing dialog
                     setNewStatusName('');
+                    setErrors({});
                     toast.success('Status added successfully!');
                     // Focus input again for next entry
                     setTimeout(() => {
@@ -68,7 +79,7 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
                     setIsOpen(false); // Optionally close dialog after success
                 },
                 onError: (errors) => {
-                    toast.error('Failed to add status');
+                    setErrors(errors);
                     console.error('Error adding status:', errors);
                 },
                 onFinish: () => {
@@ -84,10 +95,12 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
         currentRepCountryName,
         newStatusName,
         isAdding,
+        errors,
         inputRef,
         openDialog,
         closeDialog,
         setNewStatusName,
         handleAddStatus,
+        clearErrors,
     };
 }

@@ -8,11 +8,13 @@ interface UseEditStatusDialogReturn {
     currentStatus: RepCountryStatus | null;
     editedStatusName: string;
     isEditing: boolean;
+    errors: Record<string, string>;
     inputRef: React.RefObject<HTMLInputElement | null>;
     openDialog: (status: RepCountryStatus) => void;
     closeDialog: () => void;
     setEditedStatusName: (name: string) => void;
     handleEditStatus: (e: React.FormEvent) => void;
+    clearErrors: () => void;
 }
 
 export function useEditStatusDialog(): UseEditStatusDialogReturn {
@@ -20,11 +22,13 @@ export function useEditStatusDialog(): UseEditStatusDialogReturn {
     const [currentStatus, setCurrentStatus] = useState<RepCountryStatus | null>(null);
     const [editedStatusName, setEditedStatusName] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const openDialog = (status: RepCountryStatus) => {
         setCurrentStatus(status);
         setEditedStatusName(status.status_name);
+        setErrors({});
         setIsOpen(true);
         // Focus input after dialog opens
         setTimeout(() => {
@@ -38,7 +42,12 @@ export function useEditStatusDialog(): UseEditStatusDialogReturn {
             setCurrentStatus(null);
             setEditedStatusName('');
             setIsEditing(false);
+            setErrors({});
         }, 500);
+    };
+
+    const clearErrors = () => {
+        setErrors({});
     };
 
     const handleEditStatus = (e: React.FormEvent) => {
@@ -46,6 +55,7 @@ export function useEditStatusDialog(): UseEditStatusDialogReturn {
         if (!currentStatus || !editedStatusName.trim()) return;
 
         setIsEditing(true);
+        setErrors({});
         router.patch(
             route('agents:rep-countries:edit-status', currentStatus.id),
             {
@@ -57,7 +67,7 @@ export function useEditStatusDialog(): UseEditStatusDialogReturn {
                     closeDialog();
                 },
                 onError: (errors) => {
-                    toast.error('Failed to update status');
+                    setErrors(errors);
                     console.error('Error updating status:', errors);
                 },
                 onFinish: () => {
@@ -72,10 +82,12 @@ export function useEditStatusDialog(): UseEditStatusDialogReturn {
         currentStatus,
         editedStatusName,
         isEditing,
+        errors,
         inputRef,
         openDialog,
         closeDialog,
         setEditedStatusName,
         handleEditStatus,
+        clearErrors,
     };
 }

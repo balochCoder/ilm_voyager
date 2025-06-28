@@ -368,27 +368,29 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                                     <TableCell>{`Status ${status.order}`}</TableCell>
                                                                     <TableCell className="font-medium">{status.status_name}</TableCell>
                                                                     <TableCell>
-                                                                        <div className="flex items-center space-x-3">
-                                                                            {isSwitchLoading(status.id) ? (
-                                                                                <Loader className="w-4 h-4 animate-spin text-blue-500" />
-                                                                            ) : (
-                                                                                <StatusSwitch
-                                                                                    id={status.id}
-                                                                                    checked={status.is_active || false}
-                                                                                    route={route('agents:rep-countries:toggle-rep-country-status', status.id)}
-                                                                                    showLabel={false}
-                                                                                />
-                                                                            )}
-                                                                            <Button
-                                                                                onClick={() => editStatusDialog.openDialog(status)}
-                                                                                variant="noShadow"
-                                                                                className="rounded
-                                                                                 cursor-pointer bg-secondary"
-                                                                                size="icon"
-                                                                            >
-                                                                                <Edit />
-                                                                            </Button>
-                                                                        </div>
+                                                                        {status.status_name !== 'New' && (
+                                                                            <div className="flex items-center space-x-3">
+                                                                                {isSwitchLoading(status.id) ? (
+                                                                                    <Loader className="w-4 h-4 animate-spin text-blue-500" />
+                                                                                ) : (
+                                                                                    <StatusSwitch
+                                                                                        id={status.id}
+                                                                                        checked={status.is_active || false}
+                                                                                        route={route('agents:rep-countries:toggle-rep-country-status', status.id)}
+                                                                                        showLabel={false}
+                                                                                    />
+                                                                                )}
+                                                                                <Button
+                                                                                    onClick={() => editStatusDialog.openDialog(status)}
+                                                                                    variant="noShadow"
+                                                                                    className="rounded
+                                                                                     cursor-pointer bg-secondary"
+                                                                                    size="icon"
+                                                                                >
+                                                                                    <Edit />
+                                                                                </Button>
+                                                                            </div>
+                                                                        )}
                                                                     </TableCell>
                                                                 </TableRow>
                                                             );
@@ -468,6 +470,9 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                     disabled={addStatusDialog.isAdding}
                                     autoFocus
                                 />
+                                {addStatusDialog.errors.name && (
+                                    <p className="text-sm text-red-600">{addStatusDialog.errors.name}</p>
+                                )}
                             </div>
                         </div>
                         <DialogFooter>
@@ -498,6 +503,9 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                     disabled={editStatusDialog.isEditing}
                                     autoFocus
                                 />
+                                {editStatusDialog.errors.status_name && (
+                                    <p className="text-sm text-red-600">{editStatusDialog.errors.status_name}</p>
+                                )}
                             </div>
                         </div>
                         <DialogFooter>

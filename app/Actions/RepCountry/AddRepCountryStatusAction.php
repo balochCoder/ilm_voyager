@@ -7,6 +7,7 @@ namespace App\Actions\RepCountry;
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 final class AddRepCountryStatusAction
@@ -19,6 +20,25 @@ final class AddRepCountryStatusAction
             ]);
 
             $statusName = $request->name;
+
+            // Prevent creating a status with name "New"
+            if ($statusName === 'New') {
+                throw ValidationException::withMessages([
+                    'name' => 'Cannot create a status with the name "New". This name is reserved and protected.',
+                ]);
+            }
+
+            // Check for duplicate status name within the same rep country
+            $existingStatus = $repCountry->repCountryStatuses()
+                ->where('status_name', $statusName)
+                ->first();
+
+            if ($existingStatus) {
+                throw ValidationException::withMessages([
+                    'name' => "A status with the name '{$statusName}' already exists for this country. Please choose a different name.",
+                ]);
+            }
+
             $maxOrder = $repCountry->repCountryStatuses()->max('order') ?? 0;
             $repCountry->repCountryStatuses()->create([
                 'status_name' => $statusName,

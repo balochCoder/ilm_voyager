@@ -7,6 +7,7 @@ namespace App\Actions\RepCountry;
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 final class SaveRepCountryStatusOrderAction
@@ -21,6 +22,16 @@ final class SaveRepCountryStatusOrderAction
 
         try {
             $statusOrder = $request->input('status_order', []);
+            
+            // Check if any "New" status is being reordered
+            foreach ($statusOrder as $item) {
+                if ($item['status_name'] === 'New') {
+                    throw ValidationException::withMessages([
+                        'status_order' => 'Cannot reorder the "New" status. This status is protected and must remain in its original position.',
+                    ]);
+                }
+            }
+
             foreach ($statusOrder as $item) {
                 $repCountry->repCountryStatuses()->where('status_name', $item['status_name'])->update([
                     'order' => $item['order'],

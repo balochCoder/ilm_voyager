@@ -6,6 +6,7 @@ namespace App\Actions\RepCountry;
 
 use App\Http\Requests\RepCountry\ToggleRepCountryStatusRequest;
 use App\Models\RepCountryStatus;
+use Illuminate\Validation\ValidationException;
 
 final class ToggleRepCountryStatusAction
 {
@@ -14,6 +15,13 @@ final class ToggleRepCountryStatusAction
      */
     public function execute(RepCountryStatus $repCountryStatus, ToggleRepCountryStatusRequest $request): RepCountryStatus
     {
+        // Prevent toggling if status name is "New"
+        if ($repCountryStatus->status_name === 'New') {
+            throw ValidationException::withMessages([
+                'status' => 'Cannot modify the "New" status. This status is protected and cannot be changed.',
+            ]);
+        }
+
         $validated = $request->validated();
 
         $repCountryStatus->update(['is_active' => $validated['is_active']]);
