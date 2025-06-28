@@ -144,41 +144,9 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                 </div>
 
                 {/* Stats and Filter Section */}
-                <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Stats Cards */}
-                    <div className="flex gap-4 flex-1">
-                        <Card className="flex-1">
-                            <CardContent className="p-4">
-                                <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        <Settings className="w-4 h-4 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Total Countries</p>
-                                        <p className="text-2xl font-semibold">{pagination.total}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="flex-1">
-                            <CardContent className="p-4">
-                                <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-green-100 rounded-lg">
-                                        <Check className="w-4 h-4 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Active</p>
-                                        <p className="text-2xl font-semibold">
-                                            {repCountries.filter(rc => rc.is_active).length}
-                                        </p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
+                <div className="flex flex-col gap-6">
                     {/* Country Filter */}
-                    <div className="flex flex-col space-y-2 min-w-[280px]">
+                    <div className="flex flex-col space-y-2 max-w-[280px]">
                         <Label htmlFor="country-filter" className="text-sm font-medium">
                             Filter by Country
                         </Label>
@@ -252,6 +220,38 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                         {isLoading && (
                             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                         )}
+                    </div>
+
+                    {/* Stats Cards */}
+                    <div className="flex gap-4 w-full">
+                        <Card className="w-1/2">
+                            <CardContent className="p-4">
+                                <div className="flex items-center space-x-2">
+                                    <div className="p-2 bg-blue-100 rounded-lg">
+                                        <Settings className="w-4 h-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Total Countries</p>
+                                        <p className="text-2xl font-semibold">{pagination.total}</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="w-1/2">
+                            <CardContent className="p-4">
+                                <div className="flex items-center space-x-2">
+                                    <div className="p-2 bg-green-100 rounded-lg">
+                                        <Check className="w-4 h-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Active</p>
+                                        <p className="text-2xl font-semibold">
+                                            {repCountries.filter(rc => rc.is_active).length}
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 

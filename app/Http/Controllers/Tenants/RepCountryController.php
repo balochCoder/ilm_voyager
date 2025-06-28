@@ -101,7 +101,7 @@ final class RepCountryController extends Controller
 
     public function addNotes(RepCountry $repCountry)
     {
-        $repCountry->load(['repCountryStatuses' => function ($query) {
+        $repCountry->load(['country','repCountryStatuses' => function ($query) {
             $query->orderBy('order', 'asc');
         }]);
 
