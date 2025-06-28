@@ -107,7 +107,7 @@ final class RepCountryController extends Controller
 
         return $this->factory->render('agents/rep-countries/add-notes', [
             'repCountry' => $repCountry,
-            'statuses' => $repCountry->statuses,
+            'statuses' => $repCountry->repCountryStatuses,
         ]);
     }
 

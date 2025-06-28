@@ -32,8 +32,7 @@ final class EditRepCountryStatusAction
         }
 
         // Check for duplicate status name within the same rep country (excluding current status)
-        $existingStatus = $repCountryStatus->repCountry()
-            ->repCountryStatuses()
+        $existingStatus = $repCountryStatus
             ->where('status_name', $validated['status_name'])
             ->where('id', '!=', $repCountryStatus->id)
             ->first();
@@ -48,4 +47,4 @@ final class EditRepCountryStatusAction
 
         return $repCountryStatus->fresh();
     }
-} 
+}

@@ -25,16 +25,12 @@ final class EditRepCountryStatusRequest extends FormRequest
      */
     public function rules(): array
     {
-        $repCountryStatus = $this->route('repCountryStatus');
-        
+
         return [
             'status_name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('rep_country_status', 'status_name')
-                    ->where('rep_country_id', $repCountryStatus->rep_country_id)
-                    ->ignore($repCountryStatus->id),
             ],
         ];
     }
@@ -50,7 +46,7 @@ final class EditRepCountryStatusRequest extends FormRequest
             'status_name.required' => 'The status name is required.',
             'status_name.string' => 'The status name must be a string.',
             'status_name.max' => 'The status name may not be greater than 255 characters.',
-            'status_name.unique' => 'A status with this name already exists for this country. Please choose a different name.',
+         
         ];
     }
-} 
+}

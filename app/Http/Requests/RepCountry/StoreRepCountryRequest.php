@@ -36,8 +36,6 @@ final class StoreRepCountryRequest extends FormRequest
                 'exists:countries,id',
                 Rule::unique('rep_countries', 'country_id'),
             ],
-            'status_ids' => 'nullable|array',
-            'status_ids.*' => 'distinct|exists:statuses,id',
         ];
     }
 
@@ -52,9 +50,6 @@ final class StoreRepCountryRequest extends FormRequest
             'country_id.required' => 'Please select a country.',
             'country_id.exists' => 'The selected country does not exist.',
             'country_id.unique' => 'This country is already being represented.',
-            'status_ids.array' => 'Status selection must be an array.',
-            'status_ids.*.distinct' => 'Each status can only be selected once.',
-            'status_ids.*.exists' => 'One or more selected statuses do not exist.',
         ];
     }
 }
