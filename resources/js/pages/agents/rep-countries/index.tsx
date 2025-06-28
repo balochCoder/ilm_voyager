@@ -1,11 +1,11 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryStatus, SharedData, Status } from '@/types';
+import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Check, ChevronsUpDown, Loader2, Loader, Edit, Settings, Calendar, FileText, ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Check, ChevronsUpDown, Loader2, Loader, Edit, Settings, Calendar, FileText, ArrowUpDown, ChevronDown, ChevronUp, Layers } from 'lucide-react';
 import Heading from '@/components/heading';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
@@ -27,9 +27,12 @@ import { Input } from '@/components/ui/input';
 import { useAddStatusDialog } from '@/hooks/useAddStatusDialog';
 import { useEditStatusDialog } from '@/hooks/useEditStatusDialog';
 import { useSwitchState } from '@/hooks/useSwitchState';
+import { useSubStatusActions } from '@/hooks/useSubStatusActions';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, } from '@/components/ui/sheet';
 
 interface Props {
     repCountries: RepCountry[];
@@ -66,6 +69,28 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     const [isLoading, setIsLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [expandedCards, setExpandedCards] = useState<{ [key: string]: boolean }>({});
+    const [subStatusDialog, setSubStatusDialog] = useState<{
+        isOpen: boolean;
+        statusId: string;
+        statusName: string;
+        newSubStatusName: string;
+        isAdding: boolean;
+        errors: { name?: string };
+    }>({
+        isOpen: false,
+        statusId: '',
+        statusName: '',
+        newSubStatusName: '',
+        isAdding: false,
+        errors: {}
+    });
+    const [subStatusesSheet, setSubStatusesSheet] = useState<{
+        isOpen: boolean;
+        status: RepCountryStatus | null;
+    }>({
+        isOpen: false,
+        status: null
+    });
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
@@ -73,6 +98,8 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     const editStatusDialog = useEditStatusDialog();
     // Use the custom hook for switch states
     const { isSwitchLoading } = useSwitchState();
+    // Use the custom hook for sub-status actions
+    const subStatusActions = useSubStatusActions();
 
     useEffect(() => {
         if (flash?.success) {
@@ -120,6 +147,74 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         if (selectedCountry === 'all') return 'All Countries';
         const country = availableCountries.find(c => c.id === selectedCountry);
         return country ? country.name : 'All Countries';
+    };
+
+    const handleAddSubStatus = (statusId: string, statusName: string) => {
+        setSubStatusDialog({
+            isOpen: true,
+            statusId,
+            statusName,
+            newSubStatusName: '',
+            isAdding: false,
+            errors: {}
+        });
+    };
+
+    const handleAddSubStatusSubmit = async () => {
+        if (!subStatusDialog.newSubStatusName.trim()) {
+            setSubStatusDialog(prev => ({
+                ...prev,
+                errors: { name: 'Sub-step name is required' }
+            }));
+            return;
+        }
+
+        setSubStatusDialog(prev => ({ ...prev, isAdding: true, errors: {} }));
+
+        try {
+            router.post(route('agents:rep-countries:add-sub-status', { repCountryStatus: subStatusDialog.statusId }), {
+                name: subStatusDialog.newSubStatusName
+            }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Sub-step added successfully!');
+                    setSubStatusDialog(prev => ({ ...prev, isOpen: false }));
+                },
+                onError: (errors) => {
+                    setSubStatusDialog(prev => ({
+                        ...prev,
+                        errors: errors
+                    }));
+                },
+                onFinish: () => {
+                    setSubStatusDialog(prev => ({ ...prev, isAdding: false }));
+                }
+            });
+        } catch (error) {
+            setSubStatusDialog(prev => ({
+                ...prev,
+                errors: { name: 'An error occurred while adding sub-step' }
+            }));
+            setSubStatusDialog(prev => ({ ...prev, isAdding: false }));
+        }
+    };
+
+    const closeSubStatusDialog = () => {
+        setSubStatusDialog(prev => ({ ...prev, isOpen: false }));
+    };
+
+    const openSubStatusesSheet = (status: RepCountryStatus) => {
+        setSubStatusesSheet({
+            isOpen: true,
+            status
+        });
+    };
+
+    const closeSubStatusesSheet = () => {
+        setSubStatusesSheet({
+            isOpen: false,
+            status: null
+        });
     };
 
     return (
@@ -402,6 +497,26 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                                 >
                                                                     <Edit className="w-3 h-3" />
                                                                 </Button>
+                                                                <Button
+                                                                    onClick={() => handleAddSubStatus(status.id, status.status_name)}
+                                                                    variant="noShadow"
+                                                                    size="sm"
+                                                                    className="h-6 w-6 p-0"
+                                                                    title="Add sub-step"
+                                                                >
+                                                                    <Layers className="w-3 h-3" />
+                                                                </Button>
+                                                                {status.sub_statuses && status.sub_statuses.length > 0 && (
+                                                                    <Button
+                                                                        onClick={() => openSubStatusesSheet(status)}
+                                                                        variant="noShadow"
+                                                                        size="sm"
+                                                                        className="h-6 w-6 p-0"
+                                                                        title="View sub-steps"
+                                                                    >
+                                                                        <FileText className="w-3 h-3" />
+                                                                    </Button>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>
@@ -551,6 +666,157 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                {/* Add Sub-Status Dialog */}
+                <Dialog open={subStatusDialog.isOpen} onOpenChange={closeSubStatusDialog}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add Sub-Step to "{subStatusDialog.statusName}"</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                            <div className="grid gap-3">
+                                <Label htmlFor="sub-status-name">Sub-Step Name</Label>
+                                <Input
+                                    id="sub-status-name"
+                                    value={subStatusDialog.newSubStatusName}
+                                    onChange={e => setSubStatusDialog(prev => ({ ...prev, newSubStatusName: e.target.value }))}
+                                    placeholder="e.g., Document Review, Interview, Approval"
+                                    disabled={subStatusDialog.isAdding}
+                                    autoFocus
+                                />
+                                {subStatusDialog.errors.name && (
+                                    <p className="text-sm text-red-600">{subStatusDialog.errors.name}</p>
+                                )}
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="submit"
+                                disabled={subStatusDialog.isAdding || !subStatusDialog.newSubStatusName.trim()}
+                                onClick={handleAddSubStatusSubmit}
+                            >
+                                {subStatusDialog.isAdding ? 'Adding...' : 'Add Sub-Step'}
+                            </Button>
+                            <DialogClose asChild>
+                                <Button variant="neutral">Cancel</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Edit Sub-Status Dialog */}
+                <Dialog open={subStatusActions.editDialog.isOpen} onOpenChange={subStatusActions.closeEditDialog}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Edit Sub-Step</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                            <div className="grid gap-3">
+                                <Label htmlFor="edit-sub-status-name">Sub-Step Name</Label>
+                                <Input
+                                    id="edit-sub-status-name"
+                                    value={subStatusActions.editDialog.editedName}
+                                    onChange={e => subStatusActions.setEditedName(e.target.value)}
+                                    placeholder="Sub-step name"
+                                    disabled={subStatusActions.editDialog.isEditing}
+                                    autoFocus
+                                />
+                                {subStatusActions.editDialog.errors.name && (
+                                    <p className="text-sm text-red-600">{subStatusActions.editDialog.errors.name}</p>
+                                )}
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="submit"
+                                disabled={subStatusActions.editDialog.isEditing || !subStatusActions.editDialog.editedName.trim()}
+                                onClick={subStatusActions.handleEditSubStatus}
+                            >
+                                {subStatusActions.editDialog.isEditing ? 'Updating...' : 'Update Sub-Step'}
+                            </Button>
+                            <DialogClose asChild>
+                                <Button variant="neutral">Cancel</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Sub-Statuses Sheet */}
+                <Sheet open={subStatusesSheet.isOpen} onOpenChange={closeSubStatusesSheet}>
+                    <SheetContent className="w-[400px] sm:w-[540px]">
+                        <SheetHeader>
+                            <SheetTitle>Sub-Steps for "{subStatusesSheet.status?.status_name}"</SheetTitle>
+                            <SheetDescription>
+                                Manage the sub-steps for this application step. You can toggle their status and edit their names.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <div className="mt-6 space-y-4">
+                            {subStatusesSheet.status?.sub_statuses && subStatusesSheet.status.sub_statuses.length > 0 ? (
+                                <div className="space-y-3">
+                                    {subStatusesSheet.status.sub_statuses.map((subStatus: SubStatus, index: number) => (
+                                        <div key={subStatus.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
+                                                    {index + 1}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-medium text-gray-900">{subStatus.name}</h4>
+                                                    <p className="text-sm text-gray-500">
+                                                        {subStatus.is_active ? 'Active' : 'Inactive'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                {subStatusActions.isToggleLoading(subStatus.id) ? (
+                                                    <Loader className="w-4 h-4 animate-spin text-blue-500" />
+                                                ) : (
+                                                    <Switch
+                                                        checked={subStatus.is_active || false}
+                                                        onCheckedChange={(checked: boolean) => subStatusActions.handleToggleSubStatus(subStatus, checked)}
+                                                        className="data-[state=checked]:bg-blue-500"
+                                                    />
+                                                )}
+                                                <Button
+                                                    onClick={() => subStatusActions.openEditDialog(subStatus)}
+                                                    variant="noShadow"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 hover:bg-gray-200"
+                                                    title="Edit sub-step"
+                                                >
+                                                    <Edit className="w-4 h-4 text-gray-600" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Layers className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">No sub-steps yet</h3>
+                                    <p className="text-gray-500 mb-4">
+                                        Add sub-steps to break down this application step into smaller tasks.
+                                    </p>
+                                    <Button
+                                        onClick={() => {
+                                            closeSubStatusesSheet();
+                                            if (subStatusesSheet.status) {
+                                                handleAddSubStatus(subStatusesSheet.status.id, subStatusesSheet.status.status_name);
+                                            }
+                                        }}
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                    >
+                                        <Layers className="w-4 h-4 mr-2" />
+                                        Add First Sub-Step
+                                    </Button>
+                                </div>
+                            )}
+
+
+                        </div>
+                    </SheetContent>
+                </Sheet>
             </div>
         </AppLayout>
     );

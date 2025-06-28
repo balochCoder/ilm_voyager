@@ -7,6 +7,7 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\RepCountryStatus
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonInterface|null $updated_at
  *
  * @property-read RepCountry $repCountry
+ * @property-read SubStatus[] $subStatuses
  *
  * @mixin \Eloquent
  */
@@ -36,6 +38,12 @@ final class RepCountryStatus extends Model
     public function repCountry(): BelongsTo
     {
         return $this->belongsTo(RepCountry::class);
+    }
+
+    /** @return HasMany<SubStatus> */
+    public function subStatuses(): HasMany
+    {
+        return $this->hasMany(SubStatus::class)->ordered();
     }
 
     /**

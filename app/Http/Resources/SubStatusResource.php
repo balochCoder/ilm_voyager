@@ -7,7 +7,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-final class RepCountryStatusResource extends JsonResource
+final class SubStatusResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,13 +18,12 @@ final class RepCountryStatusResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'status_name' => $this->status_name,
-            'order' => $this->order,
-            'notes' => $this->notes,
+            'name' => $this->name,
+            'description' => $this->description,
+            'is_completed' => $this->is_completed,
             'completed_at' => $this->completed_at,
-            'is_current' => $this->is_current,
+            'order' => $this->order,
             'is_active' => $this->is_active,
-            'sub_statuses' => SubStatusResource::collection($this->whenLoaded('subStatuses')),
             'created_at' => $this->created_at ? DateResource::make($this->created_at) : null,
             'updated_at' => $this->updated_at ? DateResource::make($this->updated_at) : null,
         ];

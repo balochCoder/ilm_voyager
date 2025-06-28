@@ -63,6 +63,24 @@ export interface Status {
     order: number;
 }
 
+export interface SubStatus {
+    id: number;
+    name: string;
+    description?: string | null;
+    is_completed: boolean;
+    completed_at?: string | null;
+    order: number;
+    is_active: boolean;
+    created_at?: {
+        human: string;
+        string: string;
+    } | null;
+    updated_at?: {
+        human: string;
+        string: string;
+    } | null;
+}
+
 export interface RepCountryStatus {
     id: int;
     status_name: string;
@@ -71,6 +89,7 @@ export interface RepCountryStatus {
     completed_at?: string | null;
     is_current?: boolean;
     is_active?: boolean;
+    sub_statuses?: SubStatus[];
     created_at?: {
         human: string;
         string: string;

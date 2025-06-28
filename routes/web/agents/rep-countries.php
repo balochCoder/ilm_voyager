@@ -30,3 +30,10 @@ Route::post('representing-countries/{repCountry}/add-status', [Tenants\RepCountr
 Route::patch('rep-country-status/{repCountryStatus}/toggle-status', [Tenants\RepCountryController::class, 'toggleRepCountryStatus'])->name('rep-countries:toggle-rep-country-status');
 
 Route::patch('rep-country-status/{repCountryStatus}/edit', [Tenants\RepCountryController::class, 'editRepCountryStatus'])->name('rep-countries:edit-status');
+
+// Sub-status routes
+Route::post('rep-country-status/{repCountryStatus}/add-sub-status', [Tenants\RepCountryController::class, 'addSubStatus'])->name('rep-countries:add-sub-status');
+
+Route::patch('sub-status/{subStatus}/toggle-status', [Tenants\RepCountryController::class, 'toggleSubStatus'])->name('rep-countries:toggle-sub-status');
+
+Route::patch('sub-status/{subStatus}/edit', [Tenants\RepCountryController::class, 'editSubStatus'])->name('rep-countries:edit-sub-status');

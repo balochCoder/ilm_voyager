@@ -5,26 +5,34 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenants;
 
 use App\Actions\RepCountry\AddRepCountryStatusAction;
+use App\Actions\RepCountry\AddSubStatusAction;
+use App\Actions\RepCountry\EditSubStatusAction;
 use App\Actions\RepCountry\SaveRepCountryStatusOrderAction;
 use App\Actions\RepCountry\StoreRepCountryAction;
 use App\Actions\RepCountry\StoreRepCountryNotesAction;
 use App\Actions\RepCountry\ToggleStatusAction;
 use App\Actions\RepCountry\ToggleRepCountryStatusAction;
+use App\Actions\RepCountry\ToggleSubStatusAction;
 use App\Actions\RepCountry\EditRepCountryStatusAction;
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
+use App\Http\Requests\RepCountry\AddSubStatusRequest;
+use App\Http\Requests\RepCountry\EditSubStatusRequest;
 use App\Http\Requests\RepCountry\SaveRepCountryStatusOrderRequest;
 use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
 use App\Http\Requests\RepCountry\StoreRepCountryRequest;
 use App\Http\Requests\RepCountry\ToggleStatusRequest;
 use App\Http\Requests\RepCountry\ToggleRepCountryStatusRequest;
+use App\Http\Requests\RepCountry\ToggleSubStatusRequest;
 use App\Http\Requests\RepCountry\EditRepCountryStatusRequest;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\RepCountryResource;
+use App\Http\Resources\SubStatusResource;
 use App\Models\Country;
 use App\Models\RepCountry;
 use App\Models\RepCountryStatus;
+use App\Models\SubStatus;
 use App\Models\Status;
 use Illuminate\Http\Request;
 
@@ -35,7 +43,9 @@ final class RepCountryController extends Controller
     public function index(Request $request)
     {
         $query = RepCountry::with(['country', 'repCountryStatuses' => function ($query) {
-            $query->orderBy('order', 'asc');
+            $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
+                $subQuery->orderBy('order', 'asc');
+            }]);
         }])->orderBy('created_at', 'desc');
 
         if ($request->filled('country_id') && $request->country_id !== 'all') {
@@ -102,7 +112,9 @@ final class RepCountryController extends Controller
     public function addNotes(RepCountry $repCountry)
     {
         $repCountry->load(['country','repCountryStatuses' => function ($query) {
-            $query->orderBy('order', 'asc');
+            $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
+                $subQuery->orderBy('order', 'asc');
+            }]);
         }]);
 
         return $this->factory->render('agents/rep-countries/add-notes', [
@@ -121,7 +133,9 @@ final class RepCountryController extends Controller
     public function reorderStatuses(RepCountry $repCountry)
     {
         $repCountry->load(['country', 'repCountryStatuses' => function ($query) {
-            $query->orderBy('order', 'asc');
+            $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
+                $subQuery->orderBy('order', 'asc');
+            }]);
         }]);
 
         return $this->factory->render('agents/rep-countries/reorder-statuses', [
@@ -158,5 +172,30 @@ final class RepCountryController extends Controller
 
         return redirect()->back()
             ->with('success', 'Status name updated successfully.');
+    }
+
+    public function addSubStatus(AddSubStatusRequest $request, RepCountryStatus $repCountryStatus, AddSubStatusAction $action)
+    {
+        $subStatus = $action->execute($request, $repCountryStatus);
+
+        return redirect()->back()
+            ->with('success', 'Sub-step added successfully!')
+            ->with('newSubStatus', SubStatusResource::make($subStatus));
+    }
+
+    public function toggleSubStatus(ToggleSubStatusRequest $request, SubStatus $subStatus, ToggleSubStatusAction $action)
+    {
+        $action->execute($request, $subStatus);
+
+        return redirect()->back()
+            ->with('success', 'Sub-step status updated successfully.');
+    }
+
+    public function editSubStatus(EditSubStatusRequest $request, SubStatus $subStatus, EditSubStatusAction $action)
+    {
+        $action->execute($request, $subStatus);
+
+        return redirect()->back()
+            ->with('success', 'Sub-step name updated successfully.');
     }
 }
