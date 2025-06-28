@@ -10,6 +10,7 @@ use App\Actions\RepCountry\StoreRepCountryAction;
 use App\Actions\RepCountry\StoreRepCountryNotesAction;
 use App\Actions\RepCountry\ToggleStatusAction;
 use App\Actions\RepCountry\ToggleRepCountryStatusAction;
+use App\Actions\RepCountry\EditRepCountryStatusAction;
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
@@ -18,6 +19,7 @@ use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
 use App\Http\Requests\RepCountry\StoreRepCountryRequest;
 use App\Http\Requests\RepCountry\ToggleStatusRequest;
 use App\Http\Requests\RepCountry\ToggleRepCountryStatusRequest;
+use App\Http\Requests\RepCountry\EditRepCountryStatusRequest;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\RepCountryResource;
 use App\Models\Country;
@@ -148,5 +150,13 @@ final class RepCountryController extends Controller
 
         return redirect()->back()
             ->with('success', 'Process Status updated successfully.');
+    }
+
+    public function editRepCountryStatus(EditRepCountryStatusRequest $request, RepCountryStatus $repCountryStatus, EditRepCountryStatusAction $action)
+    {
+        $action->execute($repCountryStatus, $request);
+
+        return redirect()->back()
+            ->with('success', 'Status name updated successfully.');
     }
 }

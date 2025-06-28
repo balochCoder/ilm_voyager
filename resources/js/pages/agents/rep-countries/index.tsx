@@ -17,7 +17,7 @@ import {
     PaginationPrevious
 } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Minus, Check, ChevronsUpDown, Loader2, Loader } from 'lucide-react';
+import { Plus, Minus, Check, ChevronsUpDown, Loader2, Loader, Edit } from 'lucide-react';
 import Heading from '@/components/heading';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
@@ -37,6 +37,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useAddStatusDialog } from '@/hooks/useAddStatusSheet';
+import { useEditStatusDialog } from '@/hooks/useEditStatusDialog';
 import { useSwitchState } from '@/hooks/useSwitchState';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -78,6 +79,8 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
+    // Use the custom hook for edit status dialog
+    const editStatusDialog = useEditStatusDialog();
     // Use the custom hook for switch states
     const { isSwitchLoading } = useSwitchState();
 
@@ -366,7 +369,6 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                                     <TableCell className="font-medium">{status.status_name}</TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center space-x-3">
-                                                                            
                                                                             {isSwitchLoading(status.id) ? (
                                                                                 <Loader className="w-4 h-4 animate-spin text-blue-500" />
                                                                             ) : (
@@ -377,6 +379,15 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                                                     showLabel={false}
                                                                                 />
                                                                             )}
+                                                                            <Button
+                                                                                onClick={() => editStatusDialog.openDialog(status)}
+                                                                                variant="noShadow"
+                                                                                className="rounded
+                                                                                 cursor-pointer bg-secondary"
+                                                                                size="icon"
+                                                                            >
+                                                                                <Edit />
+                                                                            </Button>
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
@@ -446,7 +457,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                         <DialogHeader>
                             <DialogTitle>Add a Status for {addStatusDialog.currentRepCountryName}</DialogTitle>
                         </DialogHeader>
-                        <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                        <div className="grid gap-4">
                             <div className="grid gap-3">
                                 <Label htmlFor="status-name">Status Name</Label>
                                 <Input
@@ -465,6 +476,36 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                             </Button>
                             <DialogClose asChild>
                                 <Button variant="neutral">Close</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Edit Status Dialog */}
+                <Dialog open={editStatusDialog.isOpen} onOpenChange={editStatusDialog.closeDialog}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Edit Status</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                            <div className="grid gap-3">
+                                <Label htmlFor="edit-status-name">Status Name</Label>
+                                <Input
+                                    id="edit-status-name"
+                                    value={editStatusDialog.editedStatusName}
+                                    onChange={e => editStatusDialog.setEditedStatusName(e.target.value)}
+                                    placeholder="Status name"
+                                    disabled={editStatusDialog.isEditing}
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit" disabled={editStatusDialog.isEditing || !editStatusDialog.editedStatusName.trim()} onClick={editStatusDialog.handleEditStatus} >
+                                {editStatusDialog.isEditing ? 'Updating...' : 'Update Status'}
+                            </Button>
+                            <DialogClose asChild>
+                                <Button variant="neutral">Cancel</Button>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>
