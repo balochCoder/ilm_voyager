@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\RepCountryStatus
  *
- * @property string $id
+ * @property int $id
  * @property string $rep_country_id
  * @property string $status_name
  * @property string|null $notes
@@ -29,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 final class RepCountryStatus extends Model
 {
-    use HasUlids;
+
 
     protected $table = 'rep_country_status';
 

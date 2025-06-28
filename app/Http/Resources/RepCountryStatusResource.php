@@ -17,11 +17,13 @@ final class RepCountryStatusResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'status_name' => $this->status_name,
             'order' => $this->order,
             'notes' => $this->notes,
             'completed_at' => $this->completed_at,
             'is_current' => $this->is_current,
+            'is_active' => $this->is_active,
             'created_at' => $this->created_at ? DateResource::make($this->created_at) : null,
             'updated_at' => $this->updated_at ? DateResource::make($this->updated_at) : null,
         ];

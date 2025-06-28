@@ -75,6 +75,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     const [isLoading, setIsLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [switchLoading, setSwitchLoading] = useState<{ [key: string]: boolean }>({});
+    const [repCountryStatusSwitchLoading, setRepCountryStatusSwitchLoading] = useState<{ [key: string]: boolean }>({});
 
     // Use the custom hook for add status sheet
     const addStatusDialog = useAddStatusDialog();
@@ -131,6 +132,17 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             is_active: newValue
         }, {
             onFinish: () => setSwitchLoading(prev => ({ ...prev, [countryId]: false })),
+            onSuccess: () => router.reload({ only: ['repCountries'] }),
+            preserveScroll: true,
+        });
+    };
+
+    const toggleRepCountryStatus = (statusId: string, newValue: boolean) => {
+        setRepCountryStatusSwitchLoading(prev => ({ ...prev, [statusId]: true }));
+        router.patch(route('agents:rep-countries:toggle-rep-country-status', statusId), {
+            is_active: newValue
+        }, {
+            onFinish: () => setRepCountryStatusSwitchLoading(prev => ({ ...prev, [statusId]: false })),
             onSuccess: () => router.reload({ only: ['repCountries'] }),
             preserveScroll: true,
         });
@@ -368,11 +380,24 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                     <TableBody>
                                                         {(repCountry.statuses ?? []).map((status: RepCountryStatus, index: number) => {
                                                             return (
-                                                                <TableRow key={status.status_name}>
+                                                                <TableRow key={status.id}>
                                                                     <TableCell>{index + 1}</TableCell>
                                                                     <TableCell>{`Status ${status.order}`}</TableCell>
                                                                     <TableCell className="font-medium">{status.status_name}</TableCell>
-                                                                    <TableCell>{/* Actions will be added later */}</TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center space-x-3">
+                                                                            
+                                                                            {repCountryStatusSwitchLoading[status.id] ? (
+                                                                                <Loader className="w-4 h-4 animate-spin text-blue-500" />
+                                                                            ) : (
+                                                                                <Switch
+                                                                                    checked={status.is_active || false}
+                                                                                    onCheckedChange={val => toggleRepCountryStatus(status.id, val)}
+                                                                                    className="data-[state=checked]:bg-blue-500"
+                                                                                />
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
                                                                 </TableRow>
                                                             );
                                                         })}

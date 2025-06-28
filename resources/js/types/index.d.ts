@@ -58,17 +58,19 @@ export interface Country {
 
 export interface Status {
     id: string;
-    name: string; 
+    name: string;
     color: string;
     order: number;
 }
 
 export interface RepCountryStatus {
+    id: int;
     status_name: string;
     order: number;
     notes?: string | null;
     completed_at?: string | null;
     is_current?: boolean;
+    is_active?: boolean;
     created_at?: {
         human: string;
         string: string;

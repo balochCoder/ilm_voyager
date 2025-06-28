@@ -9,6 +9,7 @@ use App\Actions\RepCountry\SaveRepCountryStatusOrderAction;
 use App\Actions\RepCountry\StoreRepCountryAction;
 use App\Actions\RepCountry\StoreRepCountryNotesAction;
 use App\Actions\RepCountry\ToggleStatusAction;
+use App\Actions\RepCountry\ToggleRepCountryStatusAction;
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
@@ -16,10 +17,12 @@ use App\Http\Requests\RepCountry\SaveRepCountryStatusOrderRequest;
 use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
 use App\Http\Requests\RepCountry\StoreRepCountryRequest;
 use App\Http\Requests\RepCountry\ToggleStatusRequest;
+use App\Http\Requests\RepCountry\ToggleRepCountryStatusRequest;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\RepCountryResource;
 use App\Models\Country;
 use App\Models\RepCountry;
+use App\Models\RepCountryStatus;
 use App\Models\Status;
 use Illuminate\Http\Request;
 
@@ -91,7 +94,7 @@ final class RepCountryController extends Controller
         $action->execute($repCountry, $request);
 
         return redirect()->back()
-            ->with('success', 'Status updated successfully.');
+            ->with('success', 'Representing Country Status updated successfully.');
     }
 
     public function addNotes(RepCountry $repCountry)
@@ -137,5 +140,13 @@ final class RepCountryController extends Controller
         $newStatus = $repCountry->repCountryStatuses()->where('status_name', $request->name)->first();
 
         return redirect()->back()->with('newStatus', $newStatus);
+    }
+
+    public function toggleRepCountryStatus(ToggleRepCountryStatusRequest $request, RepCountryStatus $repCountryStatus, ToggleRepCountryStatusAction $action)
+    {
+        $action->execute($repCountryStatus, $request);
+
+        return redirect()->back()
+            ->with('success', 'Process Status updated successfully.');
     }
 }

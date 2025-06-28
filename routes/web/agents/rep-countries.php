@@ -16,6 +16,8 @@ Route::post('representing-countries', [Tenants\RepCountryController::class, 'sto
 
 Route::patch('representing-countries/{repCountry}/toggle-status', [Tenants\RepCountryController::class, 'toggleStatus'])->name('rep-countries:toggle-status');
 
+Route::patch('representing-countries/status/{repCountryStatus}/toggle-status', [Tenants\RepCountryController::class, 'toggleRepCountryStatus'])->name('rep-countries:toggle-rep-country-status');
+
 Route::get('representing-countries/{repCountry}/add-notes', [Tenants\RepCountryController::class, 'addNotes'])->name('rep-countries:add-notes');
 
 Route::post('representing-countries/{repCountry}/add-notes', [Tenants\RepCountryController::class, 'storeNotes'])->name('rep-countries:store-notes');
