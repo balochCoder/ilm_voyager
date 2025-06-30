@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\TenantRolesEnum;
+use App\Models\Currency;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 
@@ -25,6 +26,7 @@ final class TenantDatabaseSeeder extends Seeder
         // Seed rep countries
         $this->call([
             RepCountrySeeder::class,
+            CurrencySeeder::class,
         ]);
     }
 }

@@ -130,3 +130,44 @@ export interface PaginationData {
     has_more_pages: boolean;
     has_previous_page: boolean;
 }
+
+export interface Currency {
+    id: number;
+    code: string;
+    name: string;
+    symbol: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Institution {
+    id: string;
+    rep_country_id: string;
+    institution_name: string;
+    campus?: string | null;
+    website?: string | null;
+    monthly_living_cost?: string | null;
+    funds_required_for_visa?: string | null;
+    application_fee?: string | null;
+    currency_id: number;
+    contract_terms?: string | null;
+    institute_type: 'direct' | 'indirect';
+    quality_of_desired_application: 'excellent' | 'good' | 'average' | 'below_average';
+    contract_expiry_date?: string | null;
+    is_language_mandatory: boolean;
+    language_requirements?: string | null;
+    institutional_benefits?: string | null;
+    part_time_work_details?: string | null;
+    scholarship_policy?: string | null;
+    institution_status_notes?: string | null;
+    contact_person_name?: string | null;
+    contact_person_email?: string | null;
+    contact_person_mobile?: string | null;
+    contact_person_designation?: string | null;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
+    rep_country?: RepCountry;
+    currency?: Currency;
+}
