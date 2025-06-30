@@ -26,7 +26,7 @@ import { useSubStatusActions } from '@/hooks/useSubStatusActions';
 import { useSwitchState } from '@/hooks/useSwitchState';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryResource, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
+import { BreadcrumbItem, Country, RepCountryResource, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ArrowUpDown,
@@ -176,7 +176,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
     };
 
     const handlePageChange = (page: number) => {
-        const params: Record<string, any> = { page };
+        const params: Record<string, number> = { page };
 
         router.get(route('agents:rep-countries:index'), params, { preserveState: true, preserveScroll: true });
     };
