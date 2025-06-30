@@ -32,6 +32,28 @@ class InstitutionController extends Controller
         if (request()->filled('type') && request('type') !== 'all') {
             $query->where('institute_type', request('type'));
         }
+        // New filters
+        if (request()->filled('institution_name')) {
+            $query->where('institution_name', 'like', '%' . request('institution_name') . '%');
+        }
+        if (request()->filled('contact_person_email')) {
+            $query->where('contact_person_email', 'like', '%' . request('contact_person_email') . '%');
+        }
+        if (request()->filled('keyword')) {
+            $q = request('keyword');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('institution_name', 'like', "%$q%")
+                    ->orWhere('contact_person_email', 'like', "%$q%")
+                    ->orWhere('contact_person_name', 'like', "%$q%")
+                ;
+            });
+        }
+        if (request()->filled('contract_expiry_start')) {
+            $query->whereDate('contract_expiry_date', '>=', request('contract_expiry_start'));
+        }
+        if (request()->filled('contract_expiry_end')) {
+            $query->whereDate('contract_expiry_date', '<=', request('contract_expiry_end'));
+        }
 
         $institutions = InstitutionResource::collection($query->paginate(4));
 

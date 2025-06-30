@@ -285,14 +285,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Representing Countries" />
 
-            <div className="flex h-full flex-1 flex-col space-y-6 overflow-x-hidden p-4 sm:p-6">
+            <div className="flex h-full flex-1 flex-col space-y-4 overflow-x-hidden p-4 sm:p-6">
                 {/* Header Section */}
                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
-                        <Heading title="Representing Countries" />
-                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-                            Manage countries you represent and their application processes
-                        </p>
+                        <Heading title="Representing Countries" description='Manage countries you represent and their application processes'/>
+
                     </div>
                     <Link href={route('agents:rep-countries:create')} className="w-full sm:w-auto">
                         <Button className="w-full cursor-pointer">
@@ -303,7 +301,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                 </div>
 
                 {/* Stats and Filter Section */}
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     {/* Country Filter */}
                     <div className="flex w-full flex-col space-y-2 sm:max-w-[280px]">
                         <Label htmlFor="country-filter" className="text-sm font-medium">
