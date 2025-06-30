@@ -5,7 +5,7 @@ import { BreadcrumbItem, Country } from '@/types';
 import Heading from '@/components/heading';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Search, Filter } from 'lucide-react';
+import { Globe, Search } from 'lucide-react';
 
 interface Props {
     countries: Country[];
@@ -61,7 +61,7 @@ export default function CountriesIndex({ countries }: Props) {
                             </div>
                         </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
                         <CardContent className="p-4">
                             <div className="flex items-center space-x-2">
