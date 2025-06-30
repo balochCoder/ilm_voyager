@@ -43,7 +43,7 @@ import {
     Plus,
     Settings,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -108,19 +108,35 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
         }
     }, [flash]);
 
+    // Move refreshSubStatusesInSheet and its callback above useEffect hooks
+    const refreshSubStatusesInSheet = () => {
+        if (subStatusesSheet.status) {
+            // Find the updated status from the repCountries data
+            const updatedStatus = repCountries.data.flatMap((rc) => rc.statuses || []).find((s) => s.id === subStatusesSheet.status?.id);
+
+            if (updatedStatus) {
+                setSubStatusesSheet((prev) => ({
+                    ...prev,
+                    status: updatedStatus,
+                }));
+            }
+        }
+    };
+    const refreshSubStatusesInSheetCb = useCallback(refreshSubStatusesInSheet, [repCountries, subStatusesSheet.status]);
+
     // Refresh sheet content when sub-statuses are updated
     useEffect(() => {
         if (subStatusesSheet.isOpen && subStatusesSheet.status) {
-            refreshSubStatusesInSheet();
+            refreshSubStatusesInSheetCb();
         }
-    }, [repCountries]);
+    }, [repCountries, subStatusesSheet.isOpen, subStatusesSheet.status, refreshSubStatusesInSheetCb]);
 
     // Refresh sheet content after successful sub-status operations
     useEffect(() => {
         if (subStatusesSheet.isOpen && !subStatusActions.editDialog.isOpen && !subStatusDialog.isOpen) {
-            refreshSubStatusesInSheet();
+            refreshSubStatusesInSheetCb();
         }
-    }, [subStatusActions.editDialog.isOpen, subStatusDialog.isOpen]);
+    }, [subStatusesSheet.isOpen, subStatusActions.editDialog.isOpen, subStatusDialog.isOpen, refreshSubStatusesInSheetCb]);
 
     // Initialize selected country from URL params
     useEffect(() => {
@@ -129,7 +145,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
         if (countryId) {
             setSelectedCountry(countryId);
         }
-    }, []);
+    }, [setSelectedCountry]);
 
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
@@ -265,20 +281,6 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
         setTimeout(() => {
             handleAddSubStatus(statusId, statusName);
         }, 200);
-    };
-
-    const refreshSubStatusesInSheet = () => {
-        if (subStatusesSheet.status) {
-            // Find the updated status from the repCountries data
-            const updatedStatus = repCountries.data.flatMap((rc) => rc.statuses || []).find((s) => s.id === subStatusesSheet.status?.id);
-
-            if (updatedStatus) {
-                setSubStatusesSheet((prev) => ({
-                    ...prev,
-                    status: updatedStatus,
-                }));
-            }
-        }
     };
 
     return (

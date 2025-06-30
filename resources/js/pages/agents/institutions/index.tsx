@@ -40,16 +40,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Institutions', href: '/agents/institutions' },
 ];
 
-const getPageNumbers = (current: number, last: number): (number | string)[] => {
-    const pages: (number | string)[] = [1];
-    if (current > 3) pages.push('...');
-    for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
-        if (i !== 1 && i !== last) pages.push(i);
-    }
-    if (current < last - 2) pages.push('...');
-    if (last > 1) pages.push(last);
-    return pages;
-};
 
 export default function InstitutionsIndex({ institutions, repCountries }: Props) {
     const { flash } = usePage<SharedData>().props;
