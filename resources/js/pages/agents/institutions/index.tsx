@@ -26,6 +26,9 @@ import { format } from 'date-fns';
 import { Building2, Check, ChevronsUpDown, Edit, FileText, Globe, Loader2, Plus, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { DateRange } from 'react-day-picker';
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 
 interface Props {
     institutions: InstitutionResource;
@@ -55,6 +58,11 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
     const [isLoading, setIsLoading] = useState(false);
     const [countryOpen, setCountryOpen] = useState(false);
     const [typeOpen, setTypeOpen] = useState(false);
+    const [institutionName, setInstitutionName] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [keyword, setKeyword] = useState('');
+    const [dateRange, setDateRange] = useState<DateRange | undefined>();
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
 
     useEffect(() => {
         if (flash?.success) {
@@ -67,52 +75,78 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
         const urlParams = new URLSearchParams(window.location.search);
         const countryId = urlParams.get('country_id');
         const type = urlParams.get('type');
+        const name = urlParams.get('institution_name') || '';
+        const email = urlParams.get('contact_person_email') || '';
+        const kw = urlParams.get('keyword') || '';
+        const start = urlParams.get('contract_expiry_start');
+        const end = urlParams.get('contract_expiry_end');
         if (countryId) {
             setSelectedCountry(countryId);
         }
         if (type) {
             setSelectedType(type);
         }
+        if (start || end) {
+            setDateRange({
+                from: start ? new Date(start) : undefined,
+                to: end ? new Date(end) : undefined,
+            });
+        }
+        setInstitutionName(name);
+        setContactEmail(email);
+        setKeyword(kw);
     }, []);
 
     const handlePageChange = (page: number) => {
-        const params: Record<string, any> = { page };
-
-        router.get(route('agents:institutions:index'), params, { preserveState: true, preserveScroll: true });
+        // Preserve all current query params and just update the page param
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(page));
+        router.visit(url.toString(), { preserveState: true, preserveScroll: true });
     };
 
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
         setCountryOpen(false);
-        setIsLoading(true);
+    };
 
+    const handleTypeFilter = (type: string) => {
+        setSelectedType(type);
+        setTypeOpen(false);
+    };
+
+    const handleSearch = () => {
         const url = new URL(window.location.href);
-        if (countryId === 'all') {
-            url.searchParams.delete('country_id');
-        } else {
-            url.searchParams.set('country_id', countryId);
-        }
+        if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('country_id', selectedCountry); else url.searchParams.delete('country_id');
+        if (selectedType && selectedType !== 'all') url.searchParams.set('type', selectedType); else url.searchParams.delete('type');
+        if (institutionName) url.searchParams.set('institution_name', institutionName); else url.searchParams.delete('institution_name');
+        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail); else url.searchParams.delete('contact_person_email');
+        if (keyword) url.searchParams.set('keyword', keyword); else url.searchParams.delete('keyword');
+        if (dateRange?.from) url.searchParams.set('contract_expiry_start', dateRange.from.toISOString().slice(0, 10)); else url.searchParams.delete('contract_expiry_start');
+        if (dateRange?.to) url.searchParams.set('contract_expiry_end', dateRange.to.toISOString().slice(0, 10)); else url.searchParams.delete('contract_expiry_end');
         url.searchParams.delete('page');
-
+        setIsLoading(true);
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
             onError: () => setIsLoading(false),
         });
     };
 
-    const handleTypeFilter = (type: string) => {
-        setSelectedType(type);
-        setTypeOpen(false);
+    const handleReset = () => {
+        setInstitutionName('');
+        setContactEmail('');
+        setKeyword('');
+        setDateRange(undefined);
+        setSelectedCountry('all');
+        setSelectedType('all');
         setIsLoading(true);
-
         const url = new URL(window.location.href);
-        if (type === 'all') {
-            url.searchParams.delete('type');
-        } else {
-            url.searchParams.set('type', type);
-        }
-        url.searchParams.delete('page');
-
+        url.searchParams.delete('institution_name');
+        url.searchParams.delete('contact_person_email');
+        url.searchParams.delete('keyword');
+        url.searchParams.delete('contract_expiry_start');
+        url.searchParams.delete('contract_expiry_end');
+        url.searchParams.delete('country_id');
+        url.searchParams.delete('type');
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
             onError: () => setIsLoading(false),
@@ -151,10 +185,10 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
 
                 {/* Stats and Filter Section */}
                 <div className="flex flex-col gap-6">
-                    {/* Filters */}
-                    <div className="flex flex-col gap-4 sm:flex-row">
+                    {/* Filters Row: Country, Type, and Advanced Search */}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-4">
                         {/* Country Filter */}
-                        <div className="flex w-full flex-col space-y-2 sm:max-w-[280px]">
+                        <div className="flex w-full flex-col gap-1 sm:max-w-[220px]">
                             <Label htmlFor="country-filter" className="text-sm font-medium">
                                 Filter by Country
                             </Label>
@@ -180,7 +214,7 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full p-0 sm:w-[280px]">
+                                <PopoverContent className="w-full p-0 sm:w-[220px]">
                                     <Command>
                                         <CommandInput placeholder="Search countries..." />
                                         <CommandList>
@@ -218,9 +252,8 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                 </PopoverContent>
                             </Popover>
                         </div>
-
                         {/* Type Filter */}
-                        <div className="flex w-full flex-col space-y-2 sm:max-w-[200px]">
+                        <div className="flex w-full flex-col gap-1 sm:max-w-[160px]">
                             <Label htmlFor="type-filter" className="text-sm font-medium">
                                 Filter by Type
                             </Label>
@@ -237,7 +270,7 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full p-0 sm:w-[200px]">
+                                <PopoverContent className="w-full p-0 sm:w-[160px]">
                                     <Command>
                                         <CommandList>
                                             <CommandGroup>
@@ -260,6 +293,73 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                     </Command>
                                 </PopoverContent>
                             </Popover>
+                        </div>
+                        {/* Institution Name Filter */}
+                        <div className="flex flex-col gap-1 w-full sm:max-w-[200px]">
+                            <Label htmlFor="institution_name" className="text-sm font-medium">Institution Name</Label>
+                            <Input
+                                id="institution_name"
+                                type="text"
+                                value={institutionName}
+                                onChange={e => setInstitutionName(e.target.value)}
+                                placeholder="Search by name"
+                            />
+                        </div>
+                        {/* Contact Email Filter */}
+                        <div className="flex flex-col gap-1 w-full sm:max-w-[200px]">
+                            <Label htmlFor="contact_person_email" className="text-sm font-medium">Contact Email</Label>
+                            <Input
+                                id="contact_person_email"
+                                type="text"
+                                value={contactEmail}
+                                onChange={e => setContactEmail(e.target.value)}
+                                placeholder="Search by email"
+                            />
+                        </div>
+                        {/* Keyword Filter */}
+                        <div className="flex flex-col gap-1 w-full sm:max-w-[180px]">
+                            <Label htmlFor="keyword" className="text-sm font-medium">Keyword</Label>
+                            <Input
+                                id="keyword"
+                                type="text"
+                                value={keyword}
+                                onChange={e => setKeyword(e.target.value)}
+                                placeholder="Any keyword"
+                            />
+                        </div>
+                        {/* Contract Expiry Date Range Filter */}
+                        <div className="flex flex-col gap-1 w-full sm:max-w-[240px]">
+                            <Label htmlFor="contract_expiry_date" className="text-sm font-medium">Contract Expiry Date Range</Label>
+                            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="noShadow"
+                                        className="w-full justify-start text-left font-normal"
+                                        type="button"
+                                    >
+                                        {dateRange?.from && dateRange?.to
+                                            ? `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`
+                                            : 'Pick a date range'}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start" side="bottom" avoidCollisions={false}>
+                                    <Calendar
+                                        mode="range"
+                                        selected={dateRange}
+                                        onSelect={setDateRange}
+                                        numberOfMonths={2}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        {/* Search/Reset Buttons */}
+                        <div className="flex flex-row gap-2 pt-6 sm:pt-0">
+                            <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading}>
+                                Search
+                            </Button>
+                            <Button type="button" variant="neutral" onClick={handleReset} disabled={isLoading}>
+                                Reset
+                            </Button>
                         </div>
                     </div>
 
