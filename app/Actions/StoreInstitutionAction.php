@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Http\Requests\Institution\StoreInstitutionRequest;
 use App\Models\Institution;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class StoreInstitutionAction
 {
@@ -14,7 +15,7 @@ class StoreInstitutionAction
     {
         $data = $request->validated();
         // Remove media fields
-        unset($data['contract_copy'], $data['logo'], $data['prospectus'], $data['additional_files']);
+        unset($data['contract_copy'], $data['logo'], $data['prospectus'], $data['additional_files'], $data['additional_file_titles']);
         $institution = Institution::create($data);
 
         // Handle single file uploads
@@ -22,38 +23,42 @@ class StoreInstitutionAction
         $this->handleSingleFile($request, $institution, 'logo');
         $this->handleSingleFile($request, $institution, 'prospectus');
 
-        // Handle multiple files - with debugging
-        if ($request->hasFile('additional_files')) {
-            \Log::info('Additional files found in request');
-            $files = $request->file('additional_files');
-            \Log::info('Files received:', ['count' => is_array($files) ? count($files) : 1]);
+        // Handle additional files with titles
+        if ($request->hasFile('additional_files') && is_array($request->file('additional_files'))) {
+            $additionalFiles = $request->file('additional_files');
+            $additionalFileTitles = $request->input('additional_file_titles', []);
 
-            // Always treat as array
-            if (!is_array($files)) {
-                $files = [$files];
-            }
+            \Log::info('Processing additional files', [
+                'count' => count($additionalFiles),
+                'titles' => $additionalFileTitles
+            ]);
 
-            foreach ($files as $index => $file) {
-                \Log::info("Processing file {$index}:", [
-                    'name' => $file ? $file->getClientOriginalName() : 'null',
-                    'size' => $file ? $file->getSize() : 'null',
-                    'valid' => $file ? $file->isValid() : 'null',
-                    'error' => $file ? $file->getError() : 'null'
-                ]);
+            foreach ($additionalFiles as $index => $file) {
+                try {
+                    if ($file && $file->isValid()) {
+                        $title = $additionalFileTitles[$index] ?? $file->getClientOriginalName();
 
-                if ($file instanceof UploadedFile && $file->isValid()) {
-                    try {
-                        $institution->addMedia($file)->toMediaCollection('additional_files');
-                        \Log::info("Successfully uploaded file: " . $file->getClientOriginalName());
-                    } catch (\Exception $e) {
-                        \Log::error("File upload failed for additional_files[{$index}]: " . $e->getMessage());
+                        \Log::info('Adding additional file', [
+                            'index' => $index,
+                            'filename' => $file->getClientOriginalName(),
+                            'title' => $title,
+                            'size' => $file->getSize()
+                        ]);
+
+                        $institution->addMedia($file)
+                            ->withCustomProperties(['title' => $title])
+                            ->toMediaCollection('additional_files');
+                    } else {
+                        \Log::warning('Invalid additional file at index', ['index' => $index]);
                     }
-                } else {
-                    \Log::warning("File {$index} is invalid or null");
+                } catch (\Exception $e) {
+                    \Log::error('Failed to upload additional file', [
+                        'index' => $index,
+                        'filename' => $file ? $file->getClientOriginalName() : 'unknown',
+                        'error' => $e->getMessage()
+                    ]);
                 }
             }
-        } else {
-            \Log::info('No additional files found in request');
         }
 
         return $institution->load(['repCountry', 'currency']);

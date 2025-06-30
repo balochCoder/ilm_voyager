@@ -49,12 +49,21 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
         logo: null as File | null,
         prospectus: null as File | null,
         additional_files: [] as File[],
+        additional_file_titles: [] as string[],
     });
 
     const handleFileChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             if (field === 'additional_files') {
-                setData('additional_files', Array.from(e.target.files));
+                const files = Array.from(e.target.files);
+                setData('additional_files', files);
+                // Initialize titles for new files
+                const titles = files.map((file, index) => {
+                    // Try to get existing title or generate default
+                    const existingTitle = data.additional_file_titles[index] || '';
+                    return existingTitle || file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+                });
+                setData('additional_file_titles', titles);
             } else {
                 setData(field as keyof typeof data, e.target.files[0]);
             }
@@ -62,10 +71,26 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
             // Handle case when files are cleared
             if (field === 'additional_files') {
                 setData('additional_files', []);
+                setData('additional_file_titles', []);
             } else {
                 setData(field as keyof typeof data, null);
             }
         }
+    };
+
+    const handleTitleChange = (index: number, title: string) => {
+        const newTitles = [...data.additional_file_titles];
+        newTitles[index] = title;
+        setData('additional_file_titles', newTitles);
+    };
+
+    const removeFile = (index: number) => {
+        const newFiles = [...data.additional_files];
+        const newTitles = [...data.additional_file_titles];
+        newFiles.splice(index, 1);
+        newTitles.splice(index, 1);
+        setData('additional_files', newFiles);
+        setData('additional_file_titles', newTitles);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -325,13 +350,35 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                         <Label>Additional Files (PDF, JPG, PNG, DOC, DOCX)</Label>
                         <Input type="file" name="additional_files[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={handleFileChange('additional_files')} />
                         {data.additional_files.length > 0 && (
-                            <div className="mt-1 text-sm text-green-600">
-                                ✓ {data.additional_files.length} file(s) selected:
-                                <ul className="mt-1 ml-2 text-xs">
-                                    {data.additional_files.map((file, index) => (
-                                        <li key={index}>• {file.name}</li>
-                                    ))}
-                                </ul>
+                            <div className="mt-3 space-y-3">
+                                <div className="text-sm text-green-600">
+                                    ✓ {data.additional_files.length} file(s) selected:
+                                </div>
+                                {data.additional_files.map((file, index) => (
+                                    <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex-1">
+                                            <div className="text-sm font-medium text-gray-700 mb-1">
+                                                File {index + 1}: {file.name}
+                                            </div>
+                                            <Input
+                                                type="text"
+                                                placeholder="Enter document title (e.g., Transcript, Certificate, etc.)"
+                                                value={data.additional_file_titles[index] || ''}
+                                                onChange={(e) => handleTitleChange(index, e.target.value)}
+                                                className="text-sm"
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => removeFile(index)}
+                                            className="text-red-600 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </Button>
+                                    </div>
+                                ))}
                             </div>
                         )}
                         {errors.additional_files && <div className="text-red-500 text-sm">{errors.additional_files}</div>}

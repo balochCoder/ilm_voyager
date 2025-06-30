@@ -76,4 +76,18 @@ class Institution extends Model implements HasMedia
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             ]);
     }
+
+    public function getAdditionalFilesWithTitles()
+    {
+        return $this->getMedia('additional_files')->map(function ($media) {
+            return [
+                'id' => $media->id,
+                'name' => $media->name,
+                'title' => $media->getCustomProperty('title', $media->name),
+                'url' => $media->getUrl(),
+                'size' => $media->size,
+                'mime_type' => $media->mime_type,
+            ];
+        });
+    }
 }

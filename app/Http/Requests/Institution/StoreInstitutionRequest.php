@@ -42,9 +42,10 @@ class StoreInstitutionRequest extends FormRequest
             'contract_copy' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'logo' => 'nullable|file|mimes:jpg,jpeg,png,svg|max:5120',
             'prospectus' => 'nullable|file|mimes:pdf|max:10240',
-            // Temporarily remove additional_files validation to test
-            // 'additional_files' => 'nullable',
-            // 'additional_files.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+            'additional_files' => 'nullable|array',
+            'additional_files.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+            'additional_file_titles' => 'nullable|array',
+            'additional_file_titles.*' => 'nullable|string|max:255',
         ];
     }
 
