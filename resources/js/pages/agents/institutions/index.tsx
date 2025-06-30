@@ -172,8 +172,7 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                 {/* Header Section */}
                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
-                        <Heading title="Institutions" />
-                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage educational institutions and their partnerships</p>
+                        <Heading title="Institutions" description='Manage educational institutions and their partnerships'/>
                     </div>
                     <Link href={route('agents:institutions:create')} className="w-full sm:w-auto">
                         <Button className="w-full cursor-pointer">
