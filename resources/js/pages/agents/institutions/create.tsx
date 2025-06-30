@@ -13,8 +13,8 @@ import { cn } from '@/lib/utils';
 import { BreadcrumbItem, Currency, RepCountry } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, Building2, DollarSign, FileText, Globe, Plus, Upload, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowLeft, Building2, DollarSign, FileText, Globe, Plus, Upload, Users, Trash2, Image as ImageIcon, File as FileIcon } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 
 
 interface Props {
@@ -60,12 +60,23 @@ const initialFormState = {
 
 type FormField = keyof typeof initialFormState;
 
+// Helper to get icon by file type
+function getFileIcon(file: File) {
+    const type = file.type;
+    if (type.includes('pdf')) return <FileText className="h-5 w-5 text-red-500" />;
+    if (type.includes('image')) return <ImageIcon className="h-5 w-5 text-blue-500" />;
+    if (type.includes('word')) return <FileText className="h-5 w-5 text-blue-700" />;
+    return <FileIcon className="h-5 w-5 text-gray-400" />;
+}
+
 export default function InstitutionsCreate({ repCountries, currencies }: Props) {
     const { data, setData, post, processing, errors } = useForm(initialFormState);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [calendarMonth, setCalendarMonth] = useState<Date>(
         data.contract_expiry_date ? new Date(data.contract_expiry_date) : new Date()
     );
+    const [additionalFilesError, setAdditionalFilesError] = useState('');
+    const additionalFilesInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (data.contract_expiry_date) {
@@ -81,10 +92,15 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
         if (e.target.files && e.target.files.length > 0) {
             if (field === 'additional_files') {
                 const files = Array.from(e.target.files);
-                setData('additional_files', files);
+                if (files.length + data.additional_files.length > 2) {
+                    setAdditionalFilesError('You can only upload up to 2 files.');
+                    return;
+                }
+                setAdditionalFilesError('');
+                const newFiles = [...data.additional_files, ...files].slice(0, 2);
+                setData('additional_files', newFiles);
                 // Initialize titles for new files
-                const titles = files.map((file, index) => {
-                    // Try to get existing title or generate default
+                const titles = newFiles.map((file, index) => {
                     const existingTitle = data.additional_file_titles[index] || '';
                     return existingTitle || file.name.replace(/\.[^/.]+$/, ''); // Remove extension
                 });
@@ -97,6 +113,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
             if (field === 'additional_files') {
                 setData('additional_files', []);
                 setData('additional_file_titles', []);
+                setAdditionalFilesError('');
             } else {
                 setData(field as keyof typeof data, null);
             }
@@ -124,6 +141,31 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
             forceFormData: true,
             onSuccess: () => router.reload({ only: ['repCountries'] }),
         });
+    };
+
+    // Drag and drop handlers
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length + data.additional_files.length > 2) {
+                setAdditionalFilesError('You can only upload up to 2 files.');
+                return;
+            }
+            setAdditionalFilesError('');
+            const newFiles = [...data.additional_files, ...files].slice(0, 2);
+            setData('additional_files', newFiles);
+            const titles = newFiles.map((file, index) => {
+                const existingTitle = data.additional_file_titles[index] || '';
+                return existingTitle || file.name.replace(/\.[^/.]+$/, '');
+            });
+            setData('additional_file_titles', titles);
+        }
+    };
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
     };
 
     const selectedRepCountry = repCountries.find((rc) => rc.id === data.rep_country_id);
@@ -628,86 +670,129 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                         <Label htmlFor="contract_copy" className="text-sm font-medium">
                                             Contract Copy (PDF, JPG, PNG)
                                         </Label>
-                                        <Input
-                                            type="file"
-                                            id="contract_copy"
-                                            name="contract_copy"
-                                            accept=".pdf,.jpg,.jpeg,.png"
-                                            onChange={handleFileChange('contract_copy')}
-                                        />
-                                        {data.contract_copy && (
-                                            <div className="mt-1 text-sm text-green-600">✓ {data.contract_copy.name} selected</div>
-                                        )}
+                                        <div className="relative flex items-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">
+                                            <Input
+                                                type="file"
+                                                id="contract_copy"
+                                                name="contract_copy"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={handleFileChange('contract_copy')}
+                                                className="flex-1 cursor-pointer"
+                                            />
+                                            {data.contract_copy && (
+                                                <div className="ml-2 flex items-center gap-1 text-green-600 text-sm">
+                                                    {getFileIcon(data.contract_copy)}
+                                                    <span>{data.contract_copy.name}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         {errors.contract_copy && <p className="text-sm text-red-600">{errors.contract_copy}</p>}
                                     </div>
-
                                     <div className="space-y-2">
                                         <Label htmlFor="logo" className="text-sm font-medium">
                                             Logo (JPG, PNG, SVG)
                                         </Label>
-                                        <Input type="file" id="logo" name="logo" accept=".jpg,.jpeg,.png,.svg" onChange={handleFileChange('logo')} />
-                                        {data.logo && <div className="mt-1 text-sm text-green-600">✓ {data.logo.name} selected</div>}
+                                        <div className="relative flex items-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">
+                                            <Input
+                                                type="file"
+                                                id="logo"
+                                                name="logo"
+                                                accept=".jpg,.jpeg,.png,.svg"
+                                                onChange={handleFileChange('logo')}
+                                                className="flex-1 cursor-pointer"
+                                            />
+                                            {data.logo && (
+                                                <div className="ml-2 flex items-center gap-1 text-green-600 text-sm">
+                                                    {getFileIcon(data.logo)}
+                                                    <span>{data.logo.name}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         {errors.logo && <p className="text-sm text-red-600">{errors.logo}</p>}
                                     </div>
-
                                     <div className="space-y-2">
                                         <Label htmlFor="prospectus" className="text-sm font-medium">
                                             Prospectus (PDF)
                                         </Label>
-                                        <Input
-                                            type="file"
-                                            id="prospectus"
-                                            name="prospectus"
-                                            accept=".pdf"
-                                            onChange={handleFileChange('prospectus')}
-                                        />
-                                        {data.prospectus && <div className="mt-1 text-sm text-green-600">✓ {data.prospectus.name} selected</div>}
+                                        <div className="relative flex items-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">
+                                            <Input
+                                                type="file"
+                                                id="prospectus"
+                                                name="prospectus"
+                                                accept=".pdf"
+                                                onChange={handleFileChange('prospectus')}
+                                                className="flex-1 cursor-pointer"
+                                            />
+                                            {data.prospectus && (
+                                                <div className="ml-2 flex items-center gap-1 text-green-600 text-sm">
+                                                    {getFileIcon(data.prospectus)}
+                                                    <span>{data.prospectus.name}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         {errors.prospectus && <p className="text-sm text-red-600">{errors.prospectus}</p>}
                                     </div>
-
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 col-span-2">
                                         <Label htmlFor="additional_files" className="text-sm font-medium">
                                             Additional Files (PDF, JPG, PNG, DOC, DOCX)
                                         </Label>
-                                        <Input
-                                            type="file"
-                                            id="additional_files"
-                                            name="additional_files[]"
-                                            multiple
-                                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                                            onChange={handleFileChange('additional_files')}
-                                        />
+                                        <div
+                                            className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition bg-white"
+                                            onClick={() => additionalFilesInputRef.current?.click()}
+                                            onDrop={handleDrop}
+                                            onDragOver={handleDragOver}
+                                            tabIndex={0}
+                                            role="button"
+                                            aria-label="Upload additional files"
+                                        >
+                                            <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                                            <span className="text-gray-600 font-medium">Drag & drop files here or <span className="text-blue-600 underline">browse</span></span>
+                                            <input
+                                                ref={additionalFilesInputRef}
+                                                type="file"
+                                                id="additional_files"
+                                                name="additional_files[]"
+                                                multiple
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                                onChange={handleFileChange('additional_files')}
+                                                className="hidden"
+                                                disabled={data.additional_files.length >= 2}
+                                            />
+                                        </div>
+                                        {/* File list */}
                                         {data.additional_files.length > 0 && (
-                                            <div className="mt-3 space-y-3">
-                                                <div className="text-sm text-green-600">✓ {data.additional_files.length} file(s) selected:</div>
-                                                {data.additional_files.map((file, index) => (
-                                                    <div key={index} className="flex items-center space-x-2 rounded-lg bg-gray-50 p-3">
-                                                        <div className="flex-1">
-                                                            <div className="mb-1 text-sm font-medium text-gray-700">
-                                                                File {index + 1}: {file.name}
-                                                            </div>
+                                            <ul className="mt-4 space-y-2">
+                                                {data.additional_files.map((file, idx) => (
+                                                    <li key={idx} className="flex items-center bg-gray-50 rounded p-3">
+                                                        {getFileIcon(file)}
+                                                        <div className="flex-1 ml-3">
+                                                            <div className="font-medium text-gray-800">{file.name}</div>
                                                             <Input
                                                                 type="text"
                                                                 placeholder="Enter document title (e.g., Transcript, Certificate, etc.)"
-                                                                value={data.additional_file_titles[index] || ''}
-                                                                onChange={(e) => handleTitleChange(index, e.target.value)}
-                                                                className="text-sm"
+                                                                value={data.additional_file_titles[idx] || ''}
+                                                                onChange={e => handleTitleChange(idx, e.target.value)}
+                                                                className="mt-1 text-sm"
                                                             />
+                                                            <div className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</div>
                                                         </div>
                                                         <Button
                                                             type="button"
-                                                            variant="destructive"
-                                                            size="sm"
-                                                            onClick={() => removeFile(index)}
-                                                            className="text-red-600 hover:text-red-700"
+                                                            variant="neutral"
+                                                            size="icon"
+                                                            onClick={() => removeFile(idx)}
+                                                            className="ml-2 text-red-500 hover:text-red-700"
+                                                            aria-label="Remove file"
                                                         >
-                                                            Remove
+                                                            <Trash2 className="h-5 w-5" />
                                                         </Button>
-                                                    </div>
+                                                    </li>
                                                 ))}
-                                            </div>
+                                            </ul>
                                         )}
-                                        {errors.additional_files && <p className="text-sm text-red-600">{errors.additional_files}</p>}
+                                        {(errors.additional_files || additionalFilesError) && (
+                                            <p className="text-sm text-red-600">{errors.additional_files || additionalFilesError}</p>
+                                        )}
                                     </div>
                                 </div>
                             </CardContent>
