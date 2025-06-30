@@ -52,7 +52,7 @@ final class RepCountryController extends Controller
             $query->where('country_id', $request->country_id);
         }
 
-        $repCountries = $query->paginate(10);
+        $repCountries =  RepCountryResource::collection($query->paginate(4));
 
         $availableCountries = Country::whereHas('repCountry')
             ->orderBy('name')
@@ -61,19 +61,10 @@ final class RepCountryController extends Controller
         $statuses = Status::ordered()->get();
 
         return $this->factory->render('agents/rep-countries/index', [
-            'repCountries' => RepCountryResource::collection($repCountries)->resolve(),
+            'repCountries' => $repCountries,
             'availableCountries' => $availableCountries,
             'statuses' => $statuses,
-            'pagination' => [
-                'current_page' => $repCountries->currentPage(),
-                'last_page' => $repCountries->lastPage(),
-                'per_page' => $repCountries->perPage(),
-                'total' => $repCountries->total(),
-                'from' => $repCountries->firstItem(),
-                'to' => $repCountries->lastItem(),
-                'has_more_pages' => $repCountries->hasMorePages(),
-                'has_previous_page' => $repCountries->onFirstPage(),
-            ],
+
         ]);
     }
 

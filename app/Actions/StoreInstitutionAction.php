@@ -28,7 +28,7 @@ class StoreInstitutionAction
             $additionalFiles = $request->file('additional_files');
             $additionalFileTitles = $request->input('additional_file_titles', []);
 
-            \Log::info('Processing additional files', [
+            Log::info('Processing additional files', [
                 'count' => count($additionalFiles),
                 'titles' => $additionalFileTitles
             ]);
@@ -38,7 +38,7 @@ class StoreInstitutionAction
                     if ($file && $file->isValid()) {
                         $title = $additionalFileTitles[$index] ?? $file->getClientOriginalName();
 
-                        \Log::info('Adding additional file', [
+                        Log::info('Adding additional file', [
                             'index' => $index,
                             'filename' => $file->getClientOriginalName(),
                             'title' => $title,
@@ -49,10 +49,10 @@ class StoreInstitutionAction
                             ->withCustomProperties(['title' => $title])
                             ->toMediaCollection('additional_files');
                     } else {
-                        \Log::warning('Invalid additional file at index', ['index' => $index]);
+                        Log::warning('Invalid additional file at index', ['index' => $index]);
                     }
                 } catch (\Exception $e) {
-                    \Log::error('Failed to upload additional file', [
+                    Log::error('Failed to upload additional file', [
                         'index' => $index,
                         'filename' => $file ? $file->getClientOriginalName() : 'unknown',
                         'error' => $e->getMessage()
@@ -70,7 +70,7 @@ class StoreInstitutionAction
             try {
                 $institution->addMediaFromRequest($field)->toMediaCollection($field);
             } catch (\Exception $e) {
-                \Log::error("Failed to upload {$field}: " . $e->getMessage());
+                Log::error("Failed to upload {$field}: " . $e->getMessage());
             }
         }
     }

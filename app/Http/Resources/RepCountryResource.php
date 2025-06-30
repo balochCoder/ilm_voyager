@@ -24,10 +24,8 @@ final class RepCountryResource extends JsonResource
             'country_benefits' => $this->country_benefits,
             'is_active' => $this->is_active,
             'country' => CountryResource::make($this->whenLoaded('country')),
-            'statuses' => RepCountryStatusResource::collection($this->repCountryStatuses),
-            'current_status' => $this->repCountryStatuses->firstWhere('is_current', true)
-                ? new RepCountryStatusResource($this->repCountryStatuses->firstWhere('is_current', true))
-                : null,
+            'statuses' => RepCountryStatusResource::collection($this->whenLoaded('repCountryStatuses')),
+           
             'created' => DateResource::make($this->created_at),
             'updated' => DateResource::make($this->updated_at),
         ];

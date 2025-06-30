@@ -1,43 +1,35 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Institution, PaginationData, SharedData, RepCountry, Currency } from '@/types';
-import { Button } from '@/components/ui/button';
-import { StatusSwitch } from '@/components/ui/status-switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Check, ChevronsUpDown, Loader2, Loader, Edit, Building2, Calendar, FileText, ArrowUpDown, ChevronDown, ChevronUp, Globe, DollarSign, Users, Mail, Phone } from 'lucide-react';
 import Heading from '@/components/heading';
-import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Label } from '@/components/ui/label';
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
+import { StatusSwitch } from '@/components/ui/status-switch';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BreadcrumbItem, InstitutionResource, RepCountry, SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { format } from 'date-fns';
+import { Building2, Check, ChevronsUpDown, Edit, FileText, Globe, Loader2, Plus, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Props {
-    institutions: {
-        data: Institution[];
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-        from: number;
-        to: number;
-    };
+    institutions: InstitutionResource;
     repCountries: RepCountry[];
-    currencies: Currency[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -45,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Institutions', href: '/agents/institutions' },
 ];
 
-const getPageNumbers = (current: number, last: number) => {
+const getPageNumbers = (current: number, last: number): (number | string)[] => {
     const pages: (number | string)[] = [1];
     if (current > 3) pages.push('...');
     for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
@@ -56,14 +48,13 @@ const getPageNumbers = (current: number, last: number) => {
     return pages;
 };
 
-export default function InstitutionsIndex({ institutions, repCountries, currencies }: Props) {
+export default function InstitutionsIndex({ institutions, repCountries }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [selectedType, setSelectedType] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
     const [countryOpen, setCountryOpen] = useState(false);
     const [typeOpen, setTypeOpen] = useState(false);
-    const [expandedCards, setExpandedCards] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
         if (flash?.success) {
@@ -83,6 +74,12 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
             setSelectedType(type);
         }
     }, []);
+
+    const handlePageChange = (page: number) => {
+        const params: Record<string, any> = { page };
+
+        router.get(route('agents:institutions:index'), params, { preserveState: true, preserveScroll: true });
+    };
 
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
@@ -122,16 +119,9 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
         });
     };
 
-    const toggleCardExpansion = (institutionId: string) => {
-        setExpandedCards(prev => ({
-            ...prev,
-            [institutionId]: !prev[institutionId]
-        }));
-    };
-
     const getSelectedCountryName = () => {
         if (selectedCountry === 'all') return 'All Countries';
-        const country = repCountries.find(rc => rc.id === selectedCountry);
+        const country = repCountries.find((rc) => rc.id === selectedCountry);
         return country ? country.country.name : 'All Countries';
     };
 
@@ -140,42 +130,20 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
         return selectedType === 'direct' ? 'Direct' : 'Indirect';
     };
 
-    const getQualityColor = (quality: string) => {
-        switch (quality) {
-            case 'excellent': return 'bg-green-100 text-green-800';
-            case 'good': return 'bg-blue-100 text-blue-800';
-            case 'average': return 'bg-yellow-100 text-yellow-800';
-            case 'below_average': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getQualityLabel = (quality: string) => {
-        switch (quality) {
-            case 'excellent': return 'Excellent';
-            case 'good': return 'Good';
-            case 'average': return 'Average';
-            case 'below_average': return 'Below Average';
-            default: return quality;
-        }
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Institutions" />
 
-            <div className="flex h-full flex-1 flex-col p-4 sm:p-6 space-y-6 overflow-x-hidden">
+            <div className="flex h-full flex-1 flex-col space-y-6 overflow-x-hidden p-4 sm:p-6">
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                        <Heading title='Institutions' />
-                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-                            Manage educational institutions and their partnerships
-                        </p>
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="min-w-0 flex-1">
+                        <Heading title="Institutions" />
+                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage educational institutions and their partnerships</p>
                     </div>
                     <Link href={route('agents:institutions:create')} className="w-full sm:w-auto">
-                        <Button className='cursor-pointer w-full'>
-                            <Plus className="w-4 h-4 mr-2" />
+                        <Button className="w-full cursor-pointer">
+                            <Plus className="mr-2 h-4 w-4" />
                             Add Institution
                         </Button>
                     </Link>
@@ -184,9 +152,9 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                 {/* Stats and Filter Section */}
                 <div className="flex flex-col gap-6">
                     {/* Filters */}
-                    <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row">
                         {/* Country Filter */}
-                        <div className="flex flex-col space-y-2 w-full sm:max-w-[280px]">
+                        <div className="flex w-full flex-col space-y-2 sm:max-w-[280px]">
                             <Label htmlFor="country-filter" className="text-sm font-medium">
                                 Filter by Country
                             </Label>
@@ -199,12 +167,12 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                                         className="w-full justify-between"
                                         disabled={isLoading}
                                     >
-                                        <div className="flex items-center space-x-2 min-w-0">
+                                        <div className="flex min-w-0 items-center space-x-2">
                                             {selectedCountry !== 'all' && (
                                                 <img
-                                                    src={repCountries.find(rc => rc.id === selectedCountry)?.country.flag}
+                                                    src={repCountries.find((rc) => rc.id === selectedCountry)?.country.flag}
                                                     alt=""
-                                                    className="w-4 h-3 rounded flex-shrink-0"
+                                                    className="h-3 w-4 flex-shrink-0 rounded"
                                                 />
                                             )}
                                             <span className="truncate">{getSelectedCountryName()}</span>
@@ -212,22 +180,14 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full sm:w-[280px] p-0">
+                                <PopoverContent className="w-full p-0 sm:w-[280px]">
                                     <Command>
                                         <CommandInput placeholder="Search countries..." />
                                         <CommandList>
                                             <CommandEmpty>No country found.</CommandEmpty>
                                             <CommandGroup>
-                                                <CommandItem
-                                                    value="all"
-                                                    onSelect={() => handleCountryFilter('all')}
-                                                >
-                                                    <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedCountry === "all" ? "opacity-100" : "opacity-0"
-                                                        )}
-                                                    />
+                                                <CommandItem value="all" onSelect={() => handleCountryFilter('all')}>
+                                                    <Check className={cn('mr-2 h-4 w-4', selectedCountry === 'all' ? 'opacity-100' : 'opacity-0')} />
                                                     All Countries
                                                 </CommandItem>
                                                 {repCountries.map((repCountry) => (
@@ -238,15 +198,15 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                                                     >
                                                         <Check
                                                             className={cn(
-                                                                "mr-2 h-4 w-4",
-                                                                selectedCountry === repCountry.id ? "opacity-100" : "opacity-0"
+                                                                'mr-2 h-4 w-4',
+                                                                selectedCountry === repCountry.id ? 'opacity-100' : 'opacity-0',
                                                             )}
                                                         />
-                                                        <div className="flex items-center space-x-2 min-w-0">
+                                                        <div className="flex min-w-0 items-center space-x-2">
                                                             <img
                                                                 src={repCountry.country.flag}
                                                                 alt={repCountry.country.name}
-                                                                className="w-4 h-3 rounded flex-shrink-0"
+                                                                className="h-3 w-4 flex-shrink-0 rounded"
                                                             />
                                                             <span className="truncate">{repCountry.country.name}</span>
                                                         </div>
@@ -260,7 +220,7 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                         </div>
 
                         {/* Type Filter */}
-                        <div className="flex flex-col space-y-2 w-full sm:max-w-[200px]">
+                        <div className="flex w-full flex-col space-y-2 sm:max-w-[200px]">
                             <Label htmlFor="type-filter" className="text-sm font-medium">
                                 Filter by Type
                             </Label>
@@ -277,43 +237,21 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full sm:w-[200px] p-0">
+                                <PopoverContent className="w-full p-0 sm:w-[200px]">
                                     <Command>
                                         <CommandList>
                                             <CommandGroup>
-                                                <CommandItem
-                                                    value="all"
-                                                    onSelect={() => handleTypeFilter('all')}
-                                                >
-                                                    <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedType === "all" ? "opacity-100" : "opacity-0"
-                                                        )}
-                                                    />
+                                                <CommandItem value="all" onSelect={() => handleTypeFilter('all')}>
+                                                    <Check className={cn('mr-2 h-4 w-4', selectedType === 'all' ? 'opacity-100' : 'opacity-0')} />
                                                     All Types
                                                 </CommandItem>
-                                                <CommandItem
-                                                    value="direct"
-                                                    onSelect={() => handleTypeFilter('direct')}
-                                                >
-                                                    <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedType === "direct" ? "opacity-100" : "opacity-0"
-                                                        )}
-                                                    />
+                                                <CommandItem value="direct" onSelect={() => handleTypeFilter('direct')}>
+                                                    <Check className={cn('mr-2 h-4 w-4', selectedType === 'direct' ? 'opacity-100' : 'opacity-0')} />
                                                     Direct
                                                 </CommandItem>
-                                                <CommandItem
-                                                    value="indirect"
-                                                    onSelect={() => handleTypeFilter('indirect')}
-                                                >
+                                                <CommandItem value="indirect" onSelect={() => handleTypeFilter('indirect')}>
                                                     <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedType === "indirect" ? "opacity-100" : "opacity-0"
-                                                        )}
+                                                        className={cn('mr-2 h-4 w-4', selectedType === 'indirect' ? 'opacity-100' : 'opacity-0')}
                                                     />
                                                     Indirect
                                                 </CommandItem>
@@ -325,21 +263,19 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                         </div>
                     </div>
 
-                    {isLoading && (
-                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                    )}
+                    {isLoading && <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />}
 
                     {/* Stats Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        <Building2 className="w-4 h-4 text-blue-600" />
+                                    <div className="rounded-lg bg-blue-100 p-2">
+                                        <Building2 className="h-4 w-4 text-blue-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-muted-foreground">Total Institutions</p>
-                                        <p className="text-xl sm:text-2xl font-semibold">{institutions.total}</p>
+                                        <p className="text-muted-foreground text-sm">Total Institutions</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{institutions.meta.total}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -347,13 +283,13 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-green-100 rounded-lg">
-                                        <Check className="w-4 h-4 text-green-600" />
+                                    <div className="rounded-lg bg-green-100 p-2">
+                                        <Check className="h-4 w-4 text-green-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-muted-foreground">Active</p>
-                                        <p className="text-xl sm:text-2xl font-semibold">
-                                            {institutions.data.filter(inst => inst.is_active).length}
+                                        <p className="text-muted-foreground text-sm">Active</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">
+                                            {institutions.data.filter((inst) => inst.is_active).length}
                                         </p>
                                     </div>
                                 </div>
@@ -362,13 +298,13 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-purple-100 rounded-lg">
-                                        <Users className="w-4 h-4 text-purple-600" />
+                                    <div className="rounded-lg bg-purple-100 p-2">
+                                        <Users className="h-4 w-4 text-purple-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-muted-foreground">Direct</p>
-                                        <p className="text-xl sm:text-2xl font-semibold">
-                                            {institutions.data.filter(inst => inst.institute_type === 'direct').length}
+                                        <p className="text-muted-foreground text-sm">Direct</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">
+                                            {institutions.data.filter((inst) => inst.institute_type === 'direct').length}
                                         </p>
                                     </div>
                                 </div>
@@ -377,13 +313,13 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-orange-100 rounded-lg">
-                                        <Globe className="w-4 h-4 text-orange-600" />
+                                    <div className="rounded-lg bg-orange-100 p-2">
+                                        <Globe className="h-4 w-4 text-orange-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-muted-foreground">Indirect</p>
-                                        <p className="text-xl sm:text-2xl font-semibold">
-                                            {institutions.data.filter(inst => inst.institute_type === 'indirect').length}
+                                        <p className="text-muted-foreground text-sm">Indirect</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">
+                                            {institutions.data.filter((inst) => inst.institute_type === 'indirect').length}
                                         </p>
                                     </div>
                                 </div>
@@ -394,17 +330,17 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
 
                 {/* Loading State */}
                 {isLoading && (
-                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {[...Array(6)].map((_, index) => (
                             <Card key={index} className="animate-pulse">
                                 <CardContent className="p-4 sm:p-6">
-                                    <div className="flex items-center space-x-3 mb-4">
-                                        <Skeleton className="w-8 h-6 rounded" />
-                                        <Skeleton className="w-32 h-6 rounded" />
+                                    <div className="mb-4 flex items-center space-x-3">
+                                        <Skeleton className="h-6 w-8 rounded" />
+                                        <Skeleton className="h-6 w-32 rounded" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Skeleton className="w-full h-4 rounded" />
-                                        <Skeleton className="w-3/4 h-4 rounded" />
+                                        <Skeleton className="h-4 w-full rounded" />
+                                        <Skeleton className="h-4 w-3/4 rounded" />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -412,159 +348,93 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                     </div>
                 )}
 
-                {/* Institutions Grid */}
+                {/* Card Grid Institutions List */}
                 {!isLoading && (
-                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                        {institutions.data.map((institution) => (
-                            <Card key={institution.id} className="hover:shadow-md transition-shadow">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-center justify-between min-w-0">
-                                        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <CardTitle className="text-sm sm:text-base lg:text-lg truncate">{institution.institution_name}</CardTitle>
-                                                <div className="flex items-center space-x-1 sm:space-x-2 mt-1">
-                                                    <StatusSwitch
-                                                        id={institution.id}
-                                                        checked={institution.is_active}
-                                                        route={route('agents:institutions:index', institution.id)}
-                                                        showLabel={false}
-                                                    />
-                                                    <Badge variant={institution.is_active ? "default" : "neutral"} className="text-xs">
-                                                        {institution.is_active ? 'Active' : 'Inactive'}
-                                                    </Badge>
-                                                    <Badge variant="default" className="text-xs">
-                                                        {institution.institute_type}
-                                                    </Badge>
-                                                </div>
-                                            </div>
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {institutions.data.map((inst) => (
+                            <Card
+                                key={inst.id}
+                                className="bg-background text-main-foreground border-border group border shadow-md transition-all hover:shadow-lg"
+                            >
+                                <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                                    <Avatar>
+                                        <AvatarImage src={inst.logo_url} alt={inst.institution_name} />
+                                        <AvatarFallback>{inst.institution_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0 flex-1">
+                                        <CardTitle className="truncate text-xl font-bold text-gray-900 transition-colors group-hover:text-blue-700">
+                                            {inst.institution_name}
+                                        </CardTitle>
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <Badge
+                                                variant="default"
+                                                className={
+                                                    inst.institute_type === 'direct' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                                                }
+                                            >
+                                                {inst.institute_type.charAt(0).toUpperCase() + inst.institute_type.slice(1)}
+                                            </Badge>
+                                            <Badge variant="default" className="bg-gray-100 text-gray-700">
+                                                {inst.rep_country?.country?.name || '-'}
+                                            </Badge>
                                         </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                        <StatusSwitch
+                                            id={inst.id}
+                                            checked={inst.is_active}
+                                            route={route('agents:institutions:toggle-status', inst.id)}
+                                            showLabel={false}
+                                        />
                                     </div>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    {/* Country and Currency */}
-                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                        <Globe className="w-4 h-4 flex-shrink-0" />
-                                        <span className="truncate">
-                                            {institution.rep_country?.country?.name || 'N/A'}
+                                    <div>
+                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Contact Name</span>
+                                        <span className="block text-base font-semibold text-gray-900">{inst.contact_person_name}</span>
+                                    </div>
+                                    <div>
+                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Email</span>
+                                        <span className="block text-sm text-gray-900">{inst.contact_person_email}</span>
+                                    </div>
+                                    <div>
+                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Mobile</span>
+                                        <span className="block text-sm text-gray-900">{inst.contact_person_mobile}</span>
+                                    </div>
+                                    <div>
+                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Campus</span>
+                                        <span className="block text-sm text-gray-900">{inst.campus || '-'}</span>
+                                    </div>
+                                    <div>
+                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Added Date</span>
+                                        <span className="block text-sm text-gray-900">
+                                            {inst.created?.string ? format(new Date(inst.created.string), 'dd MMMM yyyy') : '-'}
                                         </span>
                                     </div>
-
-                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                        <DollarSign className="w-4 h-4 flex-shrink-0" />
-                                        <span className="truncate">
-                                            {institution.currency?.code || 'N/A'}
-                                        </span>
+                                    <div className="flex gap-2 pt-2">
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Link href={route('agents:institutions:index', inst.id)}>
+                                                        <Button variant="noShadow" size="icon" className="h-8 w-8">
+                                                            <Edit className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>Edit</TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Link href={route('agents:institutions:index', inst.id)}>
+                                                        <Button variant="noShadow" size="icon" className="h-8 w-8">
+                                                            <FileText className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>Show</TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     </div>
-
-                                    {/* Quality Badge */}
-                                    <div className="flex items-center space-x-2">
-                                        <Badge className={cn("text-xs", getQualityColor(institution.quality_of_desired_application))}>
-                                            {getQualityLabel(institution.quality_of_desired_application)}
-                                        </Badge>
-                                    </div>
-
-                                    {/* Contact Info */}
-                                    {institution.contact_person_name && (
-                                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                            <Users className="w-4 h-4 flex-shrink-0" />
-                                            <span className="truncate">{institution.contact_person_name}</span>
-                                        </div>
-                                    )}
-
-                                    {institution.contact_person_email && (
-                                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                            <Mail className="w-4 h-4 flex-shrink-0" />
-                                            <span className="truncate">{institution.contact_person_email}</span>
-                                        </div>
-                                    )}
-
-                                    {institution.contact_person_mobile && (
-                                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                            <Phone className="w-4 h-4 flex-shrink-0" />
-                                            <span className="truncate">{institution.contact_person_mobile}</span>
-                                        </div>
-                                    )}
-
-                                    {/* Created Date */}
-                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                        <Calendar className="w-4 h-4 flex-shrink-0" />
-                                        <span className="truncate">Added: {(() => {
-                                            if (!institution.created_at) return 'N/A';
-                                            const dateStr = institution.created_at.split('T')[0];
-                                            const [y, m, d] = dateStr.split('-');
-                                            return `${d}-${m}-${y}`;
-                                        })()}</span>
-                                    </div>
-
-                                    {/* Quick Actions */}
-                                    <div className="flex flex-wrap gap-1 sm:gap-2 pt-2">
-                                        <Link href={route('agents:institutions:index', institution.id)}>
-                                            <Button variant="noShadow" size="sm" className="text-xs h-7 px-2">
-                                                <Edit className="w-3 h-3 mr-1" />
-                                                Edit
-                                            </Button>
-                                        </Link>
-                                        <Link href={route('agents:institutions:index', institution.id)}>
-                                            <Button variant="noShadow" size="sm" className="text-xs h-7 px-2">
-                                                <FileText className="w-3 h-3 mr-1" />
-                                                View
-                                            </Button>
-                                        </Link>
-                                    </div>
-
-                                    {/* Additional Details (Expandable) */}
-                                    {(institution.campus || institution.website || institution.monthly_living_cost) && (
-                                        <div className="pt-2 border-t">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <p className="text-xs font-medium text-muted-foreground">Details:</p>
-                                                <Button
-                                                    variant="noShadow"
-                                                    size="sm"
-                                                    className="text-xs h-6 px-2"
-                                                    onClick={() => toggleCardExpansion(institution.id)}
-                                                >
-                                                    {expandedCards[institution.id] ? (
-                                                        <>
-                                                            <ChevronUp className="w-3 h-3" />
-                                                            Show Less
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <ChevronDown className="w-3 h-3" />
-                                                            View Details
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            </div>
-                                            {expandedCards[institution.id] && (
-                                                <div className="space-y-1">
-                                                    {institution.campus && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            <span className="font-medium">Campus:</span> {institution.campus}
-                                                        </div>
-                                                    )}
-                                                    {institution.website && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            <span className="font-medium">Website:</span> {institution.website}
-                                                        </div>
-                                                    )}
-                                                    {institution.monthly_living_cost && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            <span className="font-medium">Monthly Cost:</span> {institution.currency?.symbol}{institution.monthly_living_cost}
-                                                        </div>
-                                                    )}
-                                                    {institution.application_fee && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            <span className="font-medium">Application Fee:</span> {institution.currency?.symbol}{institution.application_fee}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
                                 </CardContent>
                             </Card>
                         ))}
@@ -573,18 +443,16 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
 
                 {/* Empty State */}
                 {!isLoading && institutions.data.length === 0 && (
-                    <Card className="text-center py-12">
+                    <Card className="py-12 text-center">
                         <CardContent>
-                            <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-                                <Building2 className="w-8 h-8 text-muted-foreground" />
+                            <div className="bg-muted mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
+                                <Building2 className="text-muted-foreground h-8 w-8" />
                             </div>
-                            <h3 className="text-lg font-semibold mb-2">No institutions found</h3>
-                            <p className="text-muted-foreground mb-4">
-                                Get started by adding your first educational institution
-                            </p>
+                            <h3 className="mb-2 text-lg font-semibold">No institutions found</h3>
+                            <p className="text-muted-foreground mb-4">Get started by adding your first educational institution</p>
                             <Link href={route('agents:institutions:create')}>
                                 <Button>
-                                    <Plus className="w-4 h-4 mr-2" />
+                                    <Plus className="mr-2 h-4 w-4" />
                                     Add First Institution
                                 </Button>
                             </Link>
@@ -592,51 +460,44 @@ export default function InstitutionsIndex({ institutions, repCountries, currenci
                     </Card>
                 )}
 
-                {/* Pagination */}
-                {!isLoading && institutions.last_page > 1 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
-                        <div className="text-sm text-muted-foreground text-center sm:text-left">
-                            Showing {institutions.from} to {institutions.to} of {institutions.total} results
-                        </div>
-                        <div className="flex items-center space-x-1 sm:space-x-2">
-                            <Button
-                                variant="noShadow"
-                                size="sm"
-                                onClick={() => router.visit(`${route('agents:institutions:index')}?page=${institutions.current_page - 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}${selectedType !== 'all' ? `&type=${selectedType}` : ''}`)}
-                                disabled={institutions.current_page <= 1}
-                                className="px-2 sm:px-3 py-2 text-xs sm:text-sm"
-                            >
-                                Previous
-                            </Button>
-                            <div className="flex items-center space-x-1">
-                                {getPageNumbers(institutions.current_page, institutions.last_page).map((page, index) => (
-                                    <div key={index}>
-                                        {typeof page === 'string' ? (
-                                            <span className="px-1 sm:px-2 text-muted-foreground text-xs sm:text-sm">...</span>
-                                        ) : (
-                                            <Button
-                                                variant={page === institutions.current_page ? "default" : "noShadow"}
-                                                size="sm"
-                                                onClick={() => router.visit(`${route('agents:institutions:index')}?page=${page}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}${selectedType !== 'all' ? `&type=${selectedType}` : ''}`)}
-                                                className="w-7 h-7 sm:w-8 sm:h-8 p-0 hidden sm:flex text-xs sm:text-sm"
-                                            >
-                                                {page}
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                            <Button
-                                variant="noShadow"
-                                size="sm"
-                                onClick={() => router.visit(`${route('agents:institutions:index')}?page=${institutions.current_page + 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}${selectedType !== 'all' ? `&type=${selectedType}` : ''}`)}
-                                disabled={institutions.current_page >= institutions.last_page}
-                                className="px-2 sm:px-3 py-2 text-xs sm:text-sm"
-                            >
-                                Next
-                            </Button>
-                        </div>
-                    </div>
+                {/* Pagination Controls */}
+                {!isLoading && institutions.meta.last_page > 1 && (
+                    <Pagination className="mt-8">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    className="cursor-pointer"
+                                    size="default"
+                                    onClick={() => handlePageChange(institutions.meta.current_page - 1)}
+                                />
+                            </PaginationItem>
+
+                            {Array.from({ length: institutions.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                <PaginationItem key={page}>
+                                    {typeof page === 'string' ? (
+                                        <PaginationEllipsis />
+                                    ) : (
+                                        <PaginationLink
+                                            className="cursor-pointer"
+                                            size="default"
+                                            onClick={() => handlePageChange(page)}
+                                            isActive={page === institutions.meta.current_page}
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    )}
+                                </PaginationItem>
+                            ))}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    className="cursor-pointer"
+                                    size="default"
+                                    onClick={() => handlePageChange(institutions.meta.current_page + 1)}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 )}
             </div>
         </AppLayout>

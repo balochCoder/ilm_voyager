@@ -16,31 +16,7 @@ class Institution extends Model implements HasMedia
 {
     use SoftDeletes, HasUlids, InteractsWithMedia;
 
-    protected $fillable = [
-        'rep_country_id',
-        'institution_name',
-        'campus',
-        'website',
-        'monthly_living_cost',
-        'funds_required_for_visa',
-        'application_fee',
-        'currency_id',
-        'contract_terms',
-        'institute_type',
-        'quality_of_desired_application',
-        'contract_expiry_date',
-        'is_language_mandatory',
-        'language_requirements',
-        'institutional_benefits',
-        'part_time_work_details',
-        'scholarship_policy',
-        'institution_status_notes',
-        'contact_person_name',
-        'contact_person_email',
-        'contact_person_mobile',
-        'contact_person_designation',
-        'is_active',
-    ];
+    protected $appends = ['logo_url'];
 
     public function repCountry(): BelongsTo
     {
@@ -89,5 +65,10 @@ class Institution extends Model implements HasMedia
                 'mime_type' => $media->mime_type,
             ];
         });
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('logo') ?: null;
     }
 }

@@ -120,6 +120,16 @@ export interface RepCountry {
     };
 }
 
+export interface RepCountryResource {
+    data: RepCountry[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}
+
 export interface PaginationData {
     current_page: number;
     last_page: number;
@@ -165,9 +175,26 @@ export interface Institution {
     contact_person_mobile?: string | null;
     contact_person_designation?: string | null;
     is_active: boolean;
-    created_at?: string;
-    updated_at?: string;
+    created?: {
+        human: string;
+        string: string;
+    };
+    updated?: {
+        human: string;
+        string: string;
+    };
     deleted_at?: string | null;
     rep_country?: RepCountry;
     currency?: Currency;
+    logo_url?: string;
+}
+
+export interface InstitutionResource {
+    data: Institution[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }

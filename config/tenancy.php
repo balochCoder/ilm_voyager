@@ -27,6 +27,7 @@ return [
      */
     'central_domains' => [
         'localhost',
+        'ilm_voyager.test'
     ],
 
     /**
@@ -107,7 +108,7 @@ return [
         /**
          * Each disk listed in the 'disks' array will be suffixed by the suffix_base, followed by the tenant_id.
          */
-        'suffix_base' => 'tenant',
+        'suffix_base' => 'tenant_id_',
         'disks' => [
             'local',
             'public',

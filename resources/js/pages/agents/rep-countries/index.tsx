@@ -1,44 +1,55 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
-import { Button } from '@/components/ui/button';
-import { StatusSwitch } from '@/components/ui/status-switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Check, ChevronsUpDown, Loader2, Loader, Edit, Settings, Calendar, FileText, ArrowUpDown, ChevronDown, ChevronUp, Layers } from 'lucide-react';
 import Heading from '@/components/heading';
-import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
+import { StatusSwitch } from '@/components/ui/status-switch';
+import { Switch } from '@/components/ui/switch';
 import { useAddStatusDialog } from '@/hooks/useAddStatusDialog';
 import { useEditStatusDialog } from '@/hooks/useEditStatusDialog';
-import { useSwitchState } from '@/hooks/useSwitchState';
 import { useSubStatusActions } from '@/hooks/useSubStatusActions';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, } from '@/components/ui/sheet';
+import { useSwitchState } from '@/hooks/useSwitchState';
+import AppLayout from '@/layouts/app-layout';
+import { cn } from '@/lib/utils';
+import { BreadcrumbItem, Country, PaginationData, RepCountry, RepCountryResource, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import {
+    ArrowUpDown,
+    Calendar,
+    Check,
+    ChevronDown,
+    ChevronsUpDown,
+    ChevronUp,
+    Edit,
+    FileText,
+    Layers,
+    Loader,
+    Loader2,
+    Plus,
+    Settings,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Props {
-    repCountries: RepCountry[];
+    repCountries: RepCountryResource;
     availableCountries: Country[];
     statuses: Status[];
-    pagination: PaginationData;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -52,18 +63,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const getPageNumbers = (current: number, last: number) => {
-    const pages: (number | string)[] = [1];
-    if (current > 3) pages.push('...');
-    for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
-        if (i !== 1 && i !== last) pages.push(i);
-    }
-    if (current < last - 2) pages.push('...');
-    if (last > 1) pages.push(last);
-    return pages;
-};
-
-export default function RepCountriesIndex({ repCountries, availableCountries, pagination }: Props) {
+export default function RepCountriesIndex({ repCountries, availableCountries }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
@@ -82,14 +82,14 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         statusName: '',
         newSubStatusName: '',
         isAdding: false,
-        errors: {}
+        errors: {},
     });
     const [subStatusesSheet, setSubStatusesSheet] = useState<{
         isOpen: boolean;
         status: RepCountryStatus | null;
     }>({
         isOpen: false,
-        status: null
+        status: null,
     });
     const [sheetTitle, setSheetTitle] = useState<string>('');
 
@@ -151,16 +151,16 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     };
 
     const toggleCardExpansion = (countryId: string) => {
-        setExpandedCards(prev => ({
+        setExpandedCards((prev) => ({
             ...prev,
-            [countryId]: !prev[countryId]
+            [countryId]: !prev[countryId],
         }));
     };
 
     // Get the selected country name for display
     const getSelectedCountryName = () => {
         if (selectedCountry === 'all') return 'All Countries';
-        const country = availableCountries.find(c => c.id === selectedCountry);
+        const country = availableCountries.find((c) => c.id === selectedCountry);
         return country ? country.name : 'All Countries';
     };
 
@@ -171,62 +171,70 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             statusName,
             newSubStatusName: '',
             isAdding: false,
-            errors: {}
+            errors: {},
         });
+    };
+
+    const handlePageChange = (page: number) => {
+        const params: Record<string, any> = { page };
+
+        router.get(route('agents:rep-countries:index'), params, { preserveState: true, preserveScroll: true });
     };
 
     const handleAddSubStatusSubmit = async () => {
         if (!subStatusDialog.newSubStatusName.trim()) {
-            setSubStatusDialog(prev => ({
+            setSubStatusDialog((prev) => ({
                 ...prev,
-                errors: { name: 'Sub-step name is required' }
+                errors: { name: 'Sub-step name is required' },
             }));
             return;
         }
 
-        setSubStatusDialog(prev => ({ ...prev, isAdding: true, errors: {} }));
+        setSubStatusDialog((prev) => ({ ...prev, isAdding: true, errors: {} }));
 
         try {
-            router.post(route('agents:rep-countries:add-sub-status', { repCountryStatus: subStatusDialog.statusId }), {
-                name: subStatusDialog.newSubStatusName
-            }, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setSubStatusDialog(prev => ({ ...prev, isOpen: false }));
+            router.post(
+                route('agents:rep-countries:add-sub-status', { repCountryStatus: subStatusDialog.statusId }),
+                {
+                    name: subStatusDialog.newSubStatusName,
                 },
-                onError: (errors) => {
-                    setSubStatusDialog(prev => ({
-                        ...prev,
-                        errors: errors
-                    }));
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setSubStatusDialog((prev) => ({ ...prev, isOpen: false }));
+                    },
+                    onError: (errors) => {
+                        setSubStatusDialog((prev) => ({
+                            ...prev,
+                            errors: errors,
+                        }));
+                    },
+                    onFinish: () => {
+                        setSubStatusDialog((prev) => ({ ...prev, isAdding: false }));
+                    },
                 },
-                onFinish: () => {
-                    setSubStatusDialog(prev => ({ ...prev, isAdding: false }));
-                }
-            });
+            );
         } catch (e) {
-            setSubStatusDialog(prev => ({
+            setSubStatusDialog((prev) => ({
                 ...prev,
-                errors: { name: 'An error occurred while adding sub-step' }
+                errors: { name: 'An error occurred while adding sub-step' },
             }));
-            setSubStatusDialog(prev => ({ ...prev, isAdding: false }));
+            setSubStatusDialog((prev) => ({ ...prev, isAdding: false }));
             console.log(e);
-
         }
     };
 
     const closeSubStatusDialog = () => {
-        setSubStatusDialog(prev => ({ ...prev, isOpen: false }));
+        setSubStatusDialog((prev) => ({ ...prev, isOpen: false }));
     };
 
     const openSubStatusesSheet = (status: RepCountryStatus) => {
         setSheetTitle(`Sub-Steps for "${status.status_name}"`);
         setSubStatusesSheet({
             isOpen: true,
-            status
+            status,
         });
     };
-
 
     const handleSheetOpenChange = (open: boolean) => {
         if (!open) {
@@ -234,7 +242,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
             setTimeout(() => {
                 setSubStatusesSheet({
                     isOpen: false,
-                    status: null
+                    status: null,
                 });
                 // Keep the title for a bit longer to prevent flickering
                 setTimeout(() => {
@@ -242,7 +250,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                 }, 300);
             }, 150);
         } else {
-            setSubStatusesSheet(prev => ({ ...prev, isOpen: true }));
+            setSubStatusesSheet((prev) => ({ ...prev, isOpen: true }));
         }
     };
 
@@ -250,7 +258,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         // Close the sheet first
         setSubStatusesSheet({
             isOpen: false,
-            status: null
+            status: null,
         });
 
         // Then open the dialog after a short delay
@@ -262,14 +270,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
     const refreshSubStatusesInSheet = () => {
         if (subStatusesSheet.status) {
             // Find the updated status from the repCountries data
-            const updatedStatus = repCountries
-                .flatMap(rc => rc.statuses || [])
-                .find(s => s.id === subStatusesSheet.status?.id);
+            const updatedStatus = repCountries.data.flatMap((rc) => rc.statuses || []).find((s) => s.id === subStatusesSheet.status?.id);
 
             if (updatedStatus) {
-                setSubStatusesSheet(prev => ({
+                setSubStatusesSheet((prev) => ({
                     ...prev,
-                    status: updatedStatus
+                    status: updatedStatus,
                 }));
             }
         }
@@ -279,18 +285,18 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Representing Countries" />
 
-            <div className="flex h-full flex-1 flex-col p-4 sm:p-6 space-y-6 overflow-x-hidden">
+            <div className="flex h-full flex-1 flex-col space-y-6 overflow-x-hidden p-4 sm:p-6">
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                        <Heading title='Representing Countries' />
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="min-w-0 flex-1">
+                        <Heading title="Representing Countries" />
                         <p className="text-muted-foreground mt-1 text-sm sm:text-base">
                             Manage countries you represent and their application processes
                         </p>
                     </div>
                     <Link href={route('agents:rep-countries:create')} className="w-full sm:w-auto">
-                        <Button className='cursor-pointer w-full'>
-                            <Plus className="w-4 h-4 mr-2" />
+                        <Button className="w-full cursor-pointer">
+                            <Plus className="mr-2 h-4 w-4" />
                             Add Country
                         </Button>
                     </Link>
@@ -299,7 +305,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                 {/* Stats and Filter Section */}
                 <div className="flex flex-col gap-6">
                     {/* Country Filter */}
-                    <div className="flex flex-col space-y-2 w-full sm:max-w-[280px]">
+                    <div className="flex w-full flex-col space-y-2 sm:max-w-[280px]">
                         <Label htmlFor="country-filter" className="text-sm font-medium">
                             Filter by Country
                         </Label>
@@ -312,12 +318,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                     className="w-full justify-between"
                                     disabled={isLoading}
                                 >
-                                    <div className="flex items-center space-x-2 min-w-0">
+                                    <div className="flex min-w-0 items-center space-x-2">
                                         {selectedCountry !== 'all' && (
                                             <img
-                                                src={availableCountries.find(c => c.id === selectedCountry)?.flag}
+                                                src={availableCountries.find((c) => c.id === selectedCountry)?.flag}
                                                 alt=""
-                                                className="w-4 h-3 rounded flex-shrink-0"
+                                                className="h-3 w-4 flex-shrink-0 rounded"
                                             />
                                         )}
                                         <span className="truncate">{getSelectedCountryName()}</span>
@@ -325,42 +331,23 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-full sm:w-[280px] p-0">
+                            <PopoverContent className="w-full p-0 sm:w-[280px]">
                                 <Command>
                                     <CommandInput placeholder="Search countries..." />
                                     <CommandList>
                                         <CommandEmpty>No country found.</CommandEmpty>
                                         <CommandGroup>
-                                            <CommandItem
-                                                value="all"
-                                                onSelect={() => handleCountryFilter('all')}
-                                            >
-                                                <Check
-                                                    className={cn(
-                                                        "mr-2 h-4 w-4",
-                                                        selectedCountry === "all" ? "opacity-100" : "opacity-0"
-                                                    )}
-                                                />
+                                            <CommandItem value="all" onSelect={() => handleCountryFilter('all')}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedCountry === 'all' ? 'opacity-100' : 'opacity-0')} />
                                                 All Countries
                                             </CommandItem>
                                             {availableCountries.map((country) => (
-                                                <CommandItem
-                                                    key={country.id}
-                                                    value={country.name}
-                                                    onSelect={() => handleCountryFilter(country.id)}
-                                                >
+                                                <CommandItem key={country.id} value={country.name} onSelect={() => handleCountryFilter(country.id)}>
                                                     <Check
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            selectedCountry === country.id ? "opacity-100" : "opacity-0"
-                                                        )}
+                                                        className={cn('mr-2 h-4 w-4', selectedCountry === country.id ? 'opacity-100' : 'opacity-0')}
                                                     />
-                                                    <div className="flex items-center space-x-2 min-w-0">
-                                                        <img
-                                                            src={country.flag}
-                                                            alt={country.name}
-                                                            className="w-4 h-3 rounded flex-shrink-0"
-                                                        />
+                                                    <div className="flex min-w-0 items-center space-x-2">
+                                                        <img src={country.flag} alt={country.name} className="h-3 w-4 flex-shrink-0 rounded" />
                                                         <span className="truncate">{country.name}</span>
                                                     </div>
                                                 </CommandItem>
@@ -370,22 +357,20 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                 </Command>
                             </PopoverContent>
                         </Popover>
-                        {isLoading && (
-                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                        )}
+                        {isLoading && <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />}
                     </div>
 
                     {/* Stats Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        <Settings className="w-4 h-4 text-blue-600" />
+                                    <div className="rounded-lg bg-blue-100 p-2">
+                                        <Settings className="h-4 w-4 text-blue-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-muted-foreground">Total Countries</p>
-                                        <p className="text-xl sm:text-2xl font-semibold">{pagination.total}</p>
+                                        <p className="text-muted-foreground text-sm">Total Countries</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{repCountries.meta.total}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -393,14 +378,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
-                                    <div className="p-2 bg-green-100 rounded-lg">
-                                        <Check className="w-4 h-4 text-green-600" />
+                                    <div className="rounded-lg bg-green-100 p-2">
+                                        <Check className="h-4 w-4 text-green-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-muted-foreground">Active</p>
-                                        <p className="text-xl sm:text-2xl font-semibold">
-                                            {repCountries.filter(rc => rc.is_active).length}
-                                        </p>
+                                        <p className="text-muted-foreground text-sm">Active</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{repCountries.data.filter((rc) => rc.is_active).length}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -410,17 +393,17 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
                 {/* Loading State */}
                 {isLoading && (
-                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {[...Array(6)].map((_, index) => (
                             <Card key={index} className="animate-pulse">
                                 <CardContent className="p-4 sm:p-6">
-                                    <div className="flex items-center space-x-3 mb-4">
-                                        <Skeleton className="w-8 h-6 rounded" />
-                                        <Skeleton className="w-32 h-6 rounded" />
+                                    <div className="mb-4 flex items-center space-x-3">
+                                        <Skeleton className="h-6 w-8 rounded" />
+                                        <Skeleton className="h-6 w-32 rounded" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Skeleton className="w-full h-4 rounded" />
-                                        <Skeleton className="w-3/4 h-4 rounded" />
+                                        <Skeleton className="h-4 w-full rounded" />
+                                        <Skeleton className="h-4 w-3/4 rounded" />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -430,22 +413,22 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
                 {/* Countries Grid */}
                 {!isLoading && (
-                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                        {repCountries.map((repCountry) => (
-                            <Card key={repCountry.id} className="hover:shadow-md transition-shadow">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {repCountries.data.map((repCountry) => (
+                            <Card key={repCountry.id} className="transition-shadow hover:shadow-md">
                                 <CardHeader className="pb-3">
-                                    <div className="flex items-center justify-between min-w-0">
-                                        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                                    <div className="flex min-w-0 items-center justify-between">
+                                        <div className="flex min-w-0 flex-1 items-center space-x-2 sm:space-x-3">
                                             <img
                                                 src={repCountry.country.flag}
                                                 alt={repCountry.country.name}
-                                                className="w-6 h-4 sm:w-8 sm:h-6 rounded shadow-sm flex-shrink-0"
+                                                className="h-4 w-6 flex-shrink-0 rounded shadow-sm sm:h-6 sm:w-8"
                                             />
                                             <div className="min-w-0 flex-1">
-                                                <CardTitle className="text-sm sm:text-base lg:text-lg truncate">{repCountry.country.name}</CardTitle>
-                                                <div className="flex items-center space-x-1 sm:space-x-2 mt-1">
+                                                <CardTitle className="truncate text-sm sm:text-base lg:text-lg">{repCountry.country.name}</CardTitle>
+                                                <div className="mt-1 flex items-center space-x-1 sm:space-x-2">
                                                     {isSwitchLoading(repCountry.id) ? (
-                                                        <Loader className="w-3 h-3 sm:w-4 sm:h-4 animate-spin text-blue-500" />
+                                                        <Loader className="h-3 w-3 animate-spin text-blue-500 sm:h-4 sm:w-4" />
                                                     ) : (
                                                         <StatusSwitch
                                                             id={repCountry.id}
@@ -454,7 +437,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                             showLabel={false}
                                                         />
                                                     )}
-                                                    <Badge variant={repCountry.is_active ? "default" : "neutral"} className="text-xs">
+                                                    <Badge variant={repCountry.is_active ? 'default' : 'neutral'} className="text-xs">
                                                         {repCountry.is_active ? 'Active' : 'Inactive'}
                                                     </Badge>
                                                 </div>
@@ -464,32 +447,35 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     {/* Status Count */}
-                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                        <FileText className="w-4 h-4 flex-shrink-0" />
+                                    <div className="text-muted-foreground flex items-center space-x-2 text-sm">
+                                        <FileText className="h-4 w-4 flex-shrink-0" />
                                         <span className="truncate">{repCountry.statuses?.length || 0} application steps</span>
                                     </div>
 
                                     {/* Created Date */}
-                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                        <Calendar className="w-4 h-4 flex-shrink-0" />
-                                        <span className="truncate">Added: {(() => {
-                                            const dateStr = repCountry.created?.string?.split('T')[0] || '';
-                                            if (!dateStr) return 'N/A';
-                                            const [y, m, d] = dateStr.split('-');
-                                            return `${d}-${m}-${y}`;
-                                        })()}</span>
+                                    <div className="text-muted-foreground flex items-center space-x-2 text-sm">
+                                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                                        <span className="truncate">
+                                            Added:{' '}
+                                            {(() => {
+                                                const dateStr = repCountry.created?.string?.split('T')[0] || '';
+                                                if (!dateStr) return 'N/A';
+                                                const [y, m, d] = dateStr.split('-');
+                                                return `${d}-${m}-${y}`;
+                                            })()}
+                                        </span>
                                     </div>
 
                                     {/* Quick Actions */}
-                                    <div className="flex flex-wrap gap-1 sm:gap-2 pt-2">
+                                    <div className="flex flex-wrap gap-1 pt-2 sm:gap-2">
                                         <Link href={route('agents:rep-countries:add-notes', repCountry.id)}>
-                                            <Button variant="noShadow" size="sm" className="text-xs h-7 px-2">
+                                            <Button variant="noShadow" size="sm" className="h-7 px-2 text-xs">
                                                 Notes
                                             </Button>
                                         </Link>
                                         <Link href={route('agents:rep-countries:reorder-statuses', repCountry.id)}>
-                                            <Button variant="noShadow" size="sm" className="text-xs h-7 px-2">
-                                                <ArrowUpDown className="w-3 h-3 mr-1" />
+                                            <Button variant="noShadow" size="sm" className="h-7 px-2 text-xs">
+                                                <ArrowUpDown className="mr-1 h-3 w-3" />
                                                 Reorder
                                             </Button>
                                         </Link>
@@ -497,7 +483,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                             onClick={() => addStatusDialog.openDialog(repCountry.id, repCountry.country.name)}
                                             variant="noShadow"
                                             size="sm"
-                                            className="text-xs h-7 px-2"
+                                            className="h-7 px-2 text-xs"
                                         >
                                             Add Step
                                         </Button>
@@ -505,24 +491,24 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
 
                                     {/* Status Preview */}
                                     {repCountry.statuses && repCountry.statuses.length > 0 && (
-                                        <div className="pt-2 border-t">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <p className="text-xs font-medium text-muted-foreground">Application Steps:</p>
+                                        <div className="border-t pt-2">
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <p className="text-muted-foreground text-xs font-medium">Application Steps:</p>
                                                 {repCountry.statuses.length > 3 && (
                                                     <Button
                                                         variant="noShadow"
                                                         size="sm"
-                                                        className="text-xs h-6 px-2"
+                                                        className="h-6 px-2 text-xs"
                                                         onClick={() => toggleCardExpansion(repCountry.id)}
                                                     >
                                                         {expandedCards[repCountry.id] ? (
                                                             <>
-                                                                <ChevronUp className="w-3 h-3" />
+                                                                <ChevronUp className="h-3 w-3" />
                                                                 Show Less
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <ChevronDown className="w-3 h-3" />
+                                                                <ChevronDown className="h-3 w-3" />
                                                                 View All ({repCountry.statuses.length})
                                                             </>
                                                         )}
@@ -530,59 +516,59 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                 )}
                                             </div>
                                             <div className="space-y-1">
-                                                {(expandedCards[repCountry.id] ? repCountry.statuses : repCountry.statuses.slice(0, 3)).map((status: RepCountryStatus, index: number) => (
-                                                    <div key={status.id} className="flex items-center justify-between text-xs min-w-0">
-                                                        <span className="text-muted-foreground truncate flex-1 mr-2 min-w-0">
-                                                            {index + 1}. {status.status_name}
-                                                        </span>
-                                                        {status.status_name !== 'New' && (
-                                                            <div className="flex items-center space-x-1 flex-shrink-0">
-                                                                {isSwitchLoading(status.id) ? (
-                                                                    <Loader className="w-3 h-3 animate-spin text-blue-500" />
-                                                                ) : (
-                                                                    <StatusSwitch
-                                                                        id={status.id}
-                                                                        checked={status.is_active || false}
-                                                                        route={route('agents:rep-countries:toggle-rep-country-status', status.id)}
-                                                                        showLabel={false}
-                                                                    />
-                                                                )}
-                                                                <Button
-                                                                    onClick={() => editStatusDialog.openDialog(status)}
-                                                                    variant="noShadow"
-                                                                    size="sm"
-                                                                    className="h-6 w-6 p-0 flex-shrink-0"
-                                                                >
-                                                                    <Edit className="w-3 h-3" />
-                                                                </Button>
-                                                                <Button
-                                                                    onClick={() => handleAddSubStatus(status.id, status.status_name)}
-                                                                    variant="noShadow"
-                                                                    size="sm"
-                                                                    className="h-6 w-6 p-0 flex-shrink-0"
-                                                                    title="Add sub-step"
-                                                                >
-                                                                    <Layers className="w-3 h-3" />
-                                                                </Button>
-                                                                {status.sub_statuses && status.sub_statuses.length > 0 && (
+                                                {(expandedCards[repCountry.id] ? repCountry.statuses : repCountry.statuses.slice(0, 3)).map(
+                                                    (status: RepCountryStatus, index: number) => (
+                                                        <div key={status.id} className="flex min-w-0 items-center justify-between text-xs">
+                                                            <span className="text-muted-foreground mr-2 min-w-0 flex-1 truncate">
+                                                                {index + 1}. {status.status_name}
+                                                            </span>
+                                                            {status.status_name !== 'New' && (
+                                                                <div className="flex flex-shrink-0 items-center space-x-1">
+                                                                    {isSwitchLoading(status.id) ? (
+                                                                        <Loader className="h-3 w-3 animate-spin text-blue-500" />
+                                                                    ) : (
+                                                                        <StatusSwitch
+                                                                            id={status.id}
+                                                                            checked={status.is_active || false}
+                                                                            route={route('agents:rep-countries:toggle-rep-country-status', status.id)}
+                                                                            showLabel={false}
+                                                                        />
+                                                                    )}
                                                                     <Button
-                                                                        onClick={() => openSubStatusesSheet(status)}
+                                                                        onClick={() => editStatusDialog.openDialog(status)}
                                                                         variant="noShadow"
                                                                         size="sm"
-                                                                        className="h-6 w-6 p-0 flex-shrink-0"
-                                                                        title="View sub-steps"
+                                                                        className="h-6 w-6 flex-shrink-0 p-0"
                                                                     >
-                                                                        <FileText className="w-3 h-3" />
+                                                                        <Edit className="h-3 w-3" />
                                                                     </Button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
+                                                                    <Button
+                                                                        onClick={() => handleAddSubStatus(status.id, status.status_name)}
+                                                                        variant="noShadow"
+                                                                        size="sm"
+                                                                        className="h-6 w-6 flex-shrink-0 p-0"
+                                                                        title="Add sub-step"
+                                                                    >
+                                                                        <Layers className="h-3 w-3" />
+                                                                    </Button>
+                                                                    {status.sub_statuses && status.sub_statuses.length > 0 && (
+                                                                        <Button
+                                                                            onClick={() => openSubStatusesSheet(status)}
+                                                                            variant="noShadow"
+                                                                            size="sm"
+                                                                            className="h-6 w-6 flex-shrink-0 p-0"
+                                                                            title="View sub-steps"
+                                                                        >
+                                                                            <FileText className="h-3 w-3" />
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ),
+                                                )}
                                                 {!expandedCards[repCountry.id] && repCountry.statuses.length > 3 && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        +{repCountry.statuses.length - 3} more steps
-                                                    </p>
+                                                    <p className="text-muted-foreground text-xs">+{repCountry.statuses.length - 3} more steps</p>
                                                 )}
                                             </div>
                                         </div>
@@ -594,19 +580,17 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                 )}
 
                 {/* Empty State */}
-                {!isLoading && repCountries.length === 0 && (
-                    <Card className="text-center py-12">
+                {!isLoading && repCountries.data.length === 0 && (
+                    <Card className="py-12 text-center">
                         <CardContent>
-                            <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-                                <Settings className="w-8 h-8 text-muted-foreground" />
+                            <div className="bg-muted mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
+                                <Settings className="text-muted-foreground h-8 w-8" />
                             </div>
-                            <h3 className="text-lg font-semibold mb-2">No countries found</h3>
-                            <p className="text-muted-foreground mb-4">
-                                Get started by adding your first representing country
-                            </p>
+                            <h3 className="mb-2 text-lg font-semibold">No countries found</h3>
+                            <p className="text-muted-foreground mb-4">Get started by adding your first representing country</p>
                             <Link href={route('agents:rep-countries:create')}>
                                 <Button>
-                                    <Plus className="w-4 h-4 mr-2" />
+                                    <Plus className="mr-2 h-4 w-4" />
                                     Add First Country
                                 </Button>
                             </Link>
@@ -614,55 +598,44 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                     </Card>
                 )}
 
-                {/* Pagination */}
-                {!isLoading && pagination.last_page > 1 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
-                        <div className="text-sm text-muted-foreground text-center sm:text-left">
-                            Showing {pagination.from} to {pagination.to} of {pagination.total} results
-                        </div>
-                        <div className="flex items-center space-x-1 sm:space-x-2">
-                            <Button
-                                variant="noShadow"
-                                size="sm"
-                                onClick={() => router.visit(`${route('agents:rep-countries:index')}?page=${pagination.current_page - 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`)}
-                                disabled={pagination.current_page <= 1}
-                                className="px-2 sm:px-3 py-2 text-xs sm:text-sm"
-                            >
-                                Previous
-                            </Button>
-                            <div className="flex items-center space-x-1">
-                                {getPageNumbers(pagination.current_page, pagination.last_page).map((page, index) => (
-                                    <div key={index}>
-                                        {typeof page === 'string' ? (
-                                            <span className="px-1 sm:px-2 text-muted-foreground text-xs sm:text-sm">...</span>
-                                        ) : (
-                                            <Button
-                                                variant={page === pagination.current_page ? "default" : "noShadow"}
-                                                size="sm"
-                                                onClick={() => router.visit(`${route('agents:rep-countries:index')}?page=${page}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`)}
-                                                className="w-7 h-7 sm:w-8 sm:h-8 p-0 hidden sm:flex text-xs sm:text-sm"
-                                            >
-                                                {page}
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                                {/* Mobile page indicator */}
-                                <div className="sm:hidden text-xs text-muted-foreground px-1">
-                                    Page {pagination.current_page} of {pagination.last_page}
-                                </div>
-                            </div>
-                            <Button
-                                variant="noShadow"
-                                size="sm"
-                                onClick={() => router.visit(`${route('agents:rep-countries:index')}?page=${pagination.current_page + 1}${selectedCountry !== 'all' ? `&country_id=${selectedCountry}` : ''}`)}
-                                disabled={!pagination.has_more_pages}
-                                className="px-2 sm:px-3 py-2 text-xs sm:text-sm"
-                            >
-                                Next
-                            </Button>
-                        </div>
-                    </div>
+                {/* Pagination Controls */}
+                {!isLoading && repCountries.meta.last_page > 1 && (
+                    <Pagination className="mt-8">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    className="cursor-pointer"
+                                    size="default"
+                                    onClick={() => handlePageChange(repCountries.meta.current_page - 1)}
+                                />
+                            </PaginationItem>
+
+                            {Array.from({ length: repCountries.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                <PaginationItem key={page}>
+                                    {typeof page === 'string' ? (
+                                        <PaginationEllipsis />
+                                    ) : (
+                                        <PaginationLink
+                                            className="cursor-pointer"
+                                            size="default"
+                                            onClick={() => handlePageChange(page)}
+                                            isActive={page === repCountries.meta.current_page}
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    )}
+                                </PaginationItem>
+                            ))}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    className="cursor-pointer"
+                                    size="default"
+                                    onClick={() => handlePageChange(repCountries.meta.current_page + 1)}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 )}
 
                 {/* Add Status Dialog */}
@@ -677,18 +650,20 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                 <Input
                                     id="status-name"
                                     value={addStatusDialog.newStatusName}
-                                    onChange={e => addStatusDialog.setNewStatusName(e.target.value)}
+                                    onChange={(e) => addStatusDialog.setNewStatusName(e.target.value)}
                                     placeholder="e.g., Document Review, Interview, Approval"
                                     disabled={addStatusDialog.isAdding}
                                     autoFocus
                                 />
-                                {addStatusDialog.errors.name && (
-                                    <p className="text-sm text-red-600">{addStatusDialog.errors.name}</p>
-                                )}
+                                {addStatusDialog.errors.name && <p className="text-sm text-red-600">{addStatusDialog.errors.name}</p>}
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button type="submit" disabled={addStatusDialog.isAdding || !addStatusDialog.newStatusName.trim()} onClick={addStatusDialog.handleAddStatus} >
+                            <Button
+                                type="submit"
+                                disabled={addStatusDialog.isAdding || !addStatusDialog.newStatusName.trim()}
+                                onClick={addStatusDialog.handleAddStatus}
+                            >
                                 {addStatusDialog.isAdding ? 'Adding...' : 'Add Step'}
                             </Button>
                             <DialogClose asChild>
@@ -710,18 +685,20 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                 <Input
                                     id="edit-status-name"
                                     value={editStatusDialog.editedStatusName}
-                                    onChange={e => editStatusDialog.setEditedStatusName(e.target.value)}
+                                    onChange={(e) => editStatusDialog.setEditedStatusName(e.target.value)}
                                     placeholder="Step name"
                                     disabled={editStatusDialog.isEditing}
                                     autoFocus
                                 />
-                                {editStatusDialog.errors.status_name && (
-                                    <p className="text-sm text-red-600">{editStatusDialog.errors.status_name}</p>
-                                )}
+                                {editStatusDialog.errors.status_name && <p className="text-sm text-red-600">{editStatusDialog.errors.status_name}</p>}
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button type="submit" disabled={editStatusDialog.isEditing || !editStatusDialog.editedStatusName.trim()} onClick={editStatusDialog.handleEditStatus} >
+                            <Button
+                                type="submit"
+                                disabled={editStatusDialog.isEditing || !editStatusDialog.editedStatusName.trim()}
+                                onClick={editStatusDialog.handleEditStatus}
+                            >
                                 {editStatusDialog.isEditing ? 'Updating...' : 'Update Step'}
                             </Button>
                             <DialogClose asChild>
@@ -743,14 +720,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                 <Input
                                     id="sub-status-name"
                                     value={subStatusDialog.newSubStatusName}
-                                    onChange={e => setSubStatusDialog(prev => ({ ...prev, newSubStatusName: e.target.value }))}
+                                    onChange={(e) => setSubStatusDialog((prev) => ({ ...prev, newSubStatusName: e.target.value }))}
                                     placeholder="e.g., Document Review, Interview, Approval"
                                     disabled={subStatusDialog.isAdding}
                                     autoFocus
                                 />
-                                {subStatusDialog.errors.name && (
-                                    <p className="text-sm text-red-600">{subStatusDialog.errors.name}</p>
-                                )}
+                                {subStatusDialog.errors.name && <p className="text-sm text-red-600">{subStatusDialog.errors.name}</p>}
                             </div>
                         </div>
                         <DialogFooter>
@@ -780,7 +755,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                 <Input
                                     id="edit-sub-status-name"
                                     value={subStatusActions.editDialog.editedName}
-                                    onChange={e => subStatusActions.setEditedName(e.target.value)}
+                                    onChange={(e) => subStatusActions.setEditedName(e.target.value)}
                                     placeholder="Sub-step name"
                                     disabled={subStatusActions.editDialog.isEditing}
                                     autoFocus
@@ -817,30 +792,30 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                         <div className="mt-6 space-y-4">
                             {!subStatusesSheet.status ? (
                                 <div className="flex items-center justify-center py-8">
-                                    <Loader className="w-6 h-6 animate-spin text-blue-500" />
+                                    <Loader className="h-6 w-6 animate-spin text-blue-500" />
                                 </div>
                             ) : subStatusesSheet.status.sub_statuses && subStatusesSheet.status.sub_statuses.length > 0 ? (
-                                  <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                                <div className="grid flex-1 auto-rows-min gap-6 px-4">
                                     {subStatusesSheet.status.sub_statuses.map((subStatus: SubStatus, index: number) => (
-                                        <div key={subStatus.id} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg border">
-                                            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium text-blue-600 flex-shrink-0">
+                                        <div key={subStatus.id} className="flex items-center justify-between rounded-lg border bg-gray-50 p-3 sm:p-4">
+                                            <div className="flex min-w-0 flex-1 items-center space-x-2 sm:space-x-3">
+                                                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600 sm:h-8 sm:w-8 sm:text-sm">
                                                     {index + 1}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">{subStatus.name}</h4>
-                                                    <p className="text-xs sm:text-sm text-gray-500">
-                                                        {subStatus.is_active ? 'Active' : 'Inactive'}
-                                                    </p>
+                                                    <h4 className="truncate text-sm font-medium text-gray-900 sm:text-base">{subStatus.name}</h4>
+                                                    <p className="text-xs text-gray-500 sm:text-sm">{subStatus.is_active ? 'Active' : 'Inactive'}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
+                                            <div className="ml-2 flex flex-shrink-0 items-center space-x-2">
                                                 {subStatusActions.isToggleLoading(subStatus.id) ? (
-                                                    <Loader className="w-4 h-4 animate-spin text-blue-500" />
+                                                    <Loader className="h-4 w-4 animate-spin text-blue-500" />
                                                 ) : (
                                                     <Switch
                                                         checked={subStatus.is_active || false}
-                                                        onCheckedChange={(checked: boolean) => subStatusActions.handleToggleSubStatus(subStatus, checked)}
+                                                        onCheckedChange={(checked: boolean) =>
+                                                            subStatusActions.handleToggleSubStatus(subStatus, checked)
+                                                        }
                                                         className="data-[state=checked]:bg-blue-500"
                                                     />
                                                 )}
@@ -854,22 +829,22 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                     }}
                                                     variant="noShadow"
                                                     size="sm"
-                                                    className="h-6 w-6 sm:h-8 sm:w-8 p-0 hover:bg-gray-200"
+                                                    className="h-6 w-6 p-0 hover:bg-gray-200 sm:h-8 sm:w-8"
                                                     title="Edit sub-step"
                                                 >
-                                                    <Edit className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                                                    <Edit className="h-3 w-3 text-gray-600 sm:h-4 sm:w-4" />
                                                 </Button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-6 sm:py-8">
-                                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <Layers className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                                <div className="py-6 text-center sm:py-8">
+                                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16">
+                                        <Layers className="h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
                                     </div>
-                                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No sub-steps yet</h3>
-                                    <p className="text-sm text-gray-500 mb-4 px-4">
+                                    <h3 className="mb-2 text-base font-medium text-gray-900 sm:text-lg">No sub-steps yet</h3>
+                                    <p className="mb-4 px-4 text-sm text-gray-500">
                                         Add sub-steps to break down this application step into smaller tasks.
                                     </p>
                                     <Button
@@ -878,15 +853,13 @@ export default function RepCountriesIndex({ repCountries, availableCountries, pa
                                                 handleAddSubStatusFromSheet(subStatusesSheet.status.id, subStatusesSheet.status.status_name);
                                             }
                                         }}
-                                        className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 sm:w-auto"
                                     >
-                                        <Layers className="w-4 h-4 mr-2" />
+                                        <Layers className="mr-2 h-4 w-4" />
                                         Add First Sub-Step
                                     </Button>
                                 </div>
                             )}
-
-
                         </div>
                     </SheetContent>
                 </Sheet>
