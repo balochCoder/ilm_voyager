@@ -18,7 +18,7 @@ import {
 import { usePermission } from '@/hooks/use-permission';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Building2Icon, BuildingIcon, ChevronRight, Globe2, GlobeIcon, LayoutGrid } from 'lucide-react';
+import {  BuildingIcon, ChevronRight, Globe2, GlobeIcon, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [

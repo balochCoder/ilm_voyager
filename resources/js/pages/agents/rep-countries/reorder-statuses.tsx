@@ -42,23 +42,20 @@ function SortableItem({ status, index }: { status: RepCountryStatus; index: numb
         <div
             ref={setNodeRef}
             style={style}
-            className={`flex items-center space-x-2 p-3 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ${
-                isNew ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-blue-300'
-            } ${isDragging ? 'shadow-lg scale-105' : ''}`}
+            className={`flex items-center space-x-2 p-3 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ${isNew ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-blue-300'
+                } ${isDragging ? 'shadow-lg scale-105' : ''}`}
             {...attributes}
             {...(isNew ? {} : listeners)}
         >
             {/* Step Number */}
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
-                isNew ? 'bg-gray-200 text-gray-500' : 'bg-blue-100 text-blue-600'
-            }`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${isNew ? 'bg-gray-200 text-gray-500' : 'bg-blue-100 text-blue-600'
+                }`}>
                 {index + 1}
             </div>
 
             {/* Grip Handle */}
-            <div className={`p-1 rounded flex-shrink-0 ${
-                isNew ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-            }`}>
+            <div className={`p-1 rounded flex-shrink-0 ${isNew ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                }`}>
                 <GripVertical className="w-3 h-3" />
             </div>
 
@@ -66,9 +63,8 @@ function SortableItem({ status, index }: { status: RepCountryStatus; index: numb
             <div className="flex-1 min-w-0">
                 <div className="flex flex-col space-y-1">
                     <div className="flex items-start justify-between">
-                        <h3 className={`font-medium text-sm truncate flex-1 mr-2 ${
-                            isNew ? 'text-gray-500' : 'text-gray-900'
-                        }`}>
+                        <h3 className={`font-medium text-sm truncate flex-1 mr-2 ${isNew ? 'text-gray-500' : 'text-gray-900'
+                            }`}>
                             {status.status_name}
                         </h3>
                         <div className="flex flex-col gap-1 flex-shrink-0">
@@ -161,15 +157,14 @@ export default function ReorderStatuses({ repCountry }: Props) {
             <Head title="Reorder Steps" />
             <div className="flex h-full flex-1 flex-col p-4 space-y-4 min-w-0">
                 {/* Header Section */}
-                <div className="flex flex-col justify-between items-start gap-4 min-w-0">
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div className="flex-1 min-w-0">
-                        <Heading title='Reorder Application Steps' />
-                        <p className="text-muted-foreground mt-1 text-sm">
-                            Arrange the order of application process steps
-                        </p>
+                        <Heading title='Reorder Application Steps' description='Arrange the order of application process steps' />
+
                     </div>
-                    <Link href={route('agents:rep-countries:index')} className="w-full">
-                        <Button variant="noShadow" className="cursor-pointer w-full">
+                    <Link href={route('agents:rep-countries:index')} className='w-full sm:w-auto'>
+                        <Button variant="noShadow" className="cursor-pointer w-full sm:w-auto">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Countries
                         </Button>
