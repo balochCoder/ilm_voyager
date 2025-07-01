@@ -27,7 +27,8 @@ return new class extends Migration
             $table->text('part_time_work_details')->nullable();
             $table->text('course_benefits')->nullable();
             $table->text('general_eligibility')->nullable();
-            $table->string('quality_of_applicant')->nullable();
+            $table->enum('quality_of_desired_application', ['excellent', 'good', 'average', 'below_average'])
+                ->nullable();
             $table->boolean('is_language_mandatory')->default(false);
             $table->text('language_requirements')->nullable();
             $table->text('additional_info')->nullable();

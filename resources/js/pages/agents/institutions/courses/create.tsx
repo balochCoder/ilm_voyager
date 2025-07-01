@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { ArrowLeft, FileText, Image as ImageIcon, File as FileIcon, Trash2, BookOpen, Layers, Calendar as CalendarIcon, Folder } from 'lucide-react';
+import { ArrowLeft, FileText, Image as ImageIcon, File as FileIcon, Trash2, BookOpen, Layers, Calendar as CalendarIcon, Folder, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -22,7 +22,6 @@ interface Props {
   currencies: { id: string; name: string; code: string }[];
   categories: { id: string | number; name: string }[];
   courseLevels: { id: string | number; name: string }[];
-  intakeMonths: { value: string; label: string }[];
 }
 
 const breadcrumbs = [
@@ -31,7 +30,36 @@ const breadcrumbs = [
   { title: 'Add Course', href: '#' },
 ];
 
-const initialFormState = {
+// Define a type for the form state
+export type CourseFormState = {
+  title: string;
+  course_level_id: string;
+  duration_year: string;
+  duration_month: string;
+  duration_week: string;
+  start_date: string;
+  end_date: string;
+  campus_location: string;
+  awarding_body: string;
+  currency_id: string;
+  course_fee: string;
+  application_fee: string;
+  monthly_living_cost: string;
+  part_time_work_details: string;
+  course_benefits: string;
+  general_eligibility: string;
+  quality_of_applicant: string;
+  is_language_mandatory: boolean;
+  language_requirements: string;
+  additional_info: string;
+  course_categories: string[];
+  modules: string[];
+  intake_month: string[];
+  documents: File[];
+  document_titles: string[];
+};
+
+const initialFormState: CourseFormState = {
   title: '',
   course_level_id: '',
   duration_year: '',
@@ -52,14 +80,14 @@ const initialFormState = {
   is_language_mandatory: false,
   language_requirements: '',
   additional_info: '',
-  course_categories: [] as string[],
-  modules: [''] as string[],
-  intake_month: [] as string[],
-  documents: [] as File[],
-  document_titles: [] as string[],
-} as const;
+  course_categories: [],
+  modules: [''],
+  intake_month: [],
+  documents: [],
+  document_titles: [],
+};
 
-type CourseFormField = keyof typeof initialFormState;
+type CourseFormField = keyof CourseFormState;
 
 function getFileIcon(file: File) {
   const type = file.type;
@@ -68,7 +96,7 @@ function getFileIcon(file: File) {
   return <FileIcon className="h-5 w-5 text-gray-400" />;
 }
 
-export default function CreateCourse({ institution, currencies, categories, courseLevels, intakeMonths }: Props) {
+export default function CreateCourse({ institution, currencies, categories, courseLevels }: Props) {
   const { data, setData, post, processing, errors } = useForm(initialFormState);
   const [documentsError, setDocumentsError] = useState('');
   const documentsInputRef = useRef<HTMLInputElement>(null);
@@ -77,21 +105,12 @@ export default function CreateCourse({ institution, currencies, categories, cour
   const [startCalendarMonth, setStartCalendarMonth] = useState<Date>(data.start_date ? new Date(data.start_date) : new Date());
   const [endCalendarMonth, setEndCalendarMonth] = useState<Date>(data.end_date ? new Date(data.end_date) : new Date());
 
-  const handleInputChange = <K extends CourseFormField>(field: K) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setData(field, e.target.value as any);
+  const handleInputChange = (field: CourseFormField) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setData(field, e.target.value);
   };
 
-  const handleSelectChange = <K extends CourseFormField>(field: K) => (value: string) => {
-    setData(field, value as any);
-  };
-
-  const handleMultiSelectChange = <K extends CourseFormField>(field: K, value: string) => {
-    const arr = data[field] as string[];
-    if (arr.includes(value)) {
-      setData(field, arr.filter((v) => v !== value) as any);
-    } else {
-      setData(field, [...arr, value] as any);
-    }
+  const handleSelectChange = (field: CourseFormField) => (value: string) => {
+    setData(field, value);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +123,10 @@ export default function CreateCourse({ institution, currencies, categories, cour
       setDocumentsError('');
       const newFiles = [...data.documents, ...files].slice(0, 5);
       setData('documents', newFiles);
-      const titles = newFiles.map((file, index) => data.document_titles[index] || file.name.replace(/\.[^/.]+$/, ''));
+      const titles = newFiles.map((file, index) => {
+        const existingTitle = data.document_titles[index] || '';
+        return existingTitle || file.name.replace(/\.[^/.]+$/, '');
+      });
       setData('document_titles', titles);
     } else {
       setData('documents', []);
@@ -130,7 +152,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post(route('institutions:courses:store', { institution: institution.id }), {
+    post(route('agents:institutions:courses:store', { institution: institution.id }), {
       forceFormData: true,
       onSuccess: () => router.visit(route('agents:institutions:show', institution.id)),
     });
@@ -223,7 +245,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                         month={startCalendarMonth}
                         onMonthChange={setStartCalendarMonth}
                         onSelect={(date) => {
-                          setData('start_date', date ? format(date, 'yyyy-MM-dd') : ('' as any));
+                          setData('start_date', date ? format(date, 'yyyy-MM-dd') : '');
                           if (date) setStartDatePickerOpen(false);
                         }}
                       />
@@ -255,7 +277,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                         month={endCalendarMonth}
                         onMonthChange={setEndCalendarMonth}
                         onSelect={(date) => {
-                          setData('end_date', date ? format(date, 'yyyy-MM-dd') : ('' as any));
+                          setData('end_date', date ? format(date, 'yyyy-MM-dd') : '');
                           if (date) setEndDatePickerOpen(false);
                         }}
                       />
@@ -266,13 +288,40 @@ export default function CreateCourse({ institution, currencies, categories, cour
                 <div className="space-y-2">
                   <Label>Duration (Year/Month/Week) <span className="text-red-600">*</span></Label>
                   <div className="flex gap-2">
-                    <Input type="number" placeholder="Year" value={data.duration_year} onChange={handleInputChange('duration_year')} className="w-24" min={0} required={!data.duration_month && !data.duration_week} />
-                    <Input type="number" placeholder="Month" value={data.duration_month} onChange={handleInputChange('duration_month')} className="w-24" min={0} required={!data.duration_year && !data.duration_week} />
-                    <Input type="number" placeholder="Week" value={data.duration_week} onChange={handleInputChange('duration_week')} className="w-24" min={0} required={!data.duration_year && !data.duration_month} />
+                    <Select value={data.duration_year} onValueChange={handleSelectChange('duration_year')}>
+                      <SelectTrigger className="w-24">
+                        <SelectValue placeholder="Year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[...Array(6)].map((_, i) => {
+                          const val = (i + 1).toString().padStart(2, '0');
+                          return <SelectItem key={val} value={val}>{val}</SelectItem>;
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <Select value={data.duration_month} onValueChange={handleSelectChange('duration_month')}>
+                      <SelectTrigger className="w-24">
+                        <SelectValue placeholder="Month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[...Array(12)].map((_, i) => {
+                          const val = (i + 1).toString().padStart(2, '0');
+                          return <SelectItem key={val} value={val}>{val}</SelectItem>;
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <Select value={data.duration_week} onValueChange={handleSelectChange('duration_week')}>
+                      <SelectTrigger className="w-24">
+                        <SelectValue placeholder="Week" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[...Array(51)].map((_, i) => {
+                          const val = (i + 1).toString().padStart(2, '0');
+                          return <SelectItem key={val} value={val}>{val}</SelectItem>;
+                        })}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  {errors.duration_year && <div className="text-red-500">{errors.duration_year}</div>}
-                  {errors.duration_month && <div className="text-red-500">{errors.duration_month}</div>}
-                  {errors.duration_week && <div className="text-red-500">{errors.duration_week}</div>}
                 </div>
               </div>
             </CardContent>
@@ -369,7 +418,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                 </div>
                 <div className="space-y-2">
                   <Label>Is Language Mandatory?</Label>
-                  <Switch checked={data.is_language_mandatory} onCheckedChange={v => setData('is_language_mandatory', Boolean(v) as any)} />
+                  <Switch className="block" checked={data.is_language_mandatory} onCheckedChange={(checked: boolean) => setData('is_language_mandatory', checked)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Language Requirements {data.is_language_mandatory && <span className="text-red-600">*</span>}</Label>
@@ -515,32 +564,74 @@ export default function CreateCourse({ institution, currencies, categories, cour
                   <Folder className="w-4 h-4 text-gray-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <CardTitle className="text-lg sm:text-xl">Documents (max 5)</CardTitle>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Upload supporting documents for this course</p>
+                  <CardTitle className="text-lg sm:text-xl">Documents & Files</CardTitle>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Upload course documents and files</p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <Input type="file" multiple ref={documentsInputRef} onChange={handleFileChange} />
-              {documentsError && <div className="text-red-500">{documentsError}</div>}
-              <ul>
-                {data.documents.map((file, idx) => (
-                  <li key={idx} className="flex items-center gap-2 mt-2">
-                    {getFileIcon(file)}
-                    <Input
-                      value={data.document_titles[idx] || ''}
-                      onChange={e => handleTitleChange(idx, e.target.value)}
-                      placeholder="Document title"
-                      className="w-48"
-                    />
-                    <span className="text-xs text-gray-500">{file.name}</span>
-                    <Button type="button" variant="destructive" size="sm" onClick={() => removeFile(idx)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-              {errors.documents && <div className="text-red-500">{errors.documents}</div>}
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="documents" className="text-sm font-medium">
+                  Documents (PDF, JPG, PNG, DOC, DOCX)
+                </Label>
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition bg-white w-full"
+                  onClick={() => documentsInputRef.current?.click()}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Upload documents"
+                >
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <span className="text-gray-600 font-medium">Drag & drop files here or <span className="text-blue-600 underline">browse</span></span>
+                  <input
+                    ref={documentsInputRef}
+                    type="file"
+                    id="documents"
+                    name="documents[]"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    disabled={data.documents.length >= 5}
+                  />
+                </div>
+                {/* File list */}
+                {data.documents.length > 0 && (
+                  <ul className="mt-4 space-y-2">
+                    {data.documents.map((file, idx) => (
+                      <li key={idx} className="flex flex-col sm:flex-row sm:items-center bg-gray-50 rounded p-3 gap-2 sm:gap-0">
+                        <div className="flex items-center">
+                          {getFileIcon(file)}
+                        </div>
+                        <div className="flex-1 ml-0 sm:ml-3 w-full">
+                          <div className="font-medium text-gray-800 truncate max-w-full break-all">{file.name}</div>
+                          <Input
+                            type="text"
+                            placeholder="Enter document title (e.g., Transcript, Certificate, etc.)"
+                            value={data.document_titles[idx] || ''}
+                            onChange={e => handleTitleChange(idx, e.target.value)}
+                            className="mt-1 text-sm w-full"
+                          />
+                          <div className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => removeFile(idx)}
+                          className="mt-2 sm:mt-0 sm:ml-2 text-red-500 hover:text-red-700"
+                          aria-label="Remove file"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {(errors.documents || documentsError) && (
+                  <p className="text-sm text-red-600">{errors.documents || documentsError}</p>
+                )}
+              </div>
             </CardContent>
           </Card>
 
