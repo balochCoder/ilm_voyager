@@ -19,8 +19,19 @@ interface Course {
     currency?: { code?: string } | null;
 }
 
+
+
+interface PaginatedCourses {
+    data: Course[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
+}
+
 interface Props {
-    courses: Course[];
+    courses: PaginatedCourses;
     institution: { id: string | number; institution_name: string };
 }
 
@@ -42,8 +53,15 @@ function formatDuration(year: string, month: string, week: string) {
 }
 
 export default function CoursesIndex({ courses, institution }: Props) {
-    // Calculate the count of courses with is_language_mandatory true
-    const languageNotMandatoryCount = courses.filter(c => c.is_language_mandatory === false).length;
+    // Calculate the count of courses with is_language_mandatory false
+    const languageNotMandatoryCount = courses.data.filter(c => c.is_language_mandatory === false).length;
+
+    // Pagination handler
+    const handlePageChange = (page: number) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(page));
+        window.location.href = url.toString();
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -65,19 +83,17 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     <Card>
                         <div className="p-4 flex items-center space-x-2">
                             <div className="rounded-lg bg-blue-100 p-2">
-
                                 <Copy className="h-4 w-4 text-blue-600" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-sm">Total Courses</p>
-                                <p className="text-xl font-semibold sm:text-2xl">{courses.length}</p>
+                                <p className="text-xl font-semibold sm:text-2xl">{courses.meta.total}</p>
                             </div>
                         </div>
                     </Card>
                     <Card>
                         <div className="p-4 flex items-center space-x-2">
                             <div className="rounded-lg bg-green-100 p-2">
-
                                 <Globe className="h-4 w-4 text-green-600" />
                             </div>
                             <div className="min-w-0 flex-1">
@@ -88,19 +104,17 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     </Card>
                 </div>
                 <div>
-
-                    {courses.length === 0 ? (
+                    {courses.data.length === 0 ? (
                         <div className="text-center text-gray-500 py-12">No courses found for this institution.</div>
                     ) : (
                         <div className="space-y-6">
-                            {courses.map(course => (
+                            {courses.data.map(course => (
                                 <Card
                                     key={course.id}
                                     className="group p-0 border border-gray-200 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200"
                                 >
                                     <div className="flex items-center justify-between px-6 pt-5 pb-2">
                                         <div className="flex items-center gap-3">
-
                                             <div>
                                                 <div className="text-lg font-bold capitalize text-gray-900">{course.title}</div>
                                                 <div className="flex items-center gap-2 mt-1">
@@ -157,6 +171,39 @@ export default function CoursesIndex({ courses, institution }: Props) {
                         </div>
                     )}
                 </div>
+                {/* Pagination Controls */}
+                {courses.meta.last_page > 1 && (
+                    <div className="overflow-x-auto">
+                        <div className="flex justify-center mt-4">
+                            <nav className="inline-flex -space-x-px">
+                                <button
+                                    className="px-3 py-1 border rounded-l disabled:opacity-50"
+                                    onClick={() => handlePageChange(courses.meta.current_page - 1)}
+                                    disabled={courses.meta.current_page === 1}
+                                >
+                                    Previous
+                                </button>
+                                {Array.from({ length: courses.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        className={`px-3 py-1 border-t border-b ${page === courses.meta.current_page ? 'bg-primary text-white' : ''}`}
+                                        onClick={() => handlePageChange(page)}
+                                        disabled={page === courses.meta.current_page}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                                <button
+                                    className="px-3 py-1 border rounded-r disabled:opacity-50"
+                                    onClick={() => handlePageChange(courses.meta.current_page + 1)}
+                                    disabled={courses.meta.current_page === courses.meta.last_page}
+                                >
+                                    Next
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                )}
             </div>
         </AppLayout>
     );

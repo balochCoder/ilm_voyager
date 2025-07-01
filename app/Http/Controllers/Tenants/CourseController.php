@@ -22,7 +22,7 @@ class CourseController extends Controller
         $courses = $institution->courses()
             ->with(['courseLevel', 'currency'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(1);
 
         return Inertia::render('agents/institutions/courses/index', [
             'courses' => CourseResource::collection($courses),
