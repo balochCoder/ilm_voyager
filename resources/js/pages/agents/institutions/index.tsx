@@ -469,7 +469,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                                                 <TooltipProvider>
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
-                                                            <Link href="#" onClick={e => e.stopPropagation()}>
+                                                            <Link href={route('agents:institutions:courses:index', { institution: inst.id })} onClick={e => e.stopPropagation()}>
                                                                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
                                                                     <BookOpen className="h-4 w-4" />
                                                                 </Button>

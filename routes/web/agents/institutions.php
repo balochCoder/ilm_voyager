@@ -23,6 +23,7 @@ Route::put('representing-institutions/{institution}', [
 
 // Course routes for an institution
 Route::prefix('representing-institutions/{institution}')->group(function () {
+    Route::get('courses', [CourseController::class, 'index'])->name('institutions:courses:index');
     Route::get('courses/create', [CourseController::class, 'create'])->name('institutions:courses:create');
     Route::post('courses', [CourseController::class, 'store'])->name('institutions:courses:store');
 });

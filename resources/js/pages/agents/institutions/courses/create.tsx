@@ -304,7 +304,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                         <SelectValue placeholder="Month" />
                       </SelectTrigger>
                       <SelectContent>
-                        {[...Array(12)].map((_, i) => {
+                        {[...Array(11)].map((_, i) => {
                           const val = (i + 1).toString().padStart(2, '0');
                           return <SelectItem key={val} value={val}>{val}</SelectItem>;
                         })}

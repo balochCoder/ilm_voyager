@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class CourseResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array<string, mixed>
+     */
+    public function toArray($request)
+    {
+        return [
+            'id' => $this->id,
+            'institution_id' => $this->institution_id,
+            'title' => $this->title,
+            'course_level_id' => $this->course_level_id,
+            'course_level' => $this->whenLoaded('courseLevel', function () {
+                return [
+                    'id' => optional($this->courseLevel)->id,
+                    'name' => optional($this->courseLevel)->name,
+                ];
+            }),
+            'duration_year' => $this->duration_year,
+            'duration_month' => $this->duration_month,
+            'duration_week' => $this->duration_week,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+            'campus_location' => $this->campus_location,
+            'awarding_body' => $this->awarding_body,
+            'currency_id' => $this->currency_id,
+            'currency' => $this->whenLoaded('currency', function () {
+                return [
+                    'id' => optional($this->currency)->id,
+                    'name' => optional($this->currency)->name,
+                    'code' => optional($this->currency)->code,
+                ];
+            }),
+            'course_fee' => $this->course_fee,
+            'application_fee' => $this->application_fee,
+            'monthly_living_cost' => $this->monthly_living_cost,
+            'part_time_work_details' => $this->part_time_work_details,
+            'course_benefits' => $this->course_benefits,
+            'general_eligibility' => $this->general_eligibility,
+            'quality_of_applicant' => $this->quality_of_applicant,
+            'is_language_mandatory' => $this->is_language_mandatory,
+            'language_requirements' => $this->language_requirements,
+            'additional_info' => $this->additional_info,
+            'course_categories' => $this->course_categories,
+            'modules' => $this->modules,
+            'intake_month' => $this->intake_month,
+            'documents' => $this->getDocumentsWithTitles(),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
+        ];
+    }
+}
