@@ -17,6 +17,21 @@ use App\Http\Resources\CourseResource;
 
 class CourseController extends Controller
 {
+    public function index(Institution $institution)
+    {
+        $courses = $institution->courses()
+            ->with('courseLevel')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('agents/institutions/courses/index', [
+            'courses' => CourseResource::collection($courses),
+            'institution' => [
+                'id' => $institution->id,
+                'institution_name' => $institution->institution_name,
+            ],
+        ]);
+    }
     public function create(Institution $institution)
     {
         $categories = CourseCategory::all(['id', 'name']);
@@ -35,21 +50,5 @@ class CourseController extends Controller
         $action->execute($request);
         return redirect()->route('agents:institutions:show', $institution->id)
             ->with('success', 'Course added successfully!');
-    }
-
-    public function index(Institution $institution)
-    {
-        $courses = $institution->courses()
-            ->with('courseLevel')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return Inertia::render('agents/institutions/courses/index', [
-            'courses' => CourseResource::collection($courses),
-            'institution' => [
-                'id' => $institution->id,
-                'institution_name' => $institution->institution_name,
-            ],
-        ]);
     }
 }

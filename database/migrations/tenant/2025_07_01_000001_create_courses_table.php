@@ -18,13 +18,11 @@ return new class extends Migration
             $table->integer('duration_week')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->string('campus_location')->nullable();
+            $table->string('campus')->nullable();
             $table->string('awarding_body')->nullable();
-            $table->foreignId('currency_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('currency_id')->constrained()->onDelete('cascade');
             $table->decimal('course_fee', 12, 2)->nullable();
             $table->decimal('application_fee', 12, 2)->nullable();
-            $table->decimal('monthly_living_cost', 12, 2)->nullable();
-            $table->text('part_time_work_details')->nullable();
             $table->text('course_benefits')->nullable();
             $table->text('general_eligibility')->nullable();
             $table->enum('quality_of_desired_application', ['excellent', 'good', 'average', 'below_average'])

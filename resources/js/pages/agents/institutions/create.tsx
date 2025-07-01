@@ -177,7 +177,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
                     <div className="flex-1 min-w-0">
                         <Heading title="Add Institution" description='Create a new institution with comprehensive details and documentation' />
-                    
+
                     </div>
                     <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
                         <Button variant="default" className="cursor-pointer w-full">

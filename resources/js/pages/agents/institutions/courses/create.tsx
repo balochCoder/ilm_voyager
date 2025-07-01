@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { MultiSelect } from '@/components/ui/multi-select';
 
 interface Props {
-  institution: { id: string; institution_name: string };
+  institution: { id: string; institution_name: string; campus?: string; quality_of_desired_application?: string; currency_id?: string | number };
   currencies: { id: string; name: string; code: string }[];
   categories: { id: string | number; name: string }[];
   courseLevels: { id: string | number; name: string }[];
@@ -39,16 +39,14 @@ export type CourseFormState = {
   duration_week: string;
   start_date: string;
   end_date: string;
-  campus_location: string;
+  campus: string;
   awarding_body: string;
   currency_id: string;
   course_fee: string;
   application_fee: string;
-  monthly_living_cost: string;
-  part_time_work_details: string;
   course_benefits: string;
   general_eligibility: string;
-  quality_of_applicant: string;
+  quality_of_desired_application: string;
   is_language_mandatory: boolean;
   language_requirements: string;
   additional_info: string;
@@ -67,16 +65,14 @@ const initialFormState: CourseFormState = {
   duration_week: '',
   start_date: '',
   end_date: '',
-  campus_location: '',
+  campus: '',
   awarding_body: '',
   currency_id: '',
   course_fee: '',
   application_fee: '',
-  monthly_living_cost: '',
-  part_time_work_details: '',
   course_benefits: '',
   general_eligibility: '',
-  quality_of_applicant: '',
+  quality_of_desired_application: '',
   is_language_mandatory: false,
   language_requirements: '',
   additional_info: '',
@@ -214,8 +210,12 @@ export default function CreateCourse({ institution, currencies, categories, cour
                 </div>
                 <div className="space-y-2">
                   <Label>Campus Location <span className="text-red-600">*</span></Label>
-                  <Input value={data.campus_location} onChange={handleInputChange('campus_location')} required />
-                  {errors.campus_location && <div className="text-red-500">{errors.campus_location}</div>}
+                  <Input
+                    value={data.campus}
+                    onChange={handleInputChange('campus')}
+                    required
+                  />
+                  {errors.campus && <div className="text-red-500">{errors.campus}</div>}
                 </div>
                 <div className="space-y-2">
                   <Label>Awarding Body</Label>
@@ -366,14 +366,6 @@ export default function CreateCourse({ institution, currencies, categories, cour
                   <Label>Application Fee</Label>
                   <Input type="number" value={data.application_fee} onChange={handleInputChange('application_fee')} />
                 </div>
-                <div className="space-y-2">
-                  <Label>Monthly Living Cost</Label>
-                  <Input type="number" value={data.monthly_living_cost} onChange={handleInputChange('monthly_living_cost')} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Part Time Work Details</Label>
-                  <Textarea value={data.part_time_work_details} onChange={handleInputChange('part_time_work_details')} />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -403,7 +395,11 @@ export default function CreateCourse({ institution, currencies, categories, cour
                 </div>
                 <div className="space-y-2">
                   <Label>Quality of Applicant Desired <span className="text-red-600">*</span></Label>
-                  <Select value={data.quality_of_applicant} onValueChange={handleSelectChange('quality_of_applicant')} required>
+                  <Select
+                    value={data.quality_of_desired_application}
+                    onValueChange={handleSelectChange('quality_of_desired_application')}
+                    required
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Quality" />
                     </SelectTrigger>
@@ -414,7 +410,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                       <SelectItem value="below_average">Below Average(*)</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.quality_of_applicant && <div className="text-red-500">{errors.quality_of_applicant}</div>}
+                  {errors.quality_of_desired_application && <div className="text-red-500">{errors.quality_of_desired_application}</div>}
                 </div>
                 <div className="space-y-2">
                   <Label>Is Language Mandatory?</Label>
