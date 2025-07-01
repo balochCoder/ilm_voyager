@@ -3,7 +3,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Head, Link } from '@inertiajs/react';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Copy, Globe } from 'lucide-react';
 
 interface Course {
     id: string | number;
@@ -65,7 +65,8 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     <Card>
                         <div className="p-4 flex items-center space-x-2">
                             <div className="rounded-lg bg-blue-100 p-2">
-                                <span role="img" aria-label="Courses" className="text-blue-600 text-xl">🏛️</span>
+
+                                <Copy className="h-4 w-4 text-blue-600" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-sm">Total Courses</p>
@@ -76,7 +77,8 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     <Card>
                         <div className="p-4 flex items-center space-x-2">
                             <div className="rounded-lg bg-green-100 p-2">
-                                <span role="img" aria-label="Language Mandatory" className="text-green-600 text-xl">🌐</span>
+
+                                <Globe className="h-4 w-4 text-green-600" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-sm">Language Not Mandatory</p>
@@ -109,8 +111,8 @@ export default function CoursesIndex({ courses, institution }: Props) {
                                                     )}
                                                     {course.is_language_mandatory !== undefined && (
                                                         <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${course.is_language_mandatory
-                                                                ? 'bg-blue-100 text-blue-700'
-                                                                : 'bg-green-100 text-green-700'
+                                                            ? 'bg-blue-100 text-blue-700'
+                                                            : 'bg-green-100 text-green-700'
                                                             }`}>
                                                             {course.is_language_mandatory ? 'Language Required' : 'Language Optional'}
                                                         </span>
