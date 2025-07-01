@@ -18,6 +18,8 @@ final class InstitutionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'rep_country_id' => $this->rep_country_id,
+            'currency_id' => $this->currency_id,
             'institution_name' => $this->institution_name,
             'campus' => $this->campus,
             'website' => $this->website,
@@ -48,6 +50,9 @@ final class InstitutionResource extends JsonResource
             'contact_person_designation' => $this->contact_person_designation,
             'is_active' => $this->is_active,
             'logo_url' => $this->logo_url,
+            'contract_copy' => $this->getContractCopyFile(),
+            'prospectus' => $this->getProspectusFile(),
+            'additional_files' => $this->getAdditionalFilesWithTitles(),
             'rep_country' => RepCountryResource::make($this->whenLoaded('repCountry')),
             'created' => DateResource::make($this->created_at),
             'updated' => DateResource::make($this->updated_at),

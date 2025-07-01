@@ -67,13 +67,11 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
                     <div className="flex-1 min-w-0">
-                        <Heading title='Add Representing Country' />
-                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-                            Create a new representing country with detailed information
-                        </p>
+                        <Heading title='Add Representing Country' description='Create a new representing country with detailed information'/>
+                  
                     </div>
                     <Link href={route('agents:rep-countries:index')} className="w-full sm:w-auto">
-                        <Button variant="noShadow" className="cursor-pointer w-full">
+                        <Button variant="default" className="cursor-pointer w-full">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Countries
                         </Button>
@@ -299,10 +297,10 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                                     </Label>
                                     <div className="w-full sm:w-1/2">
                                         <MultiSelect
-                                            options={statuses.map(status => ({ 
-                                                label: status.name, 
-                                                value: status.id, 
-                                                disabled: status.id === newStatusId 
+                                            options={statuses.map(status => ({
+                                                label: status.name,
+                                                value: status.id,
+                                                disabled: status.id === newStatusId
                                             }))}
                                             onValueChange={handleStatusChange}
                                             defaultValue={data.status_ids}
@@ -327,7 +325,7 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                                                 return status ? (
                                                     <Badge
                                                         key={statusId}
-                                                        variant={statusId === newStatusId ? "neutral" : "default"}
+                                                        variant={statusId === newStatusId ? "outline" : "default"}
                                                         className="text-xs"
                                                     >
                                                         {status.name}
@@ -349,7 +347,7 @@ export default function RepCountriesCreate({ countries, statuses }: Props) {
                         </div>
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
                             <Link href={route("agents:rep-countries:index")} className="w-full sm:w-auto">
-                                <Button type="button" variant="noShadow" className="w-full">
+                                <Button type="button" variant="outline" className="w-full">
                                     Cancel
                                 </Button>
                             </Link>

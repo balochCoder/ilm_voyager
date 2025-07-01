@@ -1,44 +1,32 @@
 // import { NavFooter } from '@/components/nav-footer';
 import { NavUser } from '@/components/nav-user';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupLabel,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
-} from '@/components/ui/sidebar';
-import { usePermission } from '@/hooks/use-permission';
-import { type NavItem, type SharedData } from '@/types';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupLabel, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
+import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import {  BuildingIcon, ChevronRight, Globe2, GlobeIcon, LayoutGrid } from 'lucide-react';
+import { LayoutGrid, ChevronRight, Users, FileText, GraduationCap, Building2, ClipboardList, Settings, BarChart3, Globe2, GlobeIcon, BuildingIcon } from 'lucide-react';
 import AppLogo from './app-logo';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { usePermission } from '@/hooks/use-permission';
+import { type SharedData } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/agents/dashboard',
+        title: "Dashboard",
+        href: "/agents/dashboard",
         icon: LayoutGrid,
         isActive: false,
         roles: ['super-admin'],
     },
-    {
-        title: 'Countries',
-        href: '/agents/countries',
+     {
+        title: "Countries",
+        href: "/agents/countries",
         icon: Globe2,
         isActive: false,
         roles: ['super-admin'],
     },
-    {
-        title: 'Representing Countries',
-        href: '/agents/representing-countries',
+     {
+        title: "Representing Countries",
+        href: "/agents/representing-countries",
         icon: GlobeIcon,
         isActive: false,
         roles: ['super-admin'],
@@ -51,8 +39,8 @@ const mainNavItems: NavItem[] = [
         roles: ['super-admin'],
     },
     {
-        title: 'Dashboard',
-        href: '/counsellors/dashboard',
+        title: "Dashboard",
+        href: "/counsellors/dashboard",
         icon: LayoutGrid,
         isActive: false,
         roles: ['counsellor'],
@@ -96,29 +84,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { hasRole } = usePermission();
 
     // Filter navigation items based on user role
-    const filteredNavItems = mainNavItems
-        .filter((item) => {
-            if (!item.roles) return true;
-            return item.roles.some((role) => hasRole(role));
-        })
-        .map((item) => {
-            if (item.items) {
-                return {
-                    ...item,
-                    items: item.items.filter((subItem) => {
-                        if (!subItem.roles) return true;
-                        return subItem.roles.some((role) => hasRole(role));
-                    }),
-                };
-            }
-            return item;
-        })
-        .filter((item) => {
-            if (item.items) {
-                return item.items.length > 0;
-            }
-            return true;
-        });
+    const filteredNavItems = mainNavItems.filter(item => {
+        if (!item.roles) return true;
+        return item.roles.some(role => hasRole(role));
+    }).map(item => {
+        if (item.items) {
+            return {
+                ...item,
+                items: item.items.filter(subItem => {
+                    if (!subItem.roles) return true;
+                    return subItem.roles.some(role => hasRole(role));
+                }),
+            };
+        }
+        return item;
+    }).filter(item => {
+        if (item.items) {
+            return item.items.length > 0;
+        }
+        return true;
+    });
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -126,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/agents/dashboard">
+                            <Link href="/agents/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -138,9 +123,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarGroup>
                     <SidebarGroupLabel>Platform</SidebarGroupLabel>
                     <SidebarMenu>
-                        {filteredNavItems.map((item) =>
+                        {filteredNavItems.map((item) => (
                             item.items ? (
-                                <Collapsible key={item.title} asChild defaultOpen={currentPath.startsWith(item.href)} className="group/collapsible">
+                                <Collapsible
+                                    key={item.title}
+                                    asChild
+                                    defaultOpen={currentPath.startsWith(item.href)}
+                                    className="group/collapsible"
+                                >
                                     <SidebarMenuItem>
                                         <CollapsibleTrigger asChild>
                                             <SidebarMenuButton
@@ -153,11 +143,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                             </SidebarMenuButton>
                                         </CollapsibleTrigger>
                                         <CollapsibleContent>
-                                            <SidebarMenuSub className="mt-2">
+                                            <SidebarMenuSub className='mt-2'>
                                                 {item.items.map((subItem) => (
                                                     <SidebarMenuSubItem key={subItem.title}>
                                                         <SidebarMenuSubButton asChild>
-                                                            <Link href={subItem.href}>
+                                                            <Link href={subItem.href} prefetch>
                                                                 <span>{subItem.title}</span>
                                                             </Link>
                                                         </SidebarMenuSubButton>
@@ -169,15 +159,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 </Collapsible>
                             ) : (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild isActive={currentPath.startsWith(item.href)} tooltip={item.title}>
-                                        <Link href={item.href}>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={currentPath.startsWith(item.href)}
+                                        tooltip={item.title}
+                                    >
+                                        <Link href={item.href} prefetch>
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
-                            ),
-                        )}
+                            )
+                        ))}
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>

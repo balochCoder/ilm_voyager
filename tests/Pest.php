@@ -1,8 +1,5 @@
 <?php
 
-declare(strict_types=1);
-use Tests\TestCase;
-
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -14,7 +11,7 @@ use Tests\TestCase;
 |
 */
 
-pest()->extend(TestCase::class)
+pest()->extend(Tests\TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
@@ -29,7 +26,9 @@ pest()->extend(TestCase::class)
 |
 */
 
-expect()->extend('toBeOne', fn () => $this->toBe(1));
+expect()->extend('toBeOne', function () {
+    return $this->toBe(1);
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +41,7 @@ expect()->extend('toBeOne', fn () => $this->toBe(1));
 |
 */
 
-function something(): void
+function something()
 {
     // ..
 }

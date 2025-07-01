@@ -1,13 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(RefreshDatabase::class);
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-test('profile page is displayed', function (): void {
+test('profile page is displayed', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -17,7 +14,7 @@ test('profile page is displayed', function (): void {
     $response->assertOk();
 });
 
-test('profile information can be updated', function (): void {
+test('profile information can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -38,7 +35,7 @@ test('profile information can be updated', function (): void {
     expect($user->email_verified_at)->toBeNull();
 });
 
-test('email verification status is unchanged when the email address is unchanged', function (): void {
+test('email verification status is unchanged when the email address is unchanged', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -50,12 +47,12 @@ test('email verification status is unchanged when the email address is unchanged
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile:edit'));
+        ->assertRedirect('/settings/profile');
 
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
 
-test('user can delete their account', function (): void {
+test('user can delete their account', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -72,7 +69,7 @@ test('user can delete their account', function (): void {
     expect($user->fresh())->toBeNull();
 });
 
-test('correct password must be provided to delete account', function (): void {
+test('correct password must be provided to delete account', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -84,7 +81,7 @@ test('correct password must be provided to delete account', function (): void {
 
     $response
         ->assertSessionHasErrors('password')
-        ->assertRedirect(route('profile:edit'));
+        ->assertRedirect('/settings/profile');
 
     expect($user->fresh())->not->toBeNull();
 });

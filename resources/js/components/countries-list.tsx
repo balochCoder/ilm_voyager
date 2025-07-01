@@ -7,7 +7,7 @@ interface CountriesListProps {
 
 export default function CountriesList({ countries }: CountriesListProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             {countries.map((country, index) => (
                 <Alert key={country.id} className="flex items-center justify-between">
                     <AlertDescription className="flex items-center gap-2">

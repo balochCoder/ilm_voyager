@@ -50,6 +50,8 @@ interface Props {
     repCountries: RepCountryResource;
     availableCountries: Country[];
     statuses: Status[];
+    repCountriesTotal: number;
+    repCountriesActive: number;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -63,7 +65,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function RepCountriesIndex({ repCountries, availableCountries }: Props) {
+export default function RepCountriesIndex({ repCountries, availableCountries, repCountriesTotal, repCountriesActive }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
@@ -312,7 +314,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                         <Popover open={open} onOpenChange={setOpen}>
                             <PopoverTrigger asChild>
                                 <Button
-                                    variant="noShadow"
+                                    variant="outline"
                                     role="combobox"
                                     aria-expanded={open}
                                     className="w-full justify-between"
@@ -370,7 +372,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-muted-foreground text-sm">Total Countries</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">{repCountries.meta.total}</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{repCountriesTotal}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -383,7 +385,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-muted-foreground text-sm">Active</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">{repCountries.data.filter((rc) => rc.is_active).length}</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{repCountriesActive}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -437,7 +439,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                             showLabel={false}
                                                         />
                                                     )}
-                                                    <Badge variant={repCountry.is_active ? 'default' : 'neutral'} className="text-xs">
+                                                    <Badge variant={repCountry.is_active ? 'default' : 'outline'} className="text-xs">
                                                         {repCountry.is_active ? 'Active' : 'Inactive'}
                                                     </Badge>
                                                 </div>
@@ -469,19 +471,19 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                     {/* Quick Actions */}
                                     <div className="flex flex-wrap gap-1 pt-2 sm:gap-2">
                                         <Link href={route('agents:rep-countries:add-notes', repCountry.id)}>
-                                            <Button variant="noShadow" size="sm" className="h-7 px-2 text-xs">
+                                            <Button variant="default" size="sm" className="h-7 px-2 text-xs">
                                                 Notes
                                             </Button>
                                         </Link>
                                         <Link href={route('agents:rep-countries:reorder-statuses', repCountry.id)}>
-                                            <Button variant="noShadow" size="sm" className="h-7 px-2 text-xs">
+                                            <Button variant="default" size="sm" className="h-7 px-2 text-xs">
                                                 <ArrowUpDown className="mr-1 h-3 w-3" />
                                                 Reorder
                                             </Button>
                                         </Link>
                                         <Button
                                             onClick={() => addStatusDialog.openDialog(repCountry.id, repCountry.country.name)}
-                                            variant="noShadow"
+                                            variant="default"
                                             size="sm"
                                             className="h-7 px-2 text-xs"
                                         >
@@ -496,7 +498,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                 <p className="text-muted-foreground text-xs font-medium">Application Steps:</p>
                                                 {repCountry.statuses.length > 3 && (
                                                     <Button
-                                                        variant="noShadow"
+                                                        variant="default"
                                                         size="sm"
                                                         className="h-6 px-2 text-xs"
                                                         onClick={() => toggleCardExpansion(repCountry.id)}
@@ -536,7 +538,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                                     )}
                                                                     <Button
                                                                         onClick={() => editStatusDialog.openDialog(status)}
-                                                                        variant="noShadow"
+                                                                        variant="default"
                                                                         size="sm"
                                                                         className="h-6 w-6 flex-shrink-0 p-0"
                                                                     >
@@ -544,7 +546,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                                     </Button>
                                                                     <Button
                                                                         onClick={() => handleAddSubStatus(status.id, status.status_name)}
-                                                                        variant="noShadow"
+                                                                        variant="default"
                                                                         size="sm"
                                                                         className="h-6 w-6 flex-shrink-0 p-0"
                                                                         title="Add sub-step"
@@ -554,7 +556,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                                     {status.sub_statuses && status.sub_statuses.length > 0 && (
                                                                         <Button
                                                                             onClick={() => openSubStatusesSheet(status)}
-                                                                            variant="noShadow"
+                                                                            variant="default"
                                                                             size="sm"
                                                                             className="h-6 w-6 flex-shrink-0 p-0"
                                                                             title="View sub-steps"
@@ -667,7 +669,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                 {addStatusDialog.isAdding ? 'Adding...' : 'Add Step'}
                             </Button>
                             <DialogClose asChild>
-                                <Button variant="neutral">Cancel</Button>
+                                <Button variant="outline">Cancel</Button>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>
@@ -702,7 +704,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                 {editStatusDialog.isEditing ? 'Updating...' : 'Update Step'}
                             </Button>
                             <DialogClose asChild>
-                                <Button variant="neutral">Cancel</Button>
+                                <Button variant="outline">Cancel</Button>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>
@@ -737,7 +739,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                 {subStatusDialog.isAdding ? 'Adding...' : 'Add Sub-Step'}
                             </Button>
                             <DialogClose asChild>
-                                <Button variant="neutral">Cancel</Button>
+                                <Button variant="outline">Cancel</Button>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>
@@ -774,7 +776,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                 {subStatusActions.editDialog.isEditing ? 'Updating...' : 'Update Sub-Step'}
                             </Button>
                             <DialogClose asChild>
-                                <Button variant="neutral">Cancel</Button>
+                                <Button variant="outline">Cancel</Button>
                             </DialogClose>
                         </DialogFooter>
                     </DialogContent>
@@ -820,6 +822,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                     />
                                                 )}
                                                 <Button
+
                                                     onClick={() => {
                                                         subStatusActions.openEditDialog(subStatus);
                                                         // Refresh sheet content after editing
@@ -827,12 +830,12 @@ export default function RepCountriesIndex({ repCountries, availableCountries }: 
                                                             refreshSubStatusesInSheet();
                                                         }, 100);
                                                     }}
-                                                    variant="noShadow"
-                                                    size="sm"
-                                                    className="h-6 w-6 p-0 hover:bg-gray-200 sm:h-8 sm:w-8"
+                                                    variant="default"
+                                                    size="icon"
+                                                    className="h-6 w-6 p-0 sm:h-8 sm:w-8"
                                                     title="Edit sub-step"
                                                 >
-                                                    <Edit className="h-3 w-3 text-gray-600 sm:h-4 sm:w-4" />
+                                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                                                 </Button>
                                             </div>
                                         </div>

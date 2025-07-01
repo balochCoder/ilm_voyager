@@ -24,8 +24,8 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/agents/dashboard' },
-    { title: 'Institutions', href: '/agents/institutions' },
-    { title: 'Add Institution', href: '/agents/institutions/create' },
+    { title: 'Institutions', href: '/agents/representing-institutions' },
+    { title: 'Add Institution', href: '/agents/representing-institutions/create' },
 ];
 
 const initialFormState = {
@@ -172,44 +172,42 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Institution" />
-            <div className="flex h-full min-w-0 flex-1 flex-col space-y-4 p-4 sm:space-y-6 sm:p-6">
+            <div className="flex h-full flex-1 flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 min-w-0">
                 {/* Header Section */}
-                <div className="flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                    <div className="min-w-0 flex-1">
-                        <Heading title="Add Institution" />
-                        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-                            Create a new institution with comprehensive details and documentation
-                        </p>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 min-w-0">
+                    <div className="flex-1 min-w-0">
+                        <Heading title="Add Institution" description='Create a new institution with comprehensive details and documentation' />
+                    
                     </div>
                     <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
-                        <Button variant="noShadow" className="w-full cursor-pointer">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
+                        <Button variant="default" className="cursor-pointer w-full">
+                            <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Institutions
                         </Button>
                     </Link>
                 </div>
 
-                <form onSubmit={handleSubmit} className="min-w-0 space-y-4 sm:space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 min-w-0">
                     {/* Basic Information Card */}
                     <Card>
                         <CardHeader>
-                            <div className="flex min-w-0 flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
-                                <div className="w-fit flex-shrink-0 rounded-lg bg-blue-100 p-2">
-                                    <Building2 className="h-4 w-4 text-blue-600" />
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0 w-fit">
+                                    <Building2 className="w-4 h-4 text-blue-600" />
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <CardTitle className="text-lg sm:text-xl">Basic Information</CardTitle>
-                                    <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Institution details and basic configuration</p>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Institution details and basic configuration</p>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4 sm:space-y-6">
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="rep_country_id" className="text-sm font-medium">
                                         Country <span className="text-red-600">*</span>
                                     </Label>
-                                    <Select value={data.rep_country_id} onValueChange={(v) => setData('rep_country_id', v)}>
+                                    <Select value={data.rep_country_id} onValueChange={(v:string) => setData('rep_country_id', v)}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Country" />
                                         </SelectTrigger>
@@ -243,7 +241,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                     <Label htmlFor="institute_type" className="text-sm font-medium">
                                         Institute Type <span className="text-red-600">*</span>
                                     </Label>
-                                    <Select value={data.institute_type} onValueChange={(v) => setData('institute_type', v)}>
+                                    <Select value={data.institute_type} onValueChange={(v:string) => setData('institute_type', v)}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Type" />
                                         </SelectTrigger>
@@ -261,7 +259,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                     </Label>
                                     <Select
                                         value={data.quality_of_desired_application}
-                                        onValueChange={(v) => setData('quality_of_desired_application', v)}
+                                        onValueChange={(v:string) => setData('quality_of_desired_application', v)}
                                     >
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Quality" />
@@ -309,7 +307,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                     <Label htmlFor="currency_id" className="text-sm font-medium">
                                         Currency <span className="text-red-600">*</span>
                                     </Label>
-                                    <Select value={data.currency_id} onValueChange={(v) => setData('currency_id', v)}>
+                                    <Select value={data.currency_id} onValueChange={(v:string) => setData('currency_id', v)}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Currency" />
                                         </SelectTrigger>
@@ -331,7 +329,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                     <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                                         <PopoverTrigger asChild>
                                             <Button
-                                                variant="default"
+                                                variant="outline"
                                                 className={cn(
                                                     'w-full justify-start text-left font-normal',
                                                     !data.contract_expiry_date && 'text-muted-foreground',
@@ -385,18 +383,18 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                     {/* Financial Information Card */}
                     <Card>
                         <CardHeader>
-                            <div className="flex min-w-0 flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
-                                <div className="w-fit flex-shrink-0 rounded-lg bg-green-100 p-2">
-                                    <DollarSign className="h-4 w-4 text-green-600" />
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                <div className="p-2 bg-green-100 rounded-lg flex-shrink-0 w-fit">
+                                    <DollarSign className="w-4 h-4 text-green-600" />
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <CardTitle className="text-lg sm:text-xl">Financial Information</CardTitle>
-                                    <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Cost details and financial requirements</p>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Cost details and financial requirements</p>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="monthly_living_cost" className="text-sm font-medium">
                                         Monthly Living Cost
@@ -448,13 +446,13 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                     {/* Language Requirements Card */}
                     <Card>
                         <CardHeader>
-                            <div className="flex min-w-0 flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
-                                <div className="w-fit flex-shrink-0 rounded-lg bg-amber-100 p-2">
-                                    <Globe className="h-4 w-4 text-amber-600" />
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0 w-fit">
+                                    <Globe className="w-4 h-4 text-amber-600" />
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <CardTitle className="text-lg sm:text-xl">Language Requirements</CardTitle>
-                                    <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Language prerequisites and requirements</p>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Language prerequisites and requirements</p>
                                 </div>
                             </div>
                         </CardHeader>
@@ -463,7 +461,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                 <div className="flex items-center space-x-2">
                                     <Switch
                                         checked={data.is_language_mandatory}
-                                        onCheckedChange={(checked) => setData('is_language_mandatory', checked)}
+                                        onCheckedChange={(checked: boolean) => setData('is_language_mandatory', checked)}
                                     />
                                     <Label className="text-sm font-medium">Is Language Mandatory?</Label>
                                 </div>
@@ -490,13 +488,13 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                     <div className="grid grid-cols-1 gap-4 sm:gap-6">
                         <Card>
                             <CardHeader>
-                                <div className="flex min-w-0 flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
-                                    <div className="w-fit flex-shrink-0 rounded-lg bg-purple-100 p-2">
-                                        <FileText className="h-4 w-4 text-purple-600" />
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                    <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0 w-fit">
+                                        <FileText className="w-4 h-4 text-purple-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <CardTitle className="text-lg sm:text-xl">Contract & Terms</CardTitle>
-                                        <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Contract terms and institutional policies</p>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Contract terms and institutional policies</p>
                                     </div>
                                 </div>
                             </CardHeader>
@@ -582,18 +580,18 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
 
                         <Card>
                             <CardHeader>
-                                <div className="flex min-w-0 flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
-                                    <div className="w-fit flex-shrink-0 rounded-lg bg-indigo-100 p-2">
-                                        <Users className="h-4 w-4 text-indigo-600" />
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                    <div className="p-2 bg-indigo-100 rounded-lg flex-shrink-0 w-fit">
+                                        <Users className="w-4 h-4 text-indigo-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <CardTitle className="text-lg sm:text-xl">Contact Information</CardTitle>
-                                        <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Primary contact person details</p>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Primary contact person details</p>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="contact_person_name" className="text-sm font-medium">
                                             Contact Person Name <span className="text-red-600">*</span>
@@ -654,18 +652,18 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
 
                         <Card>
                             <CardHeader>
-                                <div className="flex min-w-0 flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
-                                    <div className="w-fit flex-shrink-0 rounded-lg bg-orange-100 p-2">
-                                        <Upload className="h-4 w-4 text-orange-600" />
+                                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-2 min-w-0">
+                                    <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0 w-fit">
+                                        <Upload className="w-4 h-4 text-orange-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <CardTitle className="text-lg sm:text-xl">Documents & Files</CardTitle>
-                                        <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Upload institution documents and files</p>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Upload institution documents and files</p>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="contract_copy" className="text-sm font-medium">
                                             Contract Copy (PDF, JPG, PNG)
@@ -682,7 +680,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                             {data.contract_copy && (
                                                 <div className="ml-2 flex items-center gap-1 text-green-600 text-sm">
                                                     {getFileIcon(data.contract_copy)}
-                                                    <span>{data.contract_copy.name}</span>
+                                                    <span className="truncate max-w-[120px] sm:max-w-[200px]">{data.contract_copy.name}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -704,7 +702,7 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                             {data.logo && (
                                                 <div className="ml-2 flex items-center gap-1 text-green-600 text-sm">
                                                     {getFileIcon(data.logo)}
-                                                    <span>{data.logo.name}</span>
+                                                    <span className="truncate max-w-[120px] sm:max-w-[200px]">{data.logo.name}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -726,18 +724,18 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                             {data.prospectus && (
                                                 <div className="ml-2 flex items-center gap-1 text-green-600 text-sm">
                                                     {getFileIcon(data.prospectus)}
-                                                    <span>{data.prospectus.name}</span>
+                                                    <span className="truncate max-w-[120px] sm:max-w-[200px]">{data.prospectus.name}</span>
                                                 </div>
                                             )}
                                         </div>
                                         {errors.prospectus && <p className="text-sm text-red-600">{errors.prospectus}</p>}
                                     </div>
-                                    <div className="space-y-2 col-span-2">
+                                    <div className="space-y-2 sm:col-span-2">
                                         <Label htmlFor="additional_files" className="text-sm font-medium">
                                             Additional Files (PDF, JPG, PNG, DOC, DOCX)
                                         </Label>
                                         <div
-                                            className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition bg-white"
+                                            className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition bg-white w-full"
                                             onClick={() => additionalFilesInputRef.current?.click()}
                                             onDrop={handleDrop}
                                             onDragOver={handleDragOver}
@@ -763,25 +761,27 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                                         {data.additional_files.length > 0 && (
                                             <ul className="mt-4 space-y-2">
                                                 {data.additional_files.map((file, idx) => (
-                                                    <li key={idx} className="flex items-center bg-gray-50 rounded p-3">
-                                                        {getFileIcon(file)}
-                                                        <div className="flex-1 ml-3">
-                                                            <div className="font-medium text-gray-800">{file.name}</div>
+                                                    <li key={idx} className="flex flex-col sm:flex-row sm:items-center bg-gray-50 rounded p-3 gap-2 sm:gap-0">
+                                                        <div className="flex items-center">
+                                                            {getFileIcon(file)}
+                                                        </div>
+                                                        <div className="flex-1 ml-0 sm:ml-3 w-full">
+                                                            <div className="font-medium text-gray-800 truncate max-w-full break-all">{file.name}</div>
                                                             <Input
                                                                 type="text"
                                                                 placeholder="Enter document title (e.g., Transcript, Certificate, etc.)"
                                                                 value={data.additional_file_titles[idx] || ''}
                                                                 onChange={e => handleTitleChange(idx, e.target.value)}
-                                                                className="mt-1 text-sm"
+                                                                className="mt-1 text-sm w-full"
                                                             />
                                                             <div className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</div>
                                                         </div>
                                                         <Button
                                                             type="button"
-                                                            variant="neutral"
+                                                            variant="outline"
                                                             size="icon"
                                                             onClick={() => removeFile(idx)}
-                                                            className="ml-2 text-red-500 hover:text-red-700"
+                                                            className="mt-2 sm:mt-0 sm:ml-2 text-red-500 hover:text-red-700"
                                                             aria-label="Remove file"
                                                         >
                                                             <Trash2 className="h-5 w-5" />
@@ -800,25 +800,25 @@ export default function InstitutionsCreate({ repCountries, currencies }: Props) 
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex min-w-0 flex-col items-start justify-between space-y-4 border-t pt-4 sm:flex-row sm:items-center sm:space-y-0 sm:pt-6">
-                        <div className="text-muted-foreground text-center text-xs sm:text-left sm:text-sm">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-4 sm:pt-6 border-t space-y-4 sm:space-y-0 min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
                             <span className="font-medium">{repCountries.length}</span> representing countries available for selection
                         </div>
-                        <div className="flex w-full flex-col space-y-2 sm:w-auto sm:flex-row sm:space-y-0 sm:space-x-3">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
                             <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
-                                <Button type="button" variant="noShadow" className="w-full">
+                                <Button type="button" variant="outline" className="w-full">
                                     Cancel
                                 </Button>
                             </Link>
-                            <Button type="submit" disabled={processing} className="w-full min-w-[180px] sm:w-auto">
+                            <Button type="submit" disabled={processing} className="min-w-[180px] w-full sm:w-auto">
                                 {processing ? (
                                     <>
-                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                                         Creating...
                                     </>
                                 ) : (
                                     <>
-                                        <Plus className="mr-2 h-4 w-4" />
+                                        <Plus className="w-4 h-4 mr-2" />
                                         Add Institution
                                     </>
                                 )}

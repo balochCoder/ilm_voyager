@@ -62,10 +62,10 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex-1 min-w-0">
                             <Heading title='Status Notes' description='Add detailed notes for each application step'/>
-                           
+
                         </div>
                         <Link href={route('agents:rep-countries:index')} className='w-full sm:w-auto'>
-                            <Button variant="noShadow" className="cursor-pointer w-full sm:w-auto">
+                            <Button variant="default" className="cursor-pointer w-full sm:w-auto">
                                 <ArrowLeft className="w-4 h-4 mr-2" />
                                 Back to Countries
                             </Button>
@@ -86,7 +86,7 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                                         {repCountry.country?.name}
                                     </h2>
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
-                                        <Badge variant={repCountry.is_active ? "default" : "neutral"} className="w-fit">
+                                        <Badge variant={repCountry.is_active ? "default" : "outline"} className="w-fit">
                                             {repCountry.is_active ? 'Active' : 'Inactive'}
                                         </Badge>
                                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -164,7 +164,7 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                 <Link href={route('agents:rep-countries:index')} className="w-full sm:w-auto">
-                                    <Button variant="noShadow" type="button" className="w-full sm:w-auto">
+                                    <Button variant="outline" type="button" className="w-full sm:w-auto">
                                         Cancel
                                     </Button>
                                 </Link>

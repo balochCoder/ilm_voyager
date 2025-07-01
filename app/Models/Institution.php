@@ -71,4 +71,35 @@ class Institution extends Model implements HasMedia
     {
         return $this->getFirstMediaUrl('logo') ?: null;
     }
+
+    public function getContractCopyFile()
+    {
+        $media = $this->getFirstMedia('contract_copy');
+        if (!$media) return null;
+        return [
+            'id' => $media->id,
+            'name' => $media->name,
+            'url' => $media->getUrl(),
+            'size' => $media->size,
+            'mime_type' => $media->mime_type,
+        ];
+    }
+
+    public function getProspectusFile()
+    {
+        $media = $this->getFirstMedia('prospectus');
+        if (!$media) return null;
+        return [
+            'id' => $media->id,
+            'name' => $media->name,
+            'url' => $media->getUrl(),
+            'size' => $media->size,
+            'mime_type' => $media->mime_type,
+        ];
+    }
+
+    public function courses()
+    {
+        return $this->hasMany(\App\Models\Course::class);
+    }
 }

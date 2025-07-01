@@ -1,14 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
-uses(RefreshDatabase::class);
+uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
-test('password can be updated', function (): void {
+test('password can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this
@@ -27,7 +24,7 @@ test('password can be updated', function (): void {
     expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
 });
 
-test('correct password must be provided to update password', function (): void {
+test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
 
     $response = $this

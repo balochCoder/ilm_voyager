@@ -58,11 +58,11 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                 size="sm"
                                 variant="default"
                                 asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted dark:text-white': currentPath === item.href,
+                                className={cn('w-full justify-start hover:bg-sidebar-primary', {
+                                    'bg-sidebar-primary text-primary-foreground dark:text-white': currentPath === item.href,
                                 })}
                             >
-                                <Link href={item.href}>
+                                <Link href={item.href} prefetch>
                                     {item.title}
                                 </Link>
                             </Button>

@@ -29,7 +29,7 @@ class StoreInstitutionRequest extends FormRequest
             'quality_of_desired_application' => 'required|in:excellent,good,average,below_average',
             'contract_expiry_date' => 'nullable|date|after:today',
             'is_language_mandatory' => 'boolean',
-            'language_requirements' => 'nullable|string',
+            'language_requirements' => 'required_if:is_language_mandatory,true|string',
             'institutional_benefits' => 'nullable|string',
             'part_time_work_details' => 'nullable|string',
             'scholarship_policy' => 'nullable|string',

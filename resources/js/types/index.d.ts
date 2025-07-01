@@ -187,6 +187,28 @@ export interface Institution {
     rep_country?: RepCountry;
     currency?: Currency;
     logo_url?: string;
+    contract_copy?: {
+        id: number;
+        name: string;
+        url: string;
+        size: number;
+        mime_type: string;
+    } | null;
+    prospectus?: {
+        id: number;
+        name: string;
+        url: string;
+        size: number;
+        mime_type: string;
+    } | null;
+    additional_files?: {
+        id: number;
+        name: string;
+        title: string;
+        url: string;
+        size: number;
+        mime_type: string;
+    }[];
 }
 
 export interface InstitutionResource {

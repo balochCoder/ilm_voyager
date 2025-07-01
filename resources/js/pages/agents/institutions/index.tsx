@@ -2,8 +2,10 @@ import Heading from '@/components/heading';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Pagination,
@@ -23,16 +25,17 @@ import { cn } from '@/lib/utils';
 import { BreadcrumbItem, InstitutionResource, RepCountry, SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { Building2, Check, ChevronsUpDown, Edit, FileText, Globe, Loader2, Plus, Users } from 'lucide-react';
+import { Building2, Check, ChevronsUpDown, ChevronDown, ChevronRight, Edit, FileText, Loader2, Plus, Users, BookOpen, PlusCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { DateRange } from 'react-day-picker';
-import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface Props {
     institutions: InstitutionResource;
     repCountries: RepCountry[];
+    institutionsTotal: number;
+    institutionsActive: number;
+    institutionsDirect: number;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -40,8 +43,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Institutions', href: '/agents/institutions' },
 ];
 
-
-export default function InstitutionsIndex({ institutions, repCountries }: Props) {
+export default function InstitutionsIndex({ institutions, repCountries, institutionsTotal, institutionsActive, institutionsDirect }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [selectedType, setSelectedType] = useState<string>('all');
@@ -53,6 +55,8 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
     const [keyword, setKeyword] = useState('');
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
     const [datePickerOpen, setDatePickerOpen] = useState(false);
+    const [detailsOpen, setDetailsOpen] = useState<{ [id: string]: boolean }>({});
+    const [expandedId, setExpandedId] = useState<string | null>(null);
 
     useEffect(() => {
         if (flash?.success) {
@@ -106,13 +110,20 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
 
     const handleSearch = () => {
         const url = new URL(window.location.href);
-        if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('country_id', selectedCountry); else url.searchParams.delete('country_id');
-        if (selectedType && selectedType !== 'all') url.searchParams.set('type', selectedType); else url.searchParams.delete('type');
-        if (institutionName) url.searchParams.set('institution_name', institutionName); else url.searchParams.delete('institution_name');
-        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail); else url.searchParams.delete('contact_person_email');
-        if (keyword) url.searchParams.set('keyword', keyword); else url.searchParams.delete('keyword');
-        if (dateRange?.from) url.searchParams.set('contract_expiry_start', dateRange.from.toISOString().slice(0, 10)); else url.searchParams.delete('contract_expiry_start');
-        if (dateRange?.to) url.searchParams.set('contract_expiry_end', dateRange.to.toISOString().slice(0, 10)); else url.searchParams.delete('contract_expiry_end');
+        if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('country_id', selectedCountry);
+        else url.searchParams.delete('country_id');
+        if (selectedType && selectedType !== 'all') url.searchParams.set('type', selectedType);
+        else url.searchParams.delete('type');
+        if (institutionName) url.searchParams.set('institution_name', institutionName);
+        else url.searchParams.delete('institution_name');
+        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
+        else url.searchParams.delete('contact_person_email');
+        if (keyword) url.searchParams.set('keyword', keyword);
+        else url.searchParams.delete('keyword');
+        if (dateRange?.from) url.searchParams.set('contract_expiry_start', dateRange.from.toISOString().slice(0, 10));
+        else url.searchParams.delete('contract_expiry_start');
+        if (dateRange?.to) url.searchParams.set('contract_expiry_end', dateRange.to.toISOString().slice(0, 10));
+        else url.searchParams.delete('contract_expiry_end');
         url.searchParams.delete('page');
         setIsLoading(true);
         router.visit(url.toString(), {
@@ -154,17 +165,25 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
         return selectedType === 'direct' ? 'Direct' : 'Indirect';
     };
 
+    const toggleDetails = (id: string) => {
+        setDetailsOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const handleExpand = (id: string) => {
+        setExpandedId(expandedId === id ? null : id);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Institutions" />
 
-            <div className="flex h-full flex-1 flex-col space-y-6 overflow-x-hidden p-4 sm:p-6">
+            <div className="flex h-full flex-1 flex-col space-y-6 overflow-x-hidden p-2 sm:p-4 md:p-6">
                 {/* Header Section */}
-                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                     <div className="min-w-0 flex-1">
-                        <Heading title="Institutions" description='Manage educational institutions and their partnerships'/>
+                        <Heading title="Institutions" description="Manage educational institutions and their partnerships" />
                     </div>
-                    <Link href={route('agents:institutions:create')} className="w-full sm:w-auto">
+                    <Link href={route('agents:institutions:create')} className="w-full md:w-auto">
                         <Button className="w-full cursor-pointer">
                             <Plus className="mr-2 h-4 w-4" />
                             Add Institution
@@ -175,16 +194,16 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                 {/* Stats and Filter Section */}
                 <div className="flex flex-col gap-6">
                     {/* Filters Row: Country, Type, and Advanced Search */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-4">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
                         {/* Country Filter */}
-                        <div className="flex w-full flex-col gap-1 sm:max-w-[220px]">
+                        <div className="flex w-full flex-col gap-1 md:max-w-[220px]">
                             <Label htmlFor="country-filter" className="text-sm font-medium">
                                 Filter by Country
                             </Label>
                             <Popover open={countryOpen} onOpenChange={setCountryOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
-                                        variant="noShadow"
+                                        variant="outline"
                                         role="combobox"
                                         aria-expanded={countryOpen}
                                         className="w-full justify-between"
@@ -203,7 +222,7 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full p-0 sm:w-[220px]">
+                                <PopoverContent className="w-full p-0 md:w-[220px]">
                                     <Command>
                                         <CommandInput placeholder="Search countries..." />
                                         <CommandList>
@@ -242,14 +261,14 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                             </Popover>
                         </div>
                         {/* Type Filter */}
-                        <div className="flex w-full flex-col gap-1 sm:max-w-[160px]">
+                        <div className="flex w-full flex-col gap-1 md:max-w-[160px]">
                             <Label htmlFor="type-filter" className="text-sm font-medium">
                                 Filter by Type
                             </Label>
                             <Popover open={typeOpen} onOpenChange={setTypeOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
-                                        variant="noShadow"
+                                        variant="outline"
                                         role="combobox"
                                         aria-expanded={typeOpen}
                                         className="w-full justify-between"
@@ -259,7 +278,7 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full p-0 sm:w-[160px]">
+                                <PopoverContent className="w-full p-0 md:w-[160px]">
                                     <Command>
                                         <CommandList>
                                             <CommandGroup>
@@ -284,78 +303,71 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                             </Popover>
                         </div>
                         {/* Institution Name Filter */}
-                        <div className="flex flex-col gap-1 w-full sm:max-w-[200px]">
-                            <Label htmlFor="institution_name" className="text-sm font-medium">Institution Name</Label>
+                        <div className="flex w-full flex-col gap-1 md:max-w-[200px]">
+                            <Label htmlFor="institution_name" className="text-sm font-medium">
+                                Institution Name
+                            </Label>
                             <Input
                                 id="institution_name"
                                 type="text"
                                 value={institutionName}
-                                onChange={e => setInstitutionName(e.target.value)}
+                                onChange={(e) => setInstitutionName(e.target.value)}
                                 placeholder="Search by name"
                             />
                         </div>
                         {/* Contact Email Filter */}
-                        <div className="flex flex-col gap-1 w-full sm:max-w-[200px]">
-                            <Label htmlFor="contact_person_email" className="text-sm font-medium">Contact Email</Label>
+                        <div className="flex w-full flex-col gap-1 md:max-w-[200px]">
+                            <Label htmlFor="contact_person_email" className="text-sm font-medium">
+                                Contact Email
+                            </Label>
                             <Input
                                 id="contact_person_email"
                                 type="text"
                                 value={contactEmail}
-                                onChange={e => setContactEmail(e.target.value)}
+                                onChange={(e) => setContactEmail(e.target.value)}
                                 placeholder="Search by email"
                             />
                         </div>
                         {/* Keyword Filter */}
-                        <div className="flex flex-col gap-1 w-full sm:max-w-[180px]">
-                            <Label htmlFor="keyword" className="text-sm font-medium">Keyword</Label>
-                            <Input
-                                id="keyword"
-                                type="text"
-                                value={keyword}
-                                onChange={e => setKeyword(e.target.value)}
-                                placeholder="Any keyword"
-                            />
+                        <div className="flex w-full flex-col gap-1 md:max-w-[180px]">
+                            <Label htmlFor="keyword" className="text-sm font-medium">
+                                Keyword
+                            </Label>
+                            <Input id="keyword" type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Any keyword" />
                         </div>
                         {/* Contract Expiry Date Range Filter */}
-                        <div className="flex flex-col gap-1 w-full sm:max-w-[240px]">
-                            <Label htmlFor="contract_expiry_date" className="text-sm font-medium">Contract Expiry Date Range</Label>
+                        <div className="flex w-full flex-col gap-1 md:max-w-[240px]">
+                            <Label htmlFor="contract_expiry_date" className="text-sm font-medium">
+                                Contract Expiry Date Range
+                            </Label>
                             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                                 <PopoverTrigger asChild>
-                                    <Button
-                                        variant="noShadow"
-                                        className="w-full justify-start text-left font-normal"
-                                        type="button"
-                                    >
+                                    <Button variant="outline" className="w-full justify-start text-left font-normal" type="button">
                                         {dateRange?.from && dateRange?.to
                                             ? `${format(dateRange.from, 'dd MMM yyyy')} - ${format(dateRange.to, 'dd MMM yyyy')}`
                                             : 'Pick a date range'}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start" side="bottom" avoidCollisions={false}>
-                                    <Calendar
-                                        mode="range"
-                                        selected={dateRange}
-                                        onSelect={setDateRange}
-                                        numberOfMonths={2}
-                                    />
+                                    <Calendar mode="range" selected={dateRange} onSelect={setDateRange} numberOfMonths={2} />
                                 </PopoverContent>
                             </Popover>
                         </div>
                         {/* Search/Reset Buttons */}
-                        <div className="flex flex-row gap-2 pt-6 sm:pt-0">
+                        <div className="flex flex-row gap-2 pt-4 md:pt-0">
                             <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading}>
                                 Search
                             </Button>
-                            <Button type="button" variant="neutral" onClick={handleReset} disabled={isLoading}>
+                            <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading}>
                                 Reset
                             </Button>
                         </div>
                     </div>
 
-                    {isLoading && <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />}
+                    {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
 
                     {/* Stats Cards */}
-                    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <Card>
                             <CardContent className="p-4">
                                 <div className="flex items-center space-x-2">
@@ -363,8 +375,8 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <Building2 className="h-4 w-4 text-blue-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-muted-foreground text-sm">Total Institutions</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">{institutions.meta.total}</p>
+                                        <p className="text-sm text-muted-foreground">Total Institutions</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{institutionsTotal}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -376,10 +388,8 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <Check className="h-4 w-4 text-green-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-muted-foreground text-sm">Active</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">
-                                            {institutions.data.filter((inst) => inst.is_active).length}
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">Active</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{institutionsActive}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -391,25 +401,8 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                         <Users className="h-4 w-4 text-purple-600" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-muted-foreground text-sm">Direct</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">
-                                            {institutions.data.filter((inst) => inst.institute_type === 'direct').length}
-                                        </p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="p-4">
-                                <div className="flex items-center space-x-2">
-                                    <div className="rounded-lg bg-orange-100 p-2">
-                                        <Globe className="h-4 w-4 text-orange-600" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-muted-foreground text-sm">Indirect</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">
-                                            {institutions.data.filter((inst) => inst.institute_type === 'indirect').length}
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">Direct</p>
+                                        <p className="text-xl font-semibold sm:text-2xl">{institutionsDirect}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -437,38 +430,92 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                     </div>
                 )}
 
-                {/* Card Grid Institutions List */}
-                {!isLoading && (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {institutions.data.map((inst) => (
-                            <Card
-                                key={inst.id}
-                                className="bg-background text-main-foreground border-border group border shadow-md transition-all hover:shadow-lg"
-                            >
-                                <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                                    <Avatar>
-                                        <AvatarImage src={inst.logo_url} alt={inst.institution_name} />
-                                        <AvatarFallback>{inst.institution_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="min-w-0 flex-1">
-                                        <CardTitle className="truncate text-xl font-bold text-gray-900 transition-colors group-hover:text-blue-700">
-                                            {inst.institution_name}
-                                        </CardTitle>
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <Badge
-                                                variant="default"
-                                                className={
-                                                    inst.institute_type === 'direct' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                                                }
-                                            >
-                                                {inst.institute_type.charAt(0).toUpperCase() + inst.institute_type.slice(1)}
-                                            </Badge>
-                                            <Badge variant="default" className="bg-gray-100 text-gray-700">
-                                                {inst.rep_country?.country?.name || '-'}
-                                            </Badge>
+                {/* List with Expandable Rows */}
+                {!isLoading && institutions.data.length !== 0 &&(
+                    <div className="w-full rounded border border-border bg-background shadow-md overflow-x-auto">
+                        <div className="min-w-[900px] flex items-center px-2 sm:px-4 py-2 font-semibold text-gray-700 border-b text-xs sm:text-sm">
+                            <div className="w-8" />
+                            <div className="w-12" />
+                            <div className="flex-1">Name</div>
+                            <div className="w-24">Institute Type</div>
+                            <div className="w-32">Country</div>
+                            <div className="w-48">Campus</div>
+                            <div className="w-32">Added Date</div>
+                            <div className="w-20 text-center">Status</div>
+                            <div className="w-24 text-center">Actions</div>
+                        </div>
+                        { institutions.data.map((inst) => (
+                            <div key={inst.id}>
+                                <div
+                                    className="min-w-[900px] flex items-center px-2 sm:px-4 py-2 border-b last:border-b-0 hover:bg-muted transition cursor-pointer text-xs sm:text-sm"
+                                    onClick={() => handleExpand(inst.id)}
+                                >
+                                    <div className="w-8 flex justify-center">
+                                        {expandedId === inst.id ? (
+                                            <ChevronDown className="h-4 w-4" />
+                                        ) : (
+                                            <ChevronRight className="h-4 w-4" />
+                                        )}
+                                    </div>
+                                    <div className="w-12 flex justify-center">
+                                        <Avatar>
+                                            <AvatarImage src={inst.logo_url} alt={inst.institution_name} />
+                                            <AvatarFallback>{inst.institution_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                        </Avatar>
+                                    </div>
+                                    <div className="flex-1 truncate font-medium">{inst.institution_name}
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1 ml-2">
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Link href="#" onClick={e => e.stopPropagation()}>
+                                                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                                                                    <BookOpen className="h-4 w-4" />
+                                                                </Button>
+                                                            </Link>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>View Courses</TooltipContent>
+                                                    </Tooltip>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Link href={route('agents:institutions:courses:create', { institution: inst.id })} onClick={e => e.stopPropagation()}>
+                                                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                                                                    <PlusCircle className="h-4 w-4" />
+                                                                </Button>
+                                                            </Link>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>Add Course</TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-end gap-2">
+                                    <div className="w-24">
+                                        <Badge
+                                            variant="default"
+                                            className={
+                                                inst.institute_type === 'direct'
+                                                    ? 'bg-blue-100 text-blue-700'
+                                                    : 'bg-purple-100 text-purple-700'
+                                            }
+                                        >
+                                            {inst.institute_type.charAt(0).toUpperCase() + inst.institute_type.slice(1)}
+                                        </Badge>
+                                    </div>
+                                    <div className="w-32 flex items-center gap-2">
+                                        {inst.rep_country?.country?.flag && (
+                                            <img
+                                                src={inst.rep_country.country.flag}
+                                                alt={inst.rep_country.country.name}
+                                                className="h-3 w-4 rounded"
+                                            />
+                                        )}
+                                        <span className="truncate">{inst.rep_country?.country?.name || '-'}</span>
+                                    </div>
+                                    <div className="w-48 truncate">{inst.campus || '-'}</div>
+                                    <div className="w-32 truncate">{inst.created?.string ? format(new Date(inst.created.string), 'dd MMMM yyyy') : '-'}</div>
+                                    <div className="w-20 flex justify-center" onClick={e => e.stopPropagation()}>
                                         <StatusSwitch
                                             id={inst.id}
                                             checked={inst.is_active}
@@ -476,36 +523,12 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                             showLabel={false}
                                         />
                                     </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div>
-                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Contact Name</span>
-                                        <span className="block text-base font-semibold text-gray-900">{inst.contact_person_name}</span>
-                                    </div>
-                                    <div>
-                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Email</span>
-                                        <span className="block text-sm text-gray-900">{inst.contact_person_email}</span>
-                                    </div>
-                                    <div>
-                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Mobile</span>
-                                        <span className="block text-sm text-gray-900">{inst.contact_person_mobile}</span>
-                                    </div>
-                                    <div>
-                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Campus</span>
-                                        <span className="block text-sm text-gray-900">{inst.campus || '-'}</span>
-                                    </div>
-                                    <div>
-                                        <span className="mb-1 block text-xs font-semibold text-gray-700">Added Date</span>
-                                        <span className="block text-sm text-gray-900">
-                                            {inst.created?.string ? format(new Date(inst.created.string), 'dd MMMM yyyy') : '-'}
-                                        </span>
-                                    </div>
-                                    <div className="flex gap-2 pt-2">
+                                    <div className="w-24 flex justify-center gap-2">
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <Link href={route('agents:institutions:index', inst.id)}>
-                                                        <Button variant="noShadow" size="icon" className="h-8 w-8">
+                                                    <Link href={route('agents:institutions:edit', inst.id)} onClick={e => e.stopPropagation()}>
+                                                        <Button variant="ghost" size="icon">
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                     </Link>
@@ -514,8 +537,8 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                             </Tooltip>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <Link href={route('agents:institutions:index', inst.id)}>
-                                                        <Button variant="noShadow" size="icon" className="h-8 w-8">
+                                                      <Link href={route('agents:institutions:show', inst.id)}onClick={e => e.stopPropagation()}>
+                                                        <Button variant="ghost" size="icon">
                                                             <FileText className="h-4 w-4" />
                                                         </Button>
                                                     </Link>
@@ -524,69 +547,91 @@ export default function InstitutionsIndex({ institutions, repCountries }: Props)
                                             </Tooltip>
                                         </TooltipProvider>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </div>
+                                {expandedId === inst.id && (
+                                    <div className="bg-muted px-4 sm:px-12 py-4 border-b last:border-b-0 text-xs sm:text-sm">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <span className="mb-1 block text-xs font-semibold text-gray-700">Contact Person Name</span>
+                                                <span className="block text-base font-semibold text-gray-900">{inst.contact_person_name}</span>
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-xs font-semibold text-gray-700">Email</span>
+                                                <span className="block text-sm text-gray-900">{inst.contact_person_email}</span>
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-xs font-semibold text-gray-700">Contact No.</span>
+                                                <span className="block text-sm text-gray-900">{inst.contact_person_mobile}</span>
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-xs font-semibold text-gray-700">Designation</span>
+                                                <span className="block text-sm text-gray-900">{inst.contact_person_designation}</span>
+                                            </div>
+                                            <div>
+                                                <span className="mb-1 block text-xs font-semibold text-gray-700">Website</span>
+                                                <span className="block text-sm text-gray-900">{inst.website}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </div>
                 )}
 
                 {/* Empty State */}
                 {!isLoading && institutions.data.length === 0 && (
-                    <Card className="py-12 text-center">
+                    <Card className="py-8 sm:py-12 text-center">
                         <CardContent>
-                            <div className="bg-muted mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
-                                <Building2 className="text-muted-foreground h-8 w-8" />
+                            <div className="mx-auto mb-4 flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-muted">
+                                <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
                             </div>
-                            <h3 className="mb-2 text-lg font-semibold">No institutions found</h3>
-                            <p className="text-muted-foreground mb-4">Get started by adding your first educational institution</p>
-                            <Link href={route('agents:institutions:create')}>
-                                <Button>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Add First Institution
-                                </Button>
-                            </Link>
+                            <h3 className="mb-2 text-base sm:text-lg font-semibold">No institutions found</h3>
+
                         </CardContent>
                     </Card>
                 )}
 
                 {/* Pagination Controls */}
                 {!isLoading && institutions.meta.last_page > 1 && (
-                    <Pagination className="mt-8">
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    className="cursor-pointer"
-                                    size="default"
-                                    onClick={() => handlePageChange(institutions.meta.current_page - 1)}
-                                />
-                            </PaginationItem>
-
-                            {Array.from({ length: institutions.meta.last_page }, (_, i) => i + 1).map((page) => (
-                                <PaginationItem key={page}>
-                                    {typeof page === 'string' ? (
-                                        <PaginationEllipsis />
-                                    ) : (
-                                        <PaginationLink
-                                            className="cursor-pointer"
-                                            size="default"
-                                            onClick={() => handlePageChange(page)}
-                                            isActive={page === institutions.meta.current_page}
-                                        >
-                                            {page}
-                                        </PaginationLink>
-                                    )}
+                    <div className="overflow-x-auto">
+                        <Pagination className="mt-4 sm:mt-8 min-w-[400px]">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        className="cursor-pointer"
+                                        size="default"
+                                        onClick={() => handlePageChange(institutions.meta.current_page - 1)}
+                                    />
                                 </PaginationItem>
-                            ))}
 
-                            <PaginationItem>
-                                <PaginationNext
-                                    className="cursor-pointer"
-                                    size="default"
-                                    onClick={() => handlePageChange(institutions.meta.current_page + 1)}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
+                                {Array.from({ length: institutions.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                    <PaginationItem key={page}>
+                                        {typeof page === 'string' ? (
+                                            <PaginationEllipsis />
+                                        ) : (
+                                            <PaginationLink
+                                                className="cursor-pointer"
+                                                size="default"
+                                                onClick={() => handlePageChange(page)}
+                                                isActive={page === institutions.meta.current_page}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))}
+
+                                <PaginationItem>
+                                    <PaginationNext
+                                        className="cursor-pointer"
+                                        size="default"
+                                        onClick={() => handlePageChange(institutions.meta.current_page + 1)}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
                 )}
             </div>
         </AppLayout>

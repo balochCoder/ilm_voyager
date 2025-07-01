@@ -164,7 +164,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
 
                     </div>
                     <Link href={route('agents:rep-countries:index')} className='w-full sm:w-auto'>
-                        <Button variant="noShadow" className="cursor-pointer w-full sm:w-auto">
+                        <Button variant="default" className="cursor-pointer w-full sm:w-auto">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Back to Countries
                         </Button>
@@ -187,7 +187,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
                                     {repCountry.country.name}
                                 </h2>
                                 <div className="flex flex-col items-start space-y-2 mt-1">
-                                    <Badge variant={repCountry.is_active ? "default" : "neutral"} className="w-fit">
+                                    <Badge variant={repCountry.is_active ? "default" : "outline"} className="w-fit">
                                         {repCountry.is_active ? 'Active' : 'Inactive'}
                                     </Badge>
                                     <div className="flex items-center space-x-1 text-sm text-muted-foreground">
@@ -285,7 +285,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
                                 <div className="min-w-0 flex-1">
                                     <h3 className="font-medium text-gray-900 text-sm">Current Order</h3>
                                     <p className="text-xs text-gray-600 truncate">
-                                        {statuses.map((s, i) => s.status_name).join(' → ')}
+                                        {statuses.map((s) => s.status_name).join(' → ')}
                                     </p>
                                 </div>
                             </div>
