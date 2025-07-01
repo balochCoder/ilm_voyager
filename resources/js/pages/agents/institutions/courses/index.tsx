@@ -30,6 +30,17 @@ const breadcrumbs = [
   { title: 'Courses', href: '#' },
 ];
 
+function formatDuration(year: string, month: string, week: string) {
+  const y = parseInt(year || '0', 10);
+  const m = parseInt(month || '0', 10);
+  const w = parseInt(week || '0', 10);
+  const parts = [];
+  if (y > 0) parts.push(`${y} Year${y > 1 ? 's' : ''}`);
+  if (m > 0) parts.push(`${m} Month${m > 1 ? 's' : ''}`);
+  if (w > 0) parts.push(`${w} Week${w > 1 ? 's' : ''}`);
+  return parts.length > 0 ? parts.join(' ') : '-';
+}
+
 export default function CoursesIndex({ courses, institution }: Props) {
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -98,9 +109,7 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     <div>
                       <div className="text-xs text-gray-400">Duration</div>
                       <div className="text-sm text-gray-700">
-                        {course.duration_year && <span>{String(course.duration_year).padStart(2, '0')}Y </span>}
-                        {course.duration_month && <span>{String(course.duration_month).padStart(2, '0')}M </span>}
-                        {course.duration_week && <span>{String(course.duration_week).padStart(2, '0')}W</span>}
+                        {formatDuration(course.duration_year, course.duration_month, course.duration_week)}
                       </div>
                     </div>
                     <div>

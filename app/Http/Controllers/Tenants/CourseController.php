@@ -48,7 +48,7 @@ class CourseController extends Controller
     public function store(StoreCourseRequest $request, Institution $institution, StoreCourseAction $action)
     {
         $action->execute($request);
-        return redirect()->route('agents:institutions:show', $institution->id)
+        return redirect()->route('agents:institutions:courses:index', $institution->id)
             ->with('success', 'Course added successfully!');
     }
 }
