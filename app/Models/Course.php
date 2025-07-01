@@ -66,4 +66,9 @@ class Course extends Model implements HasMedia
     {
         return $this->belongsTo(\App\Models\CourseLevel::class, 'course_level_id');
     }
+
+    public function currency()
+    {
+        return $this->belongsTo(\App\Models\Currency::class, 'currency_id');
+    }
 }

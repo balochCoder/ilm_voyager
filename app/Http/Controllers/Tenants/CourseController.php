@@ -20,7 +20,7 @@ class CourseController extends Controller
     public function index(Institution $institution)
     {
         $courses = $institution->courses()
-            ->with('courseLevel')
+            ->with(['courseLevel', 'currency'])
             ->orderBy('created_at', 'desc')
             ->get();
 

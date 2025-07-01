@@ -16,6 +16,7 @@ interface Course {
   campus: string;
   general_eligibility?: string;
   is_language_mandatory?: boolean;
+  currency?: { code?: string } | null;
 }
 
 interface Props {
@@ -104,7 +105,11 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     </div>
                     <div>
                       <div className="text-xs text-gray-400">Course Fee</div>
-                      <div className="text-sm text-gray-700">{course.course_fee ? `${course.course_fee} GBP` : '-'}</div>
+                      <div className="text-sm text-gray-700">
+                        {course.course_fee
+                          ? `${course.course_fee} ${course.currency?.code || '-'}`
+                          : '-'}
+                      </div>
                     </div>
                     <div>
                       <div className="text-xs text-gray-400">Campus</div>
