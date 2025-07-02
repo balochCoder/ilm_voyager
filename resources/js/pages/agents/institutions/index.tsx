@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,7 +55,6 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
     const [keyword, setKeyword] = useState('');
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
     const [datePickerOpen, setDatePickerOpen] = useState(false);
-    const [detailsOpen, setDetailsOpen] = useState<{ [id: string]: boolean }>({});
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -165,9 +164,6 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
         return selectedType === 'direct' ? 'Direct' : 'Indirect';
     };
 
-    const toggleDetails = (id: string) => {
-        setDetailsOpen((prev) => ({ ...prev, [id]: !prev[id] }));
-    };
 
     const handleExpand = (id: string) => {
         setExpandedId(expandedId === id ? null : id);
