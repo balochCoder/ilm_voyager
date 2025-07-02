@@ -11,6 +11,7 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 interface Props {
     courses: CourseResource;
     institution: { id: string | number; institution_name: string };
+    not_language_mandatory_count: number;
 }
 
 const breadcrumbs = [
@@ -30,10 +31,7 @@ function formatDuration(year: string, month: string, week: string) {
     return parts.length > 0 ? parts.join(' ') : '-';
 }
 
-export default function CoursesIndex({ courses, institution }: Props) {
-    // Calculate the count of courses with is_language_mandatory false
-    const languageNotMandatoryCount = courses.data.filter(c => c.is_language_mandatory === false).length;
-
+export default function CoursesIndex({ courses, institution, not_language_mandatory_count }: Props) {
     // Pagination handler
     const handlePageChange = (page: number) => {
            // Preserve all current query params and just update the page param
@@ -78,7 +76,7 @@ export default function CoursesIndex({ courses, institution }: Props) {
                             </div>
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-sm">Language Not Mandatory</p>
-                                <p className="text-xl font-semibold sm:text-2xl">{languageNotMandatoryCount}</p>
+                                <p className="text-xl font-semibold sm:text-2xl">{not_language_mandatory_count}</p>
                             </div>
                         </div>
                     </Card>
@@ -152,7 +150,6 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     )}
                 </div>
                 {/* Pagination Controls */}
- {/* Pagination Controls */}
                 { courses.meta.last_page > 1 && (
                     <Pagination className="mt-8">
                         <PaginationContent>

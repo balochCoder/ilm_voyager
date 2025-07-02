@@ -22,7 +22,9 @@ class CourseController extends Controller
         $courses = $institution->courses()
             ->with(['courseLevel', 'currency'])
             ->orderBy('created_at', 'desc')
-            ->paginate(1);
+            ->paginate(10);
+
+        $notLanguageMandatoryCount = $institution->courses()->where('is_language_mandatory', false)->count();
 
         return Inertia::render('agents/institutions/courses/index', [
             'courses' => CourseResource::collection($courses),
@@ -30,6 +32,7 @@ class CourseController extends Controller
                 'id' => $institution->id,
                 'institution_name' => $institution->institution_name,
             ],
+            'not_language_mandatory_count' => $notLanguageMandatoryCount,
         ]);
     }
     public function create(Institution $institution)
