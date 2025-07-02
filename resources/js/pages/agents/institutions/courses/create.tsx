@@ -57,31 +57,33 @@ export type CourseFormState = {
   document_titles: string[];
 };
 
-const initialFormState: CourseFormState = {
-  title: '',
-  course_level_id: '',
-  duration_year: '',
-  duration_month: '',
-  duration_week: '',
-  start_date: '',
-  end_date: '',
-  campus: '',
-  awarding_body: '',
-  currency_id: '',
-  course_fee: '',
-  application_fee: '',
-  course_benefits: '',
-  general_eligibility: '',
-  quality_of_desired_application: '',
-  is_language_mandatory: false,
-  language_requirements: '',
-  additional_info: '',
-  course_categories: [],
-  modules: [''],
-  intake_month: [],
-  documents: [],
-  document_titles: [],
-};
+function getInitialFormState(institution: Props['institution']): CourseFormState {
+  return {
+    title: '',
+    course_level_id: '',
+    duration_year: '',
+    duration_month: '',
+    duration_week: '',
+    start_date: '',
+    end_date: '',
+    campus: institution.campus || '',
+    awarding_body: '',
+    currency_id: institution.currency_id ? String(institution.currency_id) : '',
+    course_fee: '',
+    application_fee: '',
+    course_benefits: '',
+    general_eligibility: '',
+    quality_of_desired_application: institution.quality_of_desired_application || '',
+    is_language_mandatory: false,
+    language_requirements: '',
+    additional_info: '',
+    course_categories: [],
+    modules: [''],
+    intake_month: [],
+    documents: [],
+    document_titles: [],
+  };
+}
 
 type CourseFormField = keyof CourseFormState;
 
@@ -93,7 +95,7 @@ function getFileIcon(file: File) {
 }
 
 export default function CreateCourse({ institution, currencies, categories, courseLevels }: Props) {
-  const { data, setData, post, processing, errors } = useForm(initialFormState);
+  const { data, setData, post, processing, errors } = useForm(getInitialFormState(institution));
   const [documentsError, setDocumentsError] = useState('');
   const documentsInputRef = useRef<HTMLInputElement>(null);
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
@@ -150,7 +152,6 @@ export default function CreateCourse({ institution, currencies, categories, cour
     e.preventDefault();
     post(route('agents:institutions:courses:store', { institution: institution.id }), {
       forceFormData: true,
-      onSuccess: () => router.visit(route('agents:institutions:show', institution.id)),
     });
   };
 

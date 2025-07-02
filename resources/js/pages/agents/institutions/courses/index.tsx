@@ -2,36 +2,14 @@ import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Pencil, Copy, Globe } from 'lucide-react';
+import { CourseResource } from '@/types';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
-interface Course {
-    id: string | number;
-    title: string;
-    course_level: { name: string } | null;
-    duration_year: string;
-    duration_month: string;
-    duration_week: string;
-    course_fee: string;
-    campus: string;
-    general_eligibility?: string;
-    is_language_mandatory?: boolean;
-    currency?: { code?: string } | null;
-}
-
-
-
-interface PaginatedCourses {
-    data: Course[];
-    meta: {
-        current_page: number;
-        last_page: number;
-        total: number;
-    };
-}
 
 interface Props {
-    courses: PaginatedCourses;
+    courses: CourseResource;
     institution: { id: string | number; institution_name: string };
 }
 
@@ -58,10 +36,12 @@ export default function CoursesIndex({ courses, institution }: Props) {
 
     // Pagination handler
     const handlePageChange = (page: number) => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', String(page));
-        window.location.href = url.toString();
-    };
+           // Preserve all current query params and just update the page param
+           const url = new URL(window.location.href);
+           url.searchParams.set('page', String(page));
+           router.visit(url.toString(), { preserveState: true, preserveScroll: true });
+       };
+
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -172,38 +152,46 @@ export default function CoursesIndex({ courses, institution }: Props) {
                     )}
                 </div>
                 {/* Pagination Controls */}
-                {courses.meta.last_page > 1 && (
-                    <div className="overflow-x-auto">
-                        <div className="flex justify-center mt-4">
-                            <nav className="inline-flex -space-x-px">
-                                <button
-                                    className="px-3 py-1 border rounded-l disabled:opacity-50"
+ {/* Pagination Controls */}
+                { courses.meta.last_page > 1 && (
+                    <Pagination className="mt-8">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    className="cursor-pointer"
+                                    size="default"
                                     onClick={() => handlePageChange(courses.meta.current_page - 1)}
-                                    disabled={courses.meta.current_page === 1}
-                                >
-                                    Previous
-                                </button>
-                                {Array.from({ length: courses.meta.last_page }, (_, i) => i + 1).map((page) => (
-                                    <button
-                                        key={page}
-                                        className={`px-3 py-1 border-t border-b ${page === courses.meta.current_page ? 'bg-primary text-white' : ''}`}
-                                        onClick={() => handlePageChange(page)}
-                                        disabled={page === courses.meta.current_page}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                                <button
-                                    className="px-3 py-1 border rounded-r disabled:opacity-50"
+                                />
+                            </PaginationItem>
+
+                            {Array.from({ length: courses.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                <PaginationItem key={page}>
+                                    {typeof page === 'string' ? (
+                                        <PaginationEllipsis />
+                                    ) : (
+                                        <PaginationLink
+                                            className="cursor-pointer"
+                                            size="default"
+                                            onClick={() => handlePageChange(page)}
+                                            isActive={page === courses.meta.current_page}
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    )}
+                                </PaginationItem>
+                            ))}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    className="cursor-pointer"
+                                    size="default"
                                     onClick={() => handlePageChange(courses.meta.current_page + 1)}
-                                    disabled={courses.meta.current_page === courses.meta.last_page}
-                                >
-                                    Next
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 )}
+
             </div>
         </AppLayout>
     );

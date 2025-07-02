@@ -600,7 +600,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                     </Card>
                 )}
 
-                {/* Pagination Controls */}
+               ` {/* Pagination Controls */}
                 {!isLoading && repCountries.meta.last_page > 1 && (
                     <Pagination className="mt-8">
                         <PaginationContent>
@@ -639,7 +639,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                         </PaginationContent>
                     </Pagination>
                 )}
-
+`
                 {/* Add Status Dialog */}
                 <Dialog open={addStatusDialog.isOpen} onOpenChange={addStatusDialog.closeDialog}>
                     <DialogContent>

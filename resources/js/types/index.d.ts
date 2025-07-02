@@ -130,24 +130,13 @@ export interface RepCountryResource {
     };
 }
 
-export interface PaginationData {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-    has_more_pages: boolean;
-    has_previous_page: boolean;
-}
+
 
 export interface Currency {
     id: number;
     code: string;
     name: string;
-    symbol: string;
-    created_at?: string;
-    updated_at?: string;
+
 }
 
 export interface Institution {
@@ -213,6 +202,30 @@ export interface Institution {
 
 export interface InstitutionResource {
     data: Institution[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}
+
+export interface Course {
+    id: string | number;
+    title: string;
+    course_level: { name: string } | null;
+    duration_year: string;
+    duration_month: string;
+    duration_week: string;
+    course_fee: string;
+    campus: string;
+    general_eligibility?: string;
+    is_language_mandatory?: boolean;
+    currency?: { code?: string } | null;
+}
+
+export interface CourseResource {
+    data: Course[];
     meta: {
         current_page: number;
         last_page: number;
