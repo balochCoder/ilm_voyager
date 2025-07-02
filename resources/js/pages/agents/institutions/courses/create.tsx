@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm, router } from '@inertiajs/react';
-import { ArrowLeft, FileText, Image as ImageIcon, File as FileIcon, Trash2, BookOpen, Layers, Calendar as CalendarIcon, Folder, Upload } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, FileText, Image as ImageIcon, File as FileIcon, Trash2, BookOpen, Layers, Calendar as CalendarIcon, Folder, Upload, Plus } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -164,7 +164,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
           <div className="flex-1 min-w-0">
             <Heading title="Add Course" description={`Create a new course for ${institution.institution_name}`} />
           </div>
-          <Link href={route('agents:institutions:show', institution.id)} className="w-full sm:w-auto">
+          <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
             <Button variant="default" className="cursor-pointer w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Institution
@@ -632,8 +632,28 @@ export default function CreateCourse({ institution, currencies, categories, cour
             </CardContent>
           </Card>
 
-          <div className="flex justify-end gap-2">
-            <Button type="submit" disabled={processing}>Submit</Button>
+
+          <div className="flex flex-col sm:flex-row justify-end items-center pt-4 sm:pt-6 border-t space-y-4 sm:space-y-0 min-w-0">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
+                                <Button type="button" variant="outline" className="w-full">
+                                    Cancel
+                                </Button>
+                            </Link>
+              <Button type="submit" disabled={processing} className="w-full sm:w-auto">
+                {processing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Add Course
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

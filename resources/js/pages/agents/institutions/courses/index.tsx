@@ -6,6 +6,8 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Pencil, Copy, Globe } from 'lucide-react';
 import { CourseResource } from '@/types';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { useState, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 interface Props {
@@ -32,13 +34,20 @@ function formatDuration(year: string, month: string, week: string) {
 }
 
 export default function CoursesIndex({ courses, institution, not_language_mandatory_count }: Props) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Set loading state on page change
+    useEffect(() => {
+        setIsLoading(false);
+    }, [courses.meta.current_page]);
+
     // Pagination handler
     const handlePageChange = (page: number) => {
-           // Preserve all current query params and just update the page param
-           const url = new URL(window.location.href);
-           url.searchParams.set('page', String(page));
-           router.visit(url.toString(), { preserveState: true, preserveScroll: true });
-       };
+        setIsLoading(true);
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(page));
+        router.visit(url.toString(), { preserveState: true, preserveScroll: true });
+    };
 
 
     return (
@@ -82,7 +91,43 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                     </Card>
                 </div>
                 <div>
-                    {courses.data.length === 0 ? (
+                    {isLoading ? (
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {[...Array(6)].map((_, index) => (
+                                <Card key={index} className="animate-pulse">
+                                    <div className="flex items-center justify-between px-6 pt-5 pb-2">
+                                        <div className="flex items-center gap-3">
+                                            <div>
+                                                <Skeleton className="h-6 w-32 mb-2 rounded" />
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <Skeleton className="h-4 w-16 rounded" />
+                                                    <Skeleton className="h-4 w-24 rounded" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 px-6 pb-5">
+                                        <div>
+                                            <Skeleton className="h-4 w-20 mb-1 rounded" />
+                                            <Skeleton className="h-5 w-24 rounded" />
+                                        </div>
+                                        <div>
+                                            <Skeleton className="h-4 w-20 mb-1 rounded" />
+                                            <Skeleton className="h-5 w-24 rounded" />
+                                        </div>
+                                        <div>
+                                            <Skeleton className="h-4 w-20 mb-1 rounded" />
+                                            <Skeleton className="h-5 w-24 rounded" />
+                                        </div>
+                                        <div>
+                                            <Skeleton className="h-4 w-20 mb-1 rounded" />
+                                            <Skeleton className="h-5 w-24 rounded" />
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : courses.data.length === 0 ? (
                         <div className="text-center text-gray-500 py-12">No courses found for this institution.</div>
                     ) : (
                         <div className="space-y-6">
@@ -150,7 +195,7 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                     )}
                 </div>
                 {/* Pagination Controls */}
-                { courses.meta.last_page > 1 && (
+                {!isLoading && courses.meta.last_page > 1 && (
                     <Pagination className="mt-8">
                         <PaginationContent>
                             <PaginationItem>
