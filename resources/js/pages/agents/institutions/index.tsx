@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils';
 import { BreadcrumbItem, InstitutionResource, RepCountry, SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { Building2, Check, ChevronsUpDown, ChevronDown, ChevronRight, Edit, FileText, Loader2, Plus, Users, BookOpen, PlusCircle } from 'lucide-react';
+import { Building2, Check, ChevronsUpDown, ChevronDown, ChevronRight, Edit, FileText, Loader2, Plus, Users, BookOpen, PlusCircle, Search, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { toast } from 'sonner';
@@ -190,9 +190,9 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                 {/* Stats and Filter Section */}
                 <div className="flex flex-col gap-6">
                     {/* Filters Row: Country, Type, and Advanced Search */}
-                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
+                    <div className="flex flex-row flex-wrap gap-4 w-full mb-2">
                         {/* Country Filter */}
-                        <div className="flex w-full flex-col gap-1 md:max-w-[220px]">
+                        <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
                             <Label htmlFor="country-filter" className="text-sm font-medium">
                                 Filter by Country
                             </Label>
@@ -257,7 +257,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                             </Popover>
                         </div>
                         {/* Type Filter */}
-                        <div className="flex w-full flex-col gap-1 md:max-w-[160px]">
+                        <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
                             <Label htmlFor="type-filter" className="text-sm font-medium">
                                 Filter by Type
                             </Label>
@@ -299,7 +299,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                             </Popover>
                         </div>
                         {/* Institution Name Filter */}
-                        <div className="flex w-full flex-col gap-1 md:max-w-[200px]">
+                        <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
                             <Label htmlFor="institution_name" className="text-sm font-medium">
                                 Institution Name
                             </Label>
@@ -312,7 +312,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                             />
                         </div>
                         {/* Contact Email Filter */}
-                        <div className="flex w-full flex-col gap-1 md:max-w-[200px]">
+                        <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
                             <Label htmlFor="contact_person_email" className="text-sm font-medium">
                                 Contact Email
                             </Label>
@@ -325,14 +325,14 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                             />
                         </div>
                         {/* Keyword Filter */}
-                        <div className="flex w-full flex-col gap-1 md:max-w-[180px]">
+                        <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
                             <Label htmlFor="keyword" className="text-sm font-medium">
                                 Keyword
                             </Label>
                             <Input id="keyword" type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Any keyword" />
                         </div>
                         {/* Contract Expiry Date Range Filter */}
-                        <div className="flex w-full flex-col gap-1 md:max-w-[240px]">
+                        <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
                             <Label htmlFor="contract_expiry_date" className="text-sm font-medium">
                                 Contract Expiry Date Range
                             </Label>
@@ -350,11 +350,13 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                             </Popover>
                         </div>
                         {/* Search/Reset Buttons */}
-                        <div className="flex flex-row gap-2 pt-4 md:pt-0">
-                            <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading}>
+                        <div className="flex flex-1 flex-row gap-2 flex-nowrap items-end min-w-[180px]">
+                            <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading} className="flex-1">
+                                <Search className="w-4 h-4" />
                                 Search
                             </Button>
-                            <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading}>
+                            <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading} className="min-w-[100px]">
+                                <RotateCcw className="w-4 h-4" />
                                 Reset
                             </Button>
                         </div>

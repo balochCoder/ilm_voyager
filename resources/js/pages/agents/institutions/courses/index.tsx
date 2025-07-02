@@ -3,17 +3,25 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Pencil, Copy, Globe } from 'lucide-react';
+import { Plus, Pencil, Copy, Globe, Search, RotateCcw } from 'lucide-react';
 import { CourseResource } from '@/types';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+interface CourseLevel {
+  id: string | number;
+  name: string;
+}
 
 interface Props {
     courses: CourseResource;
     institution: { id: string | number; institution_name: string };
     not_language_mandatory_count: number;
+    courseLevels: CourseLevel[];
 }
 
 const breadcrumbs = [
@@ -33,8 +41,12 @@ function formatDuration(year: string, month: string, week: string) {
     return parts.length > 0 ? parts.join(' ') : '-';
 }
 
-export default function CoursesIndex({ courses, institution, not_language_mandatory_count }: Props) {
+export default function CoursesIndex({ courses, institution, not_language_mandatory_count, courseLevels }: Props) {
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedCourseLevel, setSelectedCourseLevel] = useState<string>('all');
+    const [courseName, setCourseName] = useState('');
+    const [campus, setCampus] = useState('');
+    const [keyword, setKeyword] = useState('');
 
     // Set loading state on page change
     useEffect(() => {
@@ -49,6 +61,45 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
         router.visit(url.toString(), { preserveState: true, preserveScroll: true });
     };
 
+    function handleSearch() {
+        const url = new URL(window.location.href);
+        if (selectedCourseLevel && selectedCourseLevel !== 'all') url.searchParams.set('course_level_id', selectedCourseLevel);
+        else url.searchParams.delete('course_level_id');
+        if (courseName) url.searchParams.set('course_name', courseName);
+        else url.searchParams.delete('course_name');
+        if (campus) url.searchParams.set('campus', campus);
+        else url.searchParams.delete('campus');
+        if (keyword) url.searchParams.set('keyword', keyword);
+        else url.searchParams.delete('keyword');
+        url.searchParams.delete('page');
+        setIsLoading(true);
+        router.visit(url.toString(), {
+            onFinish: () => setIsLoading(false),
+            onError: () => setIsLoading(false),
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }
+
+    function handleReset() {
+        setSelectedCourseLevel('all');
+        setCourseName('');
+        setCampus('');
+        setKeyword('');
+        setIsLoading(true);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('course_level_id');
+        url.searchParams.delete('course_name');
+        url.searchParams.delete('campus');
+        url.searchParams.delete('keyword');
+        url.searchParams.delete('page');
+        router.visit(url.toString(), {
+            onFinish: () => setIsLoading(false),
+            onError: () => setIsLoading(false),
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -64,6 +115,45 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                             Add Course
                         </Button>
                     </Link>
+                </div>
+                {/* Filter/Search Row */}
+                <div className="flex flex-row flex-wrap gap-4 w-full mb-2">
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="course_level_filter" className="text-sm font-medium">Course Level</Label>
+                        <Select value={selectedCourseLevel} onValueChange={setSelectedCourseLevel}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="All Levels" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Levels</SelectItem>
+                                {courseLevels.map(level => (
+                                    <SelectItem key={level.id} value={String(level.id)}>{level.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="course_name" className="text-sm font-medium">Course Name</Label>
+                        <Input id="course_name" type="text" value={courseName} onChange={e => setCourseName(e.target.value)} placeholder="Search by name" className="w-full" />
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="campus" className="text-sm font-medium">Campus</Label>
+                        <Input id="campus" type="text" value={campus} onChange={e => setCampus(e.target.value)} placeholder="Search by campus" className="w-full" />
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="keyword" className="text-sm font-medium">Keyword</Label>
+                        <Input id="keyword" type="text" value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Any keyword" className="w-full" />
+                    </div>
+                    <div className="flex flex-1 flex-row gap-2 flex-nowrap items-end">
+                        <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading} className="flex-1">
+                            <Search className="w-4 h-4" />
+                            Search
+                        </Button>
+                        <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading} className="min-w-[100px]">
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                    </div>
                 </div>
                 {/* Statistics Section */}
                 <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 mb-4">
