@@ -177,7 +177,7 @@ export default function EditInstitution({ institution, repCountries, currencies 
                     </div>
                     <Link href={route('agents:institutions:show', { institution: institution.id })} className="w-full sm:w-auto">
                         <Button variant="default" className="cursor-pointer w-full">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <ArrowLeft className="w-4 h-4" />
                             Back to Institution
                         </Button>
                     </Link>
@@ -858,15 +858,15 @@ export default function EditInstitution({ institution, repCountries, currencies 
                                     Cancel
                                 </Button>
                             </Link>
-                            <Button type="submit" disabled={processing} className="min-w-[180px] w-full sm:w-auto">
+                            <Button type="submit" disabled={processing} className="w-full sm:w-auto">
                                 {processing ? (
                                     <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                         Saving...
                                     </>
                                 ) : (
                                     <>
-                                        <Plus className="w-4 h-4 mr-2" />
+                                        <Plus className="w-4 h-4 " />
                                         Save Changes
                                     </>
                                 )}

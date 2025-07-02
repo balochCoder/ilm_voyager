@@ -298,7 +298,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                     </div>
                     <Link href={route('agents:rep-countries:create')} className="w-full sm:w-auto">
                         <Button className="w-full cursor-pointer">
-                            <Plus className="mr-2 h-4 w-4" />
+                            <Plus className="h-4 w-4" />
                             Add Country
                         </Button>
                     </Link>
@@ -600,7 +600,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                     </Card>
                 )}
 
-               ` {/* Pagination Controls */}
+                {/* Pagination Controls */}
                 {!isLoading && repCountries.meta.last_page > 1 && (
                     <Pagination className="mt-8">
                         <PaginationContent>
@@ -639,7 +639,6 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                         </PaginationContent>
                     </Pagination>
                 )}
-`
                 {/* Add Status Dialog */}
                 <Dialog open={addStatusDialog.isOpen} onOpenChange={addStatusDialog.closeDialog}>
                     <DialogContent>

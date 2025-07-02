@@ -166,7 +166,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
           </div>
           <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
             <Button variant="default" className="cursor-pointer w-full">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               Back to Institution
             </Button>
           </Link>
@@ -643,7 +643,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
               <Button type="submit" disabled={processing} className="w-full sm:w-auto">
                 {processing ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Creating...
                   </>
                 ) : (

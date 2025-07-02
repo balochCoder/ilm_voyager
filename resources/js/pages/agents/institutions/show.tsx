@@ -86,7 +86,7 @@ export default function ShowInstitution({ institution }: Props) {
             </Link>
             <Link href={route('agents:institutions:index')} className="w-full md:w-auto">
               <Button className="w-full cursor-pointer">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Back to Institutions
               </Button>
             </Link>

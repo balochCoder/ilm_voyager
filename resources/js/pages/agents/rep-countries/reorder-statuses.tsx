@@ -165,7 +165,7 @@ export default function ReorderStatuses({ repCountry }: Props) {
                     </div>
                     <Link href={route('agents:rep-countries:index')} className='w-full sm:w-auto'>
                         <Button variant="default" className="cursor-pointer w-full sm:w-auto">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <ArrowLeft className="w-4 h-4" />
                             Back to Countries
                         </Button>
                     </Link>

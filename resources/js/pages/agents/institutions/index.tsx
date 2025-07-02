@@ -181,7 +181,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                     </div>
                     <Link href={route('agents:institutions:create')} className="w-full md:w-auto">
                         <Button className="w-full cursor-pointer">
-                            <Plus className="mr-2 h-4 w-4" />
+                            <Plus className=" h-4 w-4" />
                             Add Institution
                         </Button>
                     </Link>

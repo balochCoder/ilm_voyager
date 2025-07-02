@@ -60,7 +60,7 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                     </div>
                     <Link href={route('agents:institutions:courses:create', { institution: institution.id })} className="w-full sm:w-auto">
                         <Button variant="default" className="cursor-pointer w-full">
-                            <Plus className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4" />
                             Add Course
                         </Button>
                     </Link>

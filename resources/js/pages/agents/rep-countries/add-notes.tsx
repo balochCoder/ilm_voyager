@@ -66,7 +66,7 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                         </div>
                         <Link href={route('agents:rep-countries:index')} className='w-full sm:w-auto'>
                             <Button variant="default" className="cursor-pointer w-full sm:w-auto">
-                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                <ArrowLeft className="w-4 h-4" />
                                 Back to Countries
                             </Button>
                         </Link>
@@ -171,12 +171,12 @@ export default function AddNotes({ repCountry, statuses }: Props) {
                                 <Button type="submit" disabled={processing} className="min-w-[120px] w-full sm:w-auto">
                                     {processing ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                             Saving...
                                         </>
                                     ) : (
                                         <>
-                                            <Save className="w-4 h-4 mr-2" />
+                                            <Save className="w-4 h-4" />
                                             Save All Notes
                                         </>
                                     )}
