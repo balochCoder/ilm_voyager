@@ -51,6 +51,7 @@ class CourseResource extends JsonResource
             'course_categories' => $this->course_categories,
             'modules' => $this->modules,
             'intake_month' => $this->intake_month,
+            'is_active' => $this->is_active,
             'documents' => $this->getDocumentsWithTitles(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

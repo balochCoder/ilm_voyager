@@ -26,6 +26,7 @@ class Course extends Model implements HasMedia
             'is_language_mandatory' => 'boolean',
             'modules' => 'array',
             'intake_month' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 

@@ -63,4 +63,11 @@ class CourseController extends Controller
         return to_route('agents:institutions:courses:index', $institution->id)
             ->with('success', 'Course updated successfully!');
     }
+
+    public function toggleStatus(Institution $institution, \App\Models\Course $course)
+    {
+        $course->is_active = !$course->is_active;
+        $course->save();
+        return back()->with('success', 'Course status updated.');
+    }
 }

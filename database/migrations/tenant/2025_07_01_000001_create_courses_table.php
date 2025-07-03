@@ -33,6 +33,7 @@ return new class extends Migration
             $table->json('course_categories')->nullable();
             $table->json('modules')->nullable();
             $table->json('intake_month')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

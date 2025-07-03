@@ -2,15 +2,17 @@ import AppLayout from '@/layouts/app-layout';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus, Copy, Globe, Search, RotateCcw, Edit } from 'lucide-react';
-import { CourseResource } from '@/types';
+import { CourseResource, SharedData } from '@/types';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusSwitch } from '@/components/ui/status-switch';
+import { toast } from 'sonner';
 
 interface CourseLevel {
   id: string | number;
@@ -42,6 +44,7 @@ function formatDuration(year: string, month: string, week: string) {
 }
 
 export default function CoursesIndex({ courses, institution, not_language_mandatory_count, courseLevels }: Props) {
+    const {flash} = usePage<SharedData>().props;
     const [isLoading, setIsLoading] = useState(false);
     const [selectedCourseLevel, setSelectedCourseLevel] = useState<string>('all');
     const [courseName, setCourseName] = useState('');
@@ -100,6 +103,12 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
             preserveScroll: true,
         });
     }
+
+     useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash?.success);
+        }
+    }, [flash]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -248,6 +257,12 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <StatusSwitch
+                                                id={`course-status-${course.id}`}
+                                                checked={course.is_active}
+                                                route={route('agents:institutions:courses:toggle-status', { institution: institution.id, course: course.id })}
+                                                showLabel={false}
+                                            />
                                             <Link href={route('agents:institutions:courses:edit', { institution: institution.id, course: course.id })} className="ml-2">
                                                 <Button variant="outline" size="icon">
                                                     <Edit className="h-4 w-4" />

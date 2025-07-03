@@ -28,4 +28,5 @@ Route::prefix('representing-institutions/{institution}')->group(function () {
     Route::post('courses', [CourseController::class, 'store'])->name('institutions:courses:store');
     Route::get('courses/{course}/edit', [CourseController::class, 'edit'])->name('institutions:courses:edit');
     Route::put('courses/{course}', [CourseController::class, 'update'])->name('institutions:courses:update');
+    Route::patch('courses/{course}/toggle-status', [CourseController::class, 'toggleStatus'])->name('institutions:courses:toggle-status');
 });

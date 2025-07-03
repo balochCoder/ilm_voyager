@@ -245,6 +245,7 @@ export interface Course {
     course_categories: string[];
     modules: string[];
     intake_month: string[];
+    is_active: boolean;
     documents?: CourseDocument[];
     created_at?: string;
     updated_at?: string;
