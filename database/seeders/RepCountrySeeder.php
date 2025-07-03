@@ -173,9 +173,9 @@ final class RepCountrySeeder extends Seeder
                             'is_language_mandatory' => (bool)rand(0, 1),
                             'language_requirements' => 'IELTS 6.0 or equivalent',
                             'additional_info' => 'Additional info for course.',
-                            'course_categories' => json_encode($categories),
-                            'modules' => json_encode(['Module 1', 'Module 2']),
-                            'intake_month' => json_encode(['January', 'September']),
+                            'course_categories' => $categories,
+                            'modules' => ['Module 1', 'Module 2'],
+                            'intake_month' => ['January', 'September'],
                             'created_at' => $now,
                             'updated_at' => $now,
                         ]);

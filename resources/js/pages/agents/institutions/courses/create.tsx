@@ -296,7 +296,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                       <SelectContent>
                         {[...Array(6)].map((_, i) => {
                           const val = (i + 1).toString().padStart(2, '0');
-                          return <SelectItem key={val} value={val}>{val}</SelectItem>;
+                          return <SelectItem key={val} value={(i+1).toString()}>{val}</SelectItem>;
                         })}
                       </SelectContent>
                     </Select>
@@ -307,7 +307,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                       <SelectContent>
                         {[...Array(11)].map((_, i) => {
                           const val = (i + 1).toString().padStart(2, '0');
-                          return <SelectItem key={val} value={val}>{val}</SelectItem>;
+                          return <SelectItem key={val} value={(i+1).toString()}>{val}</SelectItem>;
                         })}
                       </SelectContent>
                     </Select>
@@ -318,7 +318,7 @@ export default function CreateCourse({ institution, currencies, categories, cour
                       <SelectContent>
                         {[...Array(51)].map((_, i) => {
                           const val = (i + 1).toString().padStart(2, '0');
-                          return <SelectItem key={val} value={val}>{val}</SelectItem>;
+                          return <SelectItem key={val} value={(i+1).toString()}>{val}</SelectItem>;
                         })}
                       </SelectContent>
                     </Select>

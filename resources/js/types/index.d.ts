@@ -210,18 +210,45 @@ export interface InstitutionResource {
     };
 }
 
+export interface CourseDocument {
+    id: number;
+    name: string;
+    title: string;
+    url: string;
+    size: number;
+    mime_type: string;
+}
+
 export interface Course {
     id: string | number;
+    institution_id: string | number;
     title: string;
-    course_level: { name: string } | null;
+    course_level_id: string | number;
+    course_level?: { id: string | number; name: string } | null;
     duration_year: string;
     duration_month: string;
     duration_week: string;
-    course_fee: string;
+    start_date: string;
+    end_date: string;
     campus: string;
-    general_eligibility?: string;
-    is_language_mandatory?: boolean;
-    currency?: { code?: string } | null;
+    awarding_body: string;
+    currency_id: string | number;
+    currency?: { id: string | number; name: string; code: string } | null;
+    course_fee: string;
+    application_fee: string;
+    course_benefits: string;
+    general_eligibility: string;
+    quality_of_desired_application: string;
+    is_language_mandatory: boolean;
+    language_requirements: string;
+    additional_info: string;
+    course_categories: string[];
+    modules: string[];
+    intake_month: string[];
+    documents?: CourseDocument[];
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
 }
 
 export interface CourseResource {

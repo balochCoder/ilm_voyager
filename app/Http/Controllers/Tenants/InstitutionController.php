@@ -70,7 +70,7 @@ class InstitutionController extends Controller
     public function update(StoreInstitutionRequest $request, Institution $institution, StoreInstitutionAction $action): RedirectResponse
     {
         $action->execute($request, $institution);
-        return to_route('agents:institutions:show', $institution)
+        return to_route('agents:institutions:index')
             ->with('success', 'Institution updated successfully.');
     }
 }

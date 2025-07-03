@@ -10,14 +10,14 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import { BreadcrumbItem, Currency, RepCountry } from '@/types';
+import { BreadcrumbItem, Currency, RepCountry, CourseDocument, Institution } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowLeft, Building2, DollarSign, FileText, Globe, Plus, Upload, Users, Trash2, Image as ImageIcon, File as FileIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface Props {
-    institution: any;
+    institution: Institution;
     repCountries: RepCountry[];
     currencies: Currency[];
 }
@@ -67,6 +67,7 @@ export default function EditInstitution({ institution, repCountries, currencies 
         additional_file_titles: [] as string[],
         is_active: institution.is_active,
         _method: 'PUT',
+        removed_additional_file_ids: [] as number[],
     };
     const { data, setData, post, processing, errors } = useForm(initialFormState);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -75,6 +76,7 @@ export default function EditInstitution({ institution, repCountries, currencies 
     );
     const [additionalFilesError, setAdditionalFilesError] = useState('');
     const additionalFilesInputRef = useRef<HTMLInputElement>(null);
+    const [existingAdditionalFiles, setExistingAdditionalFiles] = useState<CourseDocument[]>(institution.additional_files || []);
 
     useEffect(() => {
         if (data.contract_expiry_date) {
@@ -163,6 +165,11 @@ export default function EditInstitution({ institution, repCountries, currencies 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
+    };
+
+    const removeExistingAdditionalFile = (fileId: number) => {
+        setExistingAdditionalFiles(existingAdditionalFiles.filter(file => file.id !== fileId));
+        setData('removed_additional_file_ids', [...(data.removed_additional_file_ids || []), fileId]);
     };
 
     const selectedRepCountry = repCountries.find((rc) => rc.id === data.rep_country_id);
@@ -766,17 +773,28 @@ export default function EditInstitution({ institution, repCountries, currencies 
                                             Additional Files (PDF, JPG, PNG, DOC, DOCX)
                                         </Label>
                                         {/* Existing files */}
-                                        {institution.additional_files && institution.additional_files.length > 0 && (
+                                        {existingAdditionalFiles.length > 0 && (
                                             <div className="mb-2">
                                                 <div className="text-xs font-semibold text-orange-700 mb-1">Current Additional Files</div>
                                                 <ul className="space-y-2">
-                                                    {institution.additional_files.map((file: any, idx: number) => (
+                                                    {existingAdditionalFiles.map((file: CourseDocument) => (
                                                         <li key={file.id} className="flex items-center gap-3 p-3 rounded-lg border border-orange-200 bg-orange-50 shadow-sm">
                                                             <FileText className="h-5 w-5 text-orange-500 flex-shrink-0" />
                                                             <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-orange-900 hover:underline font-medium">
                                                                 {file.title || file.name}
                                                             </a>
                                                             <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(1)} KB)</span>
+                                                            <div className="flex-1" />
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="icon"
+                                                                onClick={() => removeExistingAdditionalFile(file.id)}
+                                                                className="text-red-500 hover:text-red-700 ml-auto"
+                                                                aria-label="Remove file"
+                                                            >
+                                                                <Trash2 className="h-5 w-5" />
+                                                            </Button>
                                                         </li>
                                                     ))}
                                                 </ul>
