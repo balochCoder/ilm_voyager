@@ -48,7 +48,7 @@ final class RepCountryController extends Controller
     {
         $action->execute($request);
 
-        return redirect()->route('agents:rep-countries:index')
+        return to_route('agents:rep-countries:index')
             ->with('success', 'Representing Country created successfully.');
     }
 
@@ -57,7 +57,7 @@ final class RepCountryController extends Controller
 
         $action->execute($repCountry, $request);
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Representing Country Status updated successfully.');
     }
 
@@ -79,6 +79,6 @@ final class RepCountryController extends Controller
     {
         $action->execute($request, $repCountry);
 
-        return redirect()->back()->with('success', 'Notes updated successfully.');
+        return back()->with('success', 'Notes updated successfully.');
     }
 }

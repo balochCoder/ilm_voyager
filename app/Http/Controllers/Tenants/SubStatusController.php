@@ -21,7 +21,7 @@ final class SubStatusController extends Controller
     {
         $subStatus = $action->execute($request, $repCountryStatus);
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Sub-step added successfully!')
             ->with('newSubStatus', SubStatusResource::make($subStatus));
     }
@@ -30,7 +30,7 @@ final class SubStatusController extends Controller
     {
         $action->execute($request, $subStatus);
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Sub-step status updated successfully.');
     }
 
@@ -38,7 +38,7 @@ final class SubStatusController extends Controller
     {
         $action->execute($request, $subStatus);
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Sub-step name updated successfully.');
     }
-} 
+}

@@ -8,6 +8,7 @@ use App\Actions\Status\AddStatusAction;
 use App\Actions\Status\EditStatusAction;
 use App\Actions\Status\SaveStatusOrderAction;
 use App\Actions\Status\ToggleStatusAction;
+use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RepCountry\AddRepCountryStatusRequest;
 use App\Http\Requests\RepCountry\EditRepCountryStatusRequest;
@@ -19,6 +20,7 @@ use App\Models\RepCountryStatus;
 
 final class StatusController extends Controller
 {
+    use InertiaRoute;
     public function reorderStatuses(RepCountry $repCountry)
     {
         $repCountry->load(['country', 'repCountryStatuses' => function ($query) {
@@ -27,7 +29,7 @@ final class StatusController extends Controller
             }]);
         }]);
 
-        return inertia('agents/rep-countries/reorder-statuses', [
+        return $this->factory->render('agents/rep-countries/reorder-statuses', [
             'repCountry' => RepCountryResource::make($repCountry)->resolve(),
         ]);
     }
@@ -36,7 +38,7 @@ final class StatusController extends Controller
     {
         $action->execute($request, $repCountry);
 
-        return redirect()->back()->with('success', 'Status order updated successfully.');
+        return back()->with('success', 'Status order updated successfully.');
     }
 
     public function addStatus(AddRepCountryStatusRequest $request, RepCountry $repCountry, AddStatusAction $action)
@@ -44,14 +46,14 @@ final class StatusController extends Controller
         $action->execute($request, $repCountry);
         $newStatus = $repCountry->repCountryStatuses()->where('status_name', $request->name)->first();
 
-        return redirect()->back()->with('newStatus', $newStatus);
+        return back()->with('newStatus', $newStatus);
     }
 
     public function toggleRepCountryStatus(ToggleRepCountryStatusRequest $request, RepCountryStatus $repCountryStatus, ToggleStatusAction $action)
     {
         $action->execute($repCountryStatus, $request);
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Process Status updated successfully.');
     }
 
@@ -59,7 +61,7 @@ final class StatusController extends Controller
     {
         $action->execute($repCountryStatus, $request);
 
-        return redirect()->back()
+        return back()
             ->with('success', 'Status name updated successfully.');
     }
-} 
+}

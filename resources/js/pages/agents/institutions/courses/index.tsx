@@ -3,7 +3,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Pencil, Copy, Globe, Search, RotateCcw } from 'lucide-react';
+import { Plus, Copy, Globe, Search, RotateCcw, Edit } from 'lucide-react';
 import { CourseResource } from '@/types';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useState, useEffect } from 'react';
@@ -248,9 +248,9 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Link href="#">
-                                                <Button size="icon" variant="ghost" className="hover:bg-gray-100">
-                                                    <Pencil className="w-4 h-4 text-gray-500" />
+                                            <Link href={route('agents:institutions:courses:edit', { institution: institution.id, course: course.id })} className="ml-2">
+                                                <Button variant="outline" size="icon">
+                                                    <Edit className="h-4 w-4" />
                                                 </Button>
                                             </Link>
                                         </div>

@@ -38,18 +38,18 @@ class InstitutionController extends Controller
     public function store(StoreInstitutionRequest $request, StoreInstitutionAction $action): RedirectResponse
     {
         $action->execute($request);
-        return redirect()->route('agents:institutions:index')->with('success', 'Institution created successfully.');
+        return to_route('agents:institutions:index')->with('success', 'Institution created successfully.');
     }
 
     public function toggleStatus(Institution $institution, ToggleInstitutionStatusAction $action): RedirectResponse
     {
         $institution = $action->execute($institution);
-        return redirect()->back()->with('success', 'Institution status updated successfully.');
+        return back()->with('success', 'Institution status updated successfully.');
     }
 
     public function show(Institution $institution): Response
     {
-        $institution->load(['repCountry','repCountry.country', 'currency']);
+        $institution->load(['repCountry', 'repCountry.country', 'currency']);
         return $this->factory->render('agents/institutions/show', [
             'institution' => new \App\Http\Resources\InstitutionResource($institution),
         ]);
@@ -70,6 +70,7 @@ class InstitutionController extends Controller
     public function update(StoreInstitutionRequest $request, Institution $institution, StoreInstitutionAction $action): RedirectResponse
     {
         $action->execute($request, $institution);
-        return redirect()->route('agents:institutions:show', $institution)->with('success', 'Institution updated successfully.');
+        return to_route('agents:institutions:show', $institution)
+            ->with('success', 'Institution updated successfully.');
     }
 }
