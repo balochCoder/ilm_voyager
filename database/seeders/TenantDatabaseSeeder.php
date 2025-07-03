@@ -15,9 +15,7 @@ final class TenantDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-    `
-
-        // Seed rep countries
+                // Seed rep countries
         $this->call([
             RepCountrySeeder::class,
         ]);

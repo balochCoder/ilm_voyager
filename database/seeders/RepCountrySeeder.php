@@ -6,6 +6,14 @@ namespace Database\Seeders;
 
 use App\Models\Country;
 use App\Models\RepCountry;
+use App\Models\RepCountryStatus;
+use App\Models\SubStatus;
+use App\Models\Institution;
+use App\Models\Course;
+use App\Models\CourseLevel;
+use App\Models\CourseCategory;
+use App\Models\Currency;
+use App\Models\Status;
 use Illuminate\Database\Seeder;
 
 final class RepCountrySeeder extends Seeder
@@ -23,6 +31,12 @@ final class RepCountrySeeder extends Seeder
 
             return;
         }
+
+        $currencies = Currency::all();
+        $courseLevels = CourseLevel::all();
+        $courseCategories = CourseCategory::all();
+        $statusNames = Status::orderBy('order')->pluck('name')->take(10)->toArray();
+        $now = now();
 
         $repCountriesData = [
             [
@@ -67,13 +81,106 @@ final class RepCountrySeeder extends Seeder
             ],
         ];
 
+        // Only create 5 rep countries
+        $repCountriesData = array_slice($repCountriesData, 0, 5);
+
         foreach ($repCountriesData as $data) {
             // Check if the country already has a rep country
             $existingRepCountry = RepCountry::where('country_id', $data['country_id'])->first();
 
             if (! $existingRepCountry) {
-                RepCountry::create($data);
+                $repCountry = RepCountry::create($data);
                 $this->command->info('Created rep country for: '.Country::find($data['country_id'])->name);
+
+                // Assign 10 statuses (from statuses table), each with 3 sub-statuses
+                foreach ($statusNames as $idx => $statusName) {
+                    $status = $repCountry->repCountryStatuses()->create([
+                        'status_name' => $statusName,
+                        'notes' => $statusName.' notes.',
+                        'completed_at' => null,
+                        'is_current' => $idx === 0,
+                        'order' => $idx + 1,
+                        'is_active' => true,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+                    for ($s = 1; $s <= 3; $s++) {
+                        $status->subStatuses()->create([
+                            'name' => $statusName.' SubStatus '.$s,
+                            'description' => 'Description for '.$statusName.' SubStatus '.$s,
+                            'is_completed' => false,
+                            'completed_at' => null,
+                            'order' => $s,
+                            'is_active' => true,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    }
+                }
+
+                // Assign 3 institutions
+                for ($i = 1; $i <= 3; $i++) {
+                    $currency = $currencies->random();
+                    $institution = Institution::create([
+                        'rep_country_id' => $repCountry->id,
+                        'institution_name' => 'Institute '.$i.' for '.$repCountry->country->name,
+                        'campus' => 'Main Campus',
+                        'website' => 'https://example.com',
+                        'monthly_living_cost' => rand(1000, 4000),
+                        'funds_required_for_visa' => rand(5000, 20000),
+                        'application_fee' => rand(50, 200),
+                        'currency_id' => $currency->id,
+                        'contract_terms' => 'Standard contract terms apply.',
+                        'institute_type' => $i % 2 === 0 ? 'direct' : 'indirect',
+                        'quality_of_desired_application' => ['excellent', 'good', 'average', 'below_average'][array_rand(['excellent', 'good', 'average', 'below_average'])],
+                        'contract_expiry_date' => now()->addYears(rand(1, 3)),
+                        'is_language_mandatory' => (bool)rand(0, 1),
+                        'language_requirements' => 'IELTS 6.0 or equivalent',
+                        'institutional_benefits' => 'Scholarships available for top students.',
+                        'part_time_work_details' => '20 hours per week allowed.',
+                        'scholarship_policy' => 'Merit-based scholarships.',
+                        'institution_status_notes' => 'Accredited by Ministry of Education.',
+                        'contact_person_name' => 'John Doe',
+                        'contact_person_email' => 'john'.$i.'@example.com',
+                        'contact_person_mobile' => '1234567890',
+                        'contact_person_designation' => 'Director',
+                        'is_active' => (bool)rand(0, 1),
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+
+                    // Assign 5 courses to each institution
+                    for ($j = 1; $j <= 5; $j++) {
+                        $courseLevel = $courseLevels->random();
+                        $categories = $courseCategories->random(rand(1, min(3, $courseCategories->count())))->pluck('id')->toArray();
+                        Course::create([
+                            'institution_id' => $institution->id,
+                            'title' => 'Course '.$j.' at '.$institution->institution_name,
+                            'course_level_id' => $courseLevel->id,
+                            'duration_year' => rand(1, 4),
+                            'duration_month' => rand(0, 11),
+                            'duration_week' => rand(0, 51),
+                            'start_date' => now()->addMonths(rand(1, 12)),
+                            'end_date' => now()->addYears(rand(1, 4)),
+                            'campus' => 'Main Campus',
+                            'awarding_body' => 'University Board',
+                            'currency_id' => $currency->id,
+                            'course_fee' => rand(5000, 20000),
+                            'application_fee' => rand(50, 200),
+                            'course_benefits' => 'Internship opportunities, job placement support.',
+                            'general_eligibility' => 'Bachelor degree or equivalent.',
+                            'quality_of_desired_application' => ['excellent', 'good', 'average', 'below_average'][array_rand(['excellent', 'good', 'average', 'below_average'])],
+                            'is_language_mandatory' => (bool)rand(0, 1),
+                            'language_requirements' => 'IELTS 6.0 or equivalent',
+                            'additional_info' => 'Additional info for course.',
+                            'course_categories' => json_encode($categories),
+                            'modules' => json_encode(['Module 1', 'Module 2']),
+                            'intake_month' => json_encode(['January', 'September']),
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    }
+                }
             } else {
                 $this->command->warn('Rep country already exists for: '.Country::find($data['country_id'])->name);
             }

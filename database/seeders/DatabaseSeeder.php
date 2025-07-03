@@ -24,7 +24,7 @@ final class DatabaseSeeder extends Seeder
             'email' => 'admin@ilmvoyager.com',
         ]);
 
-        
+
 
         $user->assignRole(CentralRolesEnum::OWNER->value);
         $tenant1 = Tenant::create([
@@ -43,6 +43,7 @@ final class DatabaseSeeder extends Seeder
                 'email' => 'info@gen.com',
             ]);
             $user1->assignRole(TenantRolesEnum::SUPERADMIN->value);
+
             $user2 = User::factory()->create();
             $user2->assignRole(TenantRolesEnum::COUNSELLOR->value);
         });
