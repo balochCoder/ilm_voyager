@@ -76,7 +76,7 @@ export default function EditInstitution({ institution, repCountries, currencies 
     );
     const [additionalFilesError, setAdditionalFilesError] = useState('');
     const additionalFilesInputRef = useRef<HTMLInputElement>(null);
-    const [existingAdditionalFiles, setExistingAdditionalFiles] = useState<CourseDocument[]>(institution.additional_files || []);
+    const [existingAdditionalFiles] = useState<CourseDocument[]>(institution.additional_files || []);
 
     useEffect(() => {
         if (data.contract_expiry_date) {
@@ -165,11 +165,6 @@ export default function EditInstitution({ institution, repCountries, currencies 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
-    };
-
-    const removeExistingAdditionalFile = (fileId: number) => {
-        setExistingAdditionalFiles(existingAdditionalFiles.filter(file => file.id !== fileId));
-        setData('removed_additional_file_ids', [...(data.removed_additional_file_ids || []), fileId]);
     };
 
     const selectedRepCountry = repCountries.find((rc) => rc.id === data.rep_country_id);
@@ -784,17 +779,6 @@ export default function EditInstitution({ institution, repCountries, currencies 
                                                                 {file.title || file.name}
                                                             </a>
                                                             <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(1)} KB)</span>
-                                                            <div className="flex-1" />
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="icon"
-                                                                onClick={() => removeExistingAdditionalFile(file.id)}
-                                                                className="text-red-500 hover:text-red-700 ml-auto"
-                                                                aria-label="Remove file"
-                                                            >
-                                                                <Trash2 className="h-5 w-5" />
-                                                            </Button>
                                                         </li>
                                                     ))}
                                                 </ul>

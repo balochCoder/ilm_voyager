@@ -112,7 +112,7 @@ export default function EditCourse({ institution, currencies, categories, course
     const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
     const [startCalendarMonth, setStartCalendarMonth] = useState<Date>(data.start_date ? new Date(data.start_date) : new Date());
     const [endCalendarMonth, setEndCalendarMonth] = useState<Date>(data.end_date ? new Date(data.end_date) : new Date());
-    const [existingDocuments, setExistingDocuments] = useState(course.documents || []);
+    const [existingDocuments] = useState(course.documents || []);
 
     const handleInputChange = (field: CourseFormField) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setData(field, e.target.value);
@@ -157,11 +157,6 @@ export default function EditCourse({ institution, currencies, categories, course
         newTitles.splice(index, 1);
         setData('documents', newFiles);
         setData('document_titles', newTitles);
-    };
-
-    const removeExistingDocument = (docId: number) => {
-        setExistingDocuments(existingDocuments.filter(doc => doc.id !== docId));
-        setData('removed_document_ids', [...(data.removed_document_ids || []), docId]);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -599,16 +594,6 @@ export default function EditCourse({ institution, currencies, categories, course
                                                 </div>
                                                 <div className="text-xs text-gray-500">{(doc.size / 1024).toFixed(1)} KB</div>
                                             </div>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => removeExistingDocument(doc.id)}
-                                                className="mt-2 sm:mt-0 sm:ml-2 text-red-500 hover:text-red-700"
-                                                aria-label="Remove file"
-                                            >
-                                                <Trash2 className="h-5 w-5" />
-                                            </Button>
                                         </li>
                                     ))}
                                 </ul>
