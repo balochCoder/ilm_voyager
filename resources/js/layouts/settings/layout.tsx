@@ -56,9 +56,9 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                             <Button
                                 key={`${item.href}-${index}`}
                                 size="sm"
-                                variant="default"
+                                variant="outline"
                                 asChild
-                                className={cn('w-full justify-start hover:bg-sidebar-primary', {
+                                className={cn('w-full justify-start hover:bg-sidebar-primary hover:text-sidebar-primary-foreground', {
                                     'bg-sidebar-primary text-primary-foreground dark:text-white': currentPath === item.href,
                                 })}
                             >
