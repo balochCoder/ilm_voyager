@@ -796,7 +796,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                                     <Loader className="h-6 w-6 animate-spin text-blue-500" />
                                 </div>
                             ) : subStatusesSheet.status.sub_statuses && subStatusesSheet.status.sub_statuses.length > 0 ? (
-                                <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                                <div className="grid w-full flex-1 auto-rows-min gap-6">
                                     {subStatusesSheet.status.sub_statuses.map((subStatus: SubStatus, index: number) => (
                                         <div key={subStatus.id} className="flex items-center justify-between rounded-lg border bg-gray-50 p-3 sm:p-4">
                                             <div className="flex min-w-0 flex-1 items-center space-x-2 sm:space-x-3">

@@ -314,13 +314,13 @@ export const MultiSelect = React.forwardRef<
                 >
                   <div
                     className={cn(
-                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary ",
                       selectedValues.length === options.length
                         ? "bg-primary text-primary-foreground"
                         : "opacity-50 [&_svg]:invisible"
                     )}
                   >
-                    <CheckIcon className="h-4 w-4" />
+                    <CheckIcon className="h-4 w-4 text-primary-foreground" />
                   </div>
                   <span>(Select All)</span>
                 </CommandItem>
@@ -343,7 +343,7 @@ export const MultiSelect = React.forwardRef<
                             : "opacity-50 [&_svg]:invisible"
                         )}
                       >
-                        <CheckIcon className="h-4 w-4" />
+                        <CheckIcon className="h-4 w-4 text-primary-foreground" />
                       </div>
                       {option.icon && (
                         <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -395,4 +395,4 @@ export const MultiSelect = React.forwardRef<
   }
 );
 
-MultiSelect.displayName = "MultiSelect";    
+MultiSelect.displayName = "MultiSelect";

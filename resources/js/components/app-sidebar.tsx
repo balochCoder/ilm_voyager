@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupLabel, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, ChevronRight, Users, FileText, GraduationCap, Building2, ClipboardList, Settings, BarChart3, Globe2, GlobeIcon, BuildingIcon } from 'lucide-react';
+import { LayoutGrid, ChevronRight,  Globe2, GlobeIcon, BuildingIcon } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { usePermission } from '@/hooks/use-permission';
@@ -134,7 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     <SidebarMenuItem>
                                         <CollapsibleTrigger asChild>
                                             <SidebarMenuButton
-                                                className="data-[state=open]:bg-main data-[state=open]:outline-border data-[state=open]:text-main-foreground"
+                                                className="data-[state=open]:bg-primary data-[state=open]:outline-border data-[state=open]:text-primary-foreground"
                                                 tooltip={item.title}
                                             >
                                                 {item.icon && <item.icon />}
