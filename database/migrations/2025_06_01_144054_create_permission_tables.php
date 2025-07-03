@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Enums\CentralRolesEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -48,6 +51,18 @@ return new class extends Migration
                 $table->unique(['name', 'guard_name']);
             }
         });
+
+        // Insert default role: owner
+        $now = now();
+        DB::table($tableNames['roles'])->insert([
+            [
+                'id' => (string) Str::ulid(),
+                'name' => CentralRolesEnum::OWNER->value,
+                'guard_name' => 'web',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
 
         Schema::create($tableNames['model_has_permissions'], static function (Blueprint $table) use ($tableNames, $columnNames, $pivotPermission, $teams) {
             $table->ulid($pivotPermission);

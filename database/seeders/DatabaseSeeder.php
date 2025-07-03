@@ -24,9 +24,7 @@ final class DatabaseSeeder extends Seeder
             'email' => 'admin@ilmvoyager.com',
         ]);
 
-        Role::create([
-            'name' => 'owner',
-        ]);
+        
 
         $user->assignRole(CentralRolesEnum::OWNER->value);
         $tenant1 = Tenant::create([
