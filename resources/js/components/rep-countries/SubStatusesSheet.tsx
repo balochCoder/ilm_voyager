@@ -42,7 +42,7 @@ export default function SubStatusesSheet({
                     ) : status.sub_statuses && status.sub_statuses.length > 0 ? (
                         <div className="grid w-full flex-1 auto-rows-min gap-6">
                             {status.sub_statuses.map((subStatus: SubStatus, index: number) => (
-                                <div key={subStatus.id} className="flex items-center justify-between rounded-lg border bg-gray-50 p-3 sm:p-4">
+                                <div key={subStatus.id} className="flex items-center gap-2 w-full rounded-lg border bg-gray-50 p-3 sm:p-4 overflow-hidden">
                                     <div className="flex min-w-0 flex-1 items-center space-x-2 sm:space-x-3">
                                         <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600 sm:h-8 sm:w-8 sm:text-sm">
                                             {index + 1}
@@ -52,7 +52,7 @@ export default function SubStatusesSheet({
                                             <p className="text-xs text-gray-500 sm:text-sm">{subStatus.is_active ? 'Active' : 'Inactive'}</p>
                                         </div>
                                     </div>
-                                    <div className="ml-2 flex flex-shrink-0 items-center space-x-2">
+                                    <div className="flex flex-shrink-0 items-center space-x-2">
                                         {subStatusActions.isToggleLoading(subStatus.id) ? (
                                             <Loader className="h-4 w-4 animate-spin text-blue-500" />
                                         ) : (
