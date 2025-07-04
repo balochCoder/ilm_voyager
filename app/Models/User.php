@@ -47,6 +47,12 @@ final class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'designation',
+        'phone',
+        'mobile',
+        'whatsapp',
+        'skype',
+        'download_csv',
     ];
 
     /**
@@ -92,5 +98,10 @@ final class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function branch()
+    {
+        return $this->hasOne(Branch::class);
     }
 }

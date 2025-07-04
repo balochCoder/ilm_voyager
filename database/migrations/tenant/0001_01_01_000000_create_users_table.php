@@ -22,6 +22,12 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+            $table->string('designation')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('mobile')->nullable();
+            $table->string('whatsapp')->nullable();
+            $table->string('skype')->nullable();
+            $table->enum('download_csv', ['allowed', 'allowed_without_contact', 'not_allowed'])->default('not_allowed');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table): void {

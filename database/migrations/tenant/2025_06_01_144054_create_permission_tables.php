@@ -69,6 +69,13 @@ return new class extends Migration
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
+            [
+                'id' => (string) Str::ulid(),
+                'name' => TenantRolesEnum::BRANCHOFFICE->value,
+                'guard_name' => 'web',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
         ]);
 
         Schema::create($tableNames['model_has_permissions'], static function (Blueprint $table) use ($tableNames, $columnNames, $pivotPermission, $teams) {
