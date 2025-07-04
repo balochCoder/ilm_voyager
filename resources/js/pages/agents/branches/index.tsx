@@ -127,7 +127,7 @@ const handlePageChange = (page: number) => {
                   {/* Actions */}
                   <div className="mt-4 pt-3 border-t">
                     <div className="flex justify-end">
-                      <Link href="#">
+                      <Link href={route('agents:branches:edit', { branch: branch.id })}>
                         <Button size="sm" variant="outline">
                           <Edit className="h-3 w-3 mr-1" />
                           Edit

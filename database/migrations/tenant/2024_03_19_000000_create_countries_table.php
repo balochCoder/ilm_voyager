@@ -100,7 +100,7 @@ return new class extends Migration
             ['name' => 'Iran', 'flag' => 'https://flagcdn.com/ir.svg'],
             ['name' => 'Iraq', 'flag' => 'https://flagcdn.com/iq.svg'],
             ['name' => 'Ireland', 'flag' => 'https://flagcdn.com/ie.svg'],
-            ['name' => 'Israel', 'flag' => 'https://flagcdn.com/il.svg'],
+            // ['name' => 'Israel', 'flag' => 'https://flagcdn.com/il.svg'],
             ['name' => 'Italy', 'flag' => 'https://flagcdn.com/it.svg'],
             ['name' => 'Jamaica', 'flag' => 'https://flagcdn.com/jm.svg'],
             ['name' => 'Japan', 'flag' => 'https://flagcdn.com/jp.svg'],

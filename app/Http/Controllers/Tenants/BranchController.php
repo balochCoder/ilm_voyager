@@ -16,6 +16,8 @@ use Illuminate\Validation\Rule;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Actions\Branch\StoreBranchAction;
 use App\Http\Resources\BranchResource;
+use App\Http\Requests\Branch\UpdateBranchRequest;
+use App\Actions\Branch\UpdateBranchAction;
 
 class BranchController extends Controller
 {
@@ -62,5 +64,28 @@ class BranchController extends Controller
             $branch->user->save();
         }
         return back()->with('success', 'Branch status updated successfully.');
+    }
+
+    public function edit(Branch $branch)
+    {
+        $branch->load('user');
+        $timeZones = TimeZone::query()->orderBy('label')->get(['id', 'label']);
+        $countries = Country::query()->orderBy('name')->get(['id', 'name', 'flag']);
+
+        return $this->factory->render('agents/branches/edit', [
+            'branch' => new BranchResource($branch),
+            'timeZones' => $timeZones,
+            'countries' => $countries,
+        ]);
+    }
+
+    public function update(UpdateBranchRequest $request, Branch $branch, UpdateBranchAction $action)
+    {
+        try {
+            $action->execute($request, $branch);
+            return to_route('agents:branches:index')->with('success', 'Branch updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to update branch: ' . $e->getMessage()]);
+        }
     }
 }

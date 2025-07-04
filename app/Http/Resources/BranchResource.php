@@ -33,6 +33,19 @@ class BranchResource extends JsonResource
             'website' => $this->website,
             'email' => $this->email,
             'user_id' => $this->user_id,
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                    'designation' => $this->user->designation,
+                    'phone' => $this->user->phone,
+                    'mobile' => $this->user->mobile,
+                    'whatsapp' => $this->user->whatsapp,
+                    'skype' => $this->user->skype,
+                    'download_csv' => $this->user->download_csv,
+                ];
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'contact_person_name' => $this->user ? $this->user->name : null,
