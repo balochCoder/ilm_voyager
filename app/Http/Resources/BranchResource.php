@@ -35,6 +35,10 @@ class BranchResource extends JsonResource
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'contact_person_name' => $this->user ? $this->user->name : null,
+            'contact_person_email' => $this->user ? $this->user->email : null,
+            'contact_person_mobile' => $this->user ? $this->user->mobile : null,
+            'is_active' => $this->is_active,
         ];
     }
 }

@@ -261,3 +261,23 @@ export interface CourseResource {
         total: number;
     };
 }
+ export interface Branch {
+    id: string;
+    name: string;
+    contact_person_name: string;
+    contact_person_email: string;
+    contact_person_mobile: string;
+
+    created_at: string;
+    is_active: boolean;
+}
+
+export interface BranchResource {
+    data: Branch[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}

@@ -42,7 +42,20 @@ class BranchController extends Controller
 
     public function index()
     {
-        $branches = Branch::with('country')->get(); 
-        return BranchResource::collection($branches);
+        $branches = Branch::with(['country', 'user'])->paginate(1)->withQueryString();
+        $branchesActive = Branch::where('is_active', true)->count();
+
+        return $this->factory->render('agents/branches/index', [
+            'branches' => BranchResource::collection($branches),
+            'branchesTotal' => $branches->total(),
+            'branchesActive' => $branchesActive,
+        ]);
+    }
+
+    public function toggleStatus(Request $request, Branch $branch)
+    {
+        $branch->is_active = !$branch->is_active;
+        $branch->save();
+        return back()->with('success', 'Branch status updated successfully.');
     }
 }

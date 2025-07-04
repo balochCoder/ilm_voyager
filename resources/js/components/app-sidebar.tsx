@@ -39,6 +39,13 @@ const mainNavItems: NavItem[] = [
         roles: ['super-admin'],
     },
     {
+        title: 'Branches',
+        href: '/agents/branches',
+        icon: BuildingIcon,
+        isActive: false,
+        roles: ['super-admin'],
+    },
+    {
         title: "Dashboard",
         href: "/counsellors/dashboard",
         icon: LayoutGrid,
