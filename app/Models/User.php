@@ -53,6 +53,7 @@ final class User extends Authenticatable implements MustVerifyEmail
         'whatsapp',
         'skype',
         'download_csv',
+        'last_login_at',
     ];
 
     /**
@@ -96,6 +97,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

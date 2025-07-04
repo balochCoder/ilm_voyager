@@ -72,6 +72,12 @@ final class LoginRequest extends FormRequest
             ]);
         }
 
+        // Update last login time
+        if ($user) {
+            $user->last_login_at = now();
+            $user->save();
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

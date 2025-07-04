@@ -267,9 +267,11 @@ export interface CourseResource {
     contact_person_name: string;
     contact_person_email: string;
     contact_person_mobile: string;
-
     created_at: string;
     is_active: boolean;
+    user?: {
+      last_login_at: string;
+    };
 }
 
 export interface BranchResource {

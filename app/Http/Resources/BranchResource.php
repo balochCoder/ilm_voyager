@@ -44,6 +44,7 @@ class BranchResource extends JsonResource
                     'whatsapp' => $this->user->whatsapp,
                     'skype' => $this->user->skype,
                     'download_csv' => $this->user->download_csv,
+                    'last_login_at' => $this->user->last_login_at,
                 ];
             }),
             'created_at' => $this->created_at,

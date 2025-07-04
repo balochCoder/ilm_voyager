@@ -5,7 +5,7 @@ import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { BranchResource, BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, Edit, Building2, Check } from 'lucide-react';
+import { Plus, Edit, Building2, Check, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect } from 'react';
@@ -122,6 +122,15 @@ const handlePageChange = (page: number) => {
                       <span className="text-muted-foreground">Mobile:</span>
                       <span className="font-medium">{branch.contact_person_mobile || 'Not specified'}</span>
                     </div>
+                    {branch.user?.last_login_at && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Last Login:
+                        </span>
+                        <span className="font-medium">{format(new Date(branch.user.last_login_at), 'MMM dd, yyyy HH:mm')}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions */}
