@@ -1,11 +1,12 @@
 import { Head } from '@inertiajs/react';
-import CountriesList from '@/components/countries-list';
+import CountriesList from '@/components/countries/countries-list';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Country } from '@/types';
 import Heading from '@/components/heading';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Search } from 'lucide-react';
+import StatsCard from '@/components/StatsCard';
 
 interface Props {
     countries: Country[];
@@ -37,7 +38,7 @@ export default function CountriesIndex({ countries }: Props) {
                     </div>
                     <div className="flex items-center space-x-2 w-full sm:w-auto justify-start sm:justify-end">
                         <Badge variant="default" className="bg-blue-100 text-blue-800">
-                            <Globe className="w-3 h-3 mr-1" />
+                            <Globe className="w-3 h-3 mr-1" aria-label="Globe icon" />
                             {totalCountries} Countries
                         </Badge>
                     </div>
@@ -45,33 +46,20 @@ export default function CountriesIndex({ countries }: Props) {
 
                 {/* Stats Cards */}
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                    <Card>
-                        <CardContent className="p-4">
-                            <div className="flex items-center space-x-2">
-                                <div className="p-2 bg-blue-100 rounded-lg">
-                                    <Globe className="w-4 h-4 text-blue-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs sm:text-sm text-muted-foreground">Total Countries</p>
-                                    <p className="text-xl sm:text-2xl font-semibold">{totalCountries}</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card >
-                        <CardContent className="p-4">
-                            <div className="flex items-center space-x-2">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Search className="w-4 h-4 text-green-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs sm:text-sm text-muted-foreground">Available for Selection</p>
-                                    <p className="text-xl sm:text-2xl font-semibold">{totalCountries}</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <StatsCard
+                        icon={<Globe className="w-4 h-4 text-blue-600" aria-label="Total countries icon" />}
+                        label="Total Countries"
+                        value={totalCountries}
+                        bgColor="bg-blue-100"
+                        iconAriaLabel="Total countries icon"
+                    />
+                    <StatsCard
+                        icon={<Search className="w-4 h-4 text-green-600" aria-label="Available for selection icon" />}
+                        label="Available for Selection"
+                        value={totalCountries}
+                        bgColor="bg-green-100"
+                        iconAriaLabel="Available for selection icon"
+                    />
                 </div>
 
                 {/* Countries List Section */}
@@ -92,7 +80,7 @@ export default function CountriesIndex({ countries }: Props) {
                     <CardContent className="p-4">
                         <div className="flex flex-col sm:flex-row items-start sm:space-x-3 space-y-2 sm:space-y-0">
                             <div className="p-2 bg-blue-100 rounded-lg mb-2 sm:mb-0">
-                                <Globe className="w-4 h-4 text-blue-600" />
+                                <Globe className="w-4 h-4 text-blue-600" aria-label="Help section globe icon" />
                             </div>
                             <div>
                                 <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">About Countries Database</h3>
