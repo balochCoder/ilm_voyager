@@ -6,8 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Link, useForm, Head } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Info } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const downloadCsvOptions = [
   { value: 'allowed', label: 'Allowed' },
@@ -268,13 +274,25 @@ export default function EditBranch({ branch, timeZones: propsTimeZones, countrie
                 {errors.user_email && <p className="text-sm text-red-600">{errors.user_email}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="password">New Password</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Leave blank to keep current password</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Input
                   name="password"
                   type="password"
                   value={data.password}
                   onChange={handleInput}
-                  placeholder="Leave blank to keep current password"
+                  placeholder='Password'
                 />
                 {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
               </div>
