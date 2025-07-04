@@ -8,6 +8,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\Country
@@ -30,6 +31,12 @@ final class Country extends Model
     public function repCountry(): HasOne
     {
         return $this->hasOne(RepCountry::class);
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Branch> */
+    public function branches(): HasMany
+    {
+        return $this->hasMany(\App\Models\Branch::class, 'country_id');
     }
 
     /**

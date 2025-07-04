@@ -43,7 +43,7 @@ final class StoreBranchAction
                 'address' => $validated['address'] ?? null,
                 'city' => $validated['city'] ?? null,
                 'state' => $validated['state'] ?? null,
-                'country' => $validated['country'],
+                'country_id' => $validated['country_id'],
                 'time_zone_id' => $validated['time_zone_id'],
                 'phone' => $validated['phone'] ?? null,
                 'website' => $validated['website'] ?? null,

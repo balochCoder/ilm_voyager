@@ -15,4 +15,9 @@ class Branch extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function country()
+    {
+        return $this->belongsTo(\App\Models\Country::class, 'country_id');
+    }
 }

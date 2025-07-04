@@ -20,7 +20,7 @@ class StoreBranchRequest extends FormRequest
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
-            'country' => 'required|string|max:255',
+            'country_id' => 'required|ulid|exists:countries,id',
             'time_zone_id' => 'required|ulid|exists:time_zones,id',
             'phone' => 'nullable|string|max:255',
             'website' => 'nullable|string|max:255',

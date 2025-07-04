@@ -21,8 +21,9 @@ const breadcrumbs = [
   { title: 'Add Branch', href: '/agents/branches/create' },
 ];
 
-export default function CreateBranch(props: { timeZones?: { id: string; label: string }[] }) {
+export default function CreateBranch(props: { timeZones?: { id: string; label: string }[], countries?: { id: string; name: string; flag?: string }[] }) {
   const [timeZones, setTimeZones] = useState<{ id: string; label: string }[]>([]);
+  const [countries, setCountries] = useState<{ id: string; name: string; flag?: string }[]>([]);
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     address: '',
@@ -43,6 +44,7 @@ export default function CreateBranch(props: { timeZones?: { id: string; label: s
     whatsapp: '',
     skype: '',
     download_csv: 'not_allowed',
+    country_id: '',
   });
 
   useEffect(() => {
@@ -54,6 +56,16 @@ export default function CreateBranch(props: { timeZones?: { id: string; label: s
         .then(zones => setTimeZones(zones));
     }
   }, [props.timeZones]);
+
+  useEffect(() => {
+    if (props.countries) {
+      setCountries(props.countries);
+    } else {
+      fetch('/api/countries')
+        .then(res => res.json())
+        .then(countries => setCountries(countries));
+    }
+  }, [props.countries]);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setData(e.target.name as keyof typeof data, e.target.value);
@@ -111,9 +123,21 @@ export default function CreateBranch(props: { timeZones?: { id: string; label: s
                 {errors.state && <p className="text-sm text-red-600">{errors.state}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="country">Country <span className="text-red-600">*</span></Label>
-                <Input name="country" value={data.country} onChange={handleInput} required />
-                {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
+                <Label htmlFor="country_id">Country <span className="text-red-600">*</span></Label>
+                <Select value={data.country_id} onValueChange={v => setData('country_id', v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.id} value={country.id}>
+                        {country.flag && <img src={country.flag} alt="" className="inline w-4 h-4 mr-2" />}
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.country_id && <p className="text-sm text-red-600">{errors.country_id}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time_zone_id">Time Zone <span className="text-red-600">*</span></Label>
