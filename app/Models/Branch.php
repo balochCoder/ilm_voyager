@@ -11,6 +11,25 @@ class Branch extends Model
     use SoftDeletes;
     use HasUlids;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'name',
+        'address',
+        'city',
+        'state',
+        'country_id',
+        'time_zone_id',
+        'phone',
+        'website',
+        'email',
+        'user_id',
+        'is_active',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

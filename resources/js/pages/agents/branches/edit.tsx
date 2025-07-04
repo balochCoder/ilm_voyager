@@ -69,6 +69,8 @@ export default function EditBranch({ branch, timeZones: propsTimeZones, countrie
     whatsapp: branch.user?.whatsapp || '',
     skype: branch.user?.skype || '',
     download_csv: branch.user?.download_csv || 'not_allowed',
+    password: '',
+    password_confirmation: '',
   });
 
   const breadcrumbs = [
@@ -264,6 +266,28 @@ export default function EditBranch({ branch, timeZones: propsTimeZones, countrie
                 <Label htmlFor="user_email">Email Address (User Name) <span className="text-red-600">*</span></Label>
                 <Input name="user_email" value={data.user_email} onChange={handleInput} required />
                 {errors.user_email && <p className="text-sm text-red-600">{errors.user_email}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">New Password</Label>
+                <Input
+                  name="password"
+                  type="password"
+                  value={data.password}
+                  onChange={handleInput}
+                  placeholder="Leave blank to keep current password"
+                />
+                {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password_confirmation">Confirm New Password</Label>
+                <Input
+                  name="password_confirmation"
+                  type="password"
+                  value={data.password_confirmation}
+                  onChange={handleInput}
+                  placeholder="Confirm new password"
+                />
+                {errors.password_confirmation && <p className="text-sm text-red-600">{errors.password_confirmation}</p>}
               </div>
             </CardContent>
           </Card>
