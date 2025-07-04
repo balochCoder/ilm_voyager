@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { SubStatus } from '@/types';
 
-interface UseSubStatusActionsReturn {
+export type UseSubStatusActionsReturn = {
     // Toggle functionality
     isToggleLoading: (id: number) => boolean;
     handleToggleSubStatus: (subStatus: SubStatus, isActive: boolean) => void;
@@ -20,7 +20,7 @@ interface UseSubStatusActionsReturn {
     closeEditDialog: () => void;
     setEditedName: (name: string) => void;
     handleEditSubStatus: () => void;
-}
+};
 
 export function useSubStatusActions(): UseSubStatusActionsReturn {
     const [toggleLoadingStates, setToggleLoadingStates] = useState<{ [key: number]: boolean }>({});

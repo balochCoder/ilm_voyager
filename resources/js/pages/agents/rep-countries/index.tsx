@@ -14,17 +14,11 @@ import {
     PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatusSwitch } from '@/components/ui/status-switch';
-import { Switch } from '@/components/ui/switch';
-import { useAddStatusDialog } from '@/hooks/use-add-status-dialog';
-import { useEditStatusDialog } from '@/hooks/use-edit-status-dialog';
-import { useSubStatusActions } from '@/hooks/use-sub-status-actions';
-import { useSwitchState } from '@/hooks/use-switch-state';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import { BreadcrumbItem, Country, RepCountryResource, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
+import { BreadcrumbItem, Country, RepCountryResource, RepCountryStatus, SharedData, Status } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ArrowUpDown,
@@ -48,6 +42,11 @@ import AddStatusDialog from '@/components/rep-countries/add-status-dialog';
 import EditStatusDialog from '@/components/rep-countries/edit-status-dialog';
 import AddSubStatusDialog from '@/components/rep-countries/add-sub-status-dialog';
 import EditSubStatusDialog from '@/components/rep-countries/edit-sub-status-dialog';
+import SubStatusesSheet from '@/components/rep-countries/SubStatusesSheet';
+import { useAddStatusDialog } from '@/hooks/use-add-status-dialog';
+import { useEditStatusDialog } from '@/hooks/use-edit-status-dialog';
+import { useSubStatusActions } from '@/hooks/use-sub-status-actions';
+import { useSwitchState } from '@/hooks/use-switch-state';
 
 interface Props {
     repCountries: RepCountryResource;
@@ -677,89 +676,15 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                 />
 
                 {/* Sub-Statuses Sheet */}
-                <Sheet open={subStatusesSheet.isOpen} onOpenChange={handleSheetOpenChange}>
-                    <SheetContent className="w-full sm:w-[400px] lg:w-[540px]">
-                        <SheetHeader>
-                            <SheetTitle className="text-lg sm:text-xl">{sheetTitle}</SheetTitle>
-                            <SheetDescription className="text-sm">
-                                Manage the sub-steps for this application step. You can toggle their status and edit their names.
-                            </SheetDescription>
-                        </SheetHeader>
-                        <div className="mt-6 space-y-4">
-                            {!subStatusesSheet.status ? (
-                                <div className="flex items-center justify-center py-8">
-                                    <Loader className="h-6 w-6 animate-spin text-blue-500" />
-                                </div>
-                            ) : subStatusesSheet.status.sub_statuses && subStatusesSheet.status.sub_statuses.length > 0 ? (
-                                <div className="grid w-full flex-1 auto-rows-min gap-6">
-                                    {subStatusesSheet.status.sub_statuses.map((subStatus: SubStatus, index: number) => (
-                                        <div key={subStatus.id} className="flex items-center justify-between rounded-lg border bg-gray-50 p-3 sm:p-4">
-                                            <div className="flex min-w-0 flex-1 items-center space-x-2 sm:space-x-3">
-                                                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-600 sm:h-8 sm:w-8 sm:text-sm">
-                                                    {index + 1}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <h4 className="truncate text-sm font-medium text-gray-900 sm:text-base">{subStatus.name}</h4>
-                                                    <p className="text-xs text-gray-500 sm:text-sm">{subStatus.is_active ? 'Active' : 'Inactive'}</p>
-                                                </div>
-                                            </div>
-                                            <div className="ml-2 flex flex-shrink-0 items-center space-x-2">
-                                                {subStatusActions.isToggleLoading(subStatus.id) ? (
-                                                    <Loader className="h-4 w-4 animate-spin text-blue-500" />
-                                                ) : (
-                                                    <Switch
-                                                        checked={subStatus.is_active || false}
-                                                        onCheckedChange={(checked: boolean) =>
-                                                            subStatusActions.handleToggleSubStatus(subStatus, checked)
-                                                        }
-                                                        className="data-[state=checked]:bg-blue-500"
-                                                    />
-                                                )}
-                                                <Button
-
-                                                    onClick={() => {
-                                                        subStatusActions.openEditDialog(subStatus);
-                                                        // Refresh sheet content after editing
-                                                        setTimeout(() => {
-                                                            refreshSubStatusesInSheet();
-                                                        }, 100);
-                                                    }}
-                                                    variant="default"
-                                                    size="icon"
-                                                    className="h-6 w-6 p-0 sm:h-8 sm:w-8"
-                                                    title="Edit sub-step"
-                                                >
-                                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="py-6 text-center sm:py-8">
-                                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16">
-                                        <Layers className="h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
-                                    </div>
-                                    <h3 className="mb-2 text-base font-medium text-gray-900 sm:text-lg">No sub-steps yet</h3>
-                                    <p className="mb-4 px-4 text-sm text-gray-500">
-                                        Add sub-steps to break down this application step into smaller tasks.
-                                    </p>
-                                    <Button
-                                        onClick={() => {
-                                            if (subStatusesSheet.status) {
-                                                handleAddSubStatusFromSheet(subStatusesSheet.status.id, subStatusesSheet.status.status_name);
-                                            }
-                                        }}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 sm:w-auto"
-                                    >
-                                        <Layers className="mr-2 h-4 w-4" />
-                                        Add First Sub-Step
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    </SheetContent>
-                </Sheet>
+                <SubStatusesSheet
+                    open={subStatusesSheet.isOpen}
+                    onOpenChange={handleSheetOpenChange}
+                    status={subStatusesSheet.status}
+                    sheetTitle={sheetTitle}
+                    subStatusActions={subStatusActions}
+                    handleAddSubStatusFromSheet={handleAddSubStatusFromSheet}
+                    refreshSubStatusesInSheet={refreshSubStatusesInSheet}
+                />
             </div>
         </AppLayout>
     );
