@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 interface UseAddStatusDialogReturn {
     isOpen: boolean;
     currentRepCountryId: string | null;
-    currentRepCountryName: string | null;
+    currentRepCountryName: string;
     newStatusName: string;
     isAdding: boolean;
     errors: Record<string, string>;
@@ -13,14 +13,14 @@ interface UseAddStatusDialogReturn {
     openDialog: (repCountryId: string, repCountryName: string) => void;
     closeDialog: () => void;
     setNewStatusName: (name: string) => void;
-    handleAddStatus: (e: React.FormEvent) => void;
+    handleAddStatus: (e?: React.FormEvent) => void;
     clearErrors: () => void;
 }
 
 export function useAddStatusDialog(): UseAddStatusDialogReturn {
     const [isOpen, setIsOpen] = useState(false);
     const [currentRepCountryId, setCurrentRepCountryId] = useState<string | null>(null);
-    const [currentRepCountryName, setCurrentRepCountryName] = useState<string | null>(null);
+    const [currentRepCountryName, setCurrentRepCountryName] = useState<string>('');
     const [newStatusName, setNewStatusName] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -42,7 +42,7 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
         setIsOpen(false);
         setTimeout(() => {
             setCurrentRepCountryId(null);
-            setCurrentRepCountryName(null);
+            setCurrentRepCountryName('');
             setNewStatusName('');
             setIsAdding(false);
             setErrors({});
@@ -53,8 +53,8 @@ export function useAddStatusDialog(): UseAddStatusDialogReturn {
         setErrors({});
     };
 
-    const handleAddStatus = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleAddStatus = (e?: React.FormEvent) => {
+        e?.preventDefault();
         if (!currentRepCountryId || !newStatusName.trim()) return;
 
         setIsAdding(true);

@@ -3,8 +3,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Pagination,
@@ -20,10 +18,10 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import { Switch } from '@/components/ui/switch';
-import { useAddStatusDialog } from '@/hooks/useAddStatusDialog';
-import { useEditStatusDialog } from '@/hooks/useEditStatusDialog';
-import { useSubStatusActions } from '@/hooks/useSubStatusActions';
-import { useSwitchState } from '@/hooks/useSwitchState';
+import { useAddStatusDialog } from '@/hooks/use-add-status-dialog';
+import { useEditStatusDialog } from '@/hooks/use-edit-status-dialog';
+import { useSubStatusActions } from '@/hooks/use-sub-status-actions';
+import { useSwitchState } from '@/hooks/use-switch-state';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { BreadcrumbItem, Country, RepCountryResource, RepCountryStatus, SharedData, Status, SubStatus } from '@/types';
@@ -45,7 +43,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import StatsCard from '@/components/StatsCard';
+import StatsCard from '@/components/stats-card';
+import AddStatusDialog from '@/components/rep-countries/add-status-dialog';
+import EditStatusDialog from '@/components/rep-countries/edit-status-dialog';
+import AddSubStatusDialog from '@/components/rep-countries/add-sub-status-dialog';
+import EditSubStatusDialog from '@/components/rep-countries/edit-sub-status-dialog';
 
 interface Props {
     repCountries: RepCountryResource;
@@ -294,7 +296,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                 {/* Header Section */}
                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="min-w-0 flex-1">
-                        <Heading title="Representing Countries" description='Manage countries you represent and their application processes'/>
+                        <Heading title="Representing Countries" description='Manage countries you represent and their application processes' />
 
                     </div>
                     <Link href={route('agents:rep-countries:create')} className="w-full sm:w-auto">
@@ -629,146 +631,50 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                     </Pagination>
                 )}
                 {/* Add Status Dialog */}
-                <Dialog open={addStatusDialog.isOpen} onOpenChange={addStatusDialog.closeDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Add Application Step for {addStatusDialog.currentRepCountryName}</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4">
-                            <div className="grid gap-3">
-                                <Label htmlFor="status-name">Step Name</Label>
-                                <Input
-                                    id="status-name"
-                                    value={addStatusDialog.newStatusName}
-                                    onChange={(e) => addStatusDialog.setNewStatusName(e.target.value)}
-                                    placeholder="e.g., Document Review, Interview, Approval"
-                                    disabled={addStatusDialog.isAdding}
-                                    autoFocus
-                                />
-                                {addStatusDialog.errors.name && <p className="text-sm text-red-600">{addStatusDialog.errors.name}</p>}
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button
-                                type="submit"
-                                disabled={addStatusDialog.isAdding || !addStatusDialog.newStatusName.trim()}
-                                onClick={addStatusDialog.handleAddStatus}
-                            >
-                                {addStatusDialog.isAdding ? 'Adding...' : 'Add Step'}
-                            </Button>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <AddStatusDialog
+                    open={addStatusDialog.isOpen}
+                    onOpenChange={addStatusDialog.closeDialog}
+                    currentRepCountryName={addStatusDialog.currentRepCountryName}
+                    newStatusName={addStatusDialog.newStatusName}
+                    setNewStatusName={addStatusDialog.setNewStatusName}
+                    isAdding={addStatusDialog.isAdding}
+                    errors={addStatusDialog.errors}
+                    handleAddStatus={addStatusDialog.handleAddStatus}
+                />
 
                 {/* Edit Status Dialog */}
-                <Dialog open={editStatusDialog.isOpen} onOpenChange={editStatusDialog.closeDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Edit Application Step</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4">
-                            <div className="grid gap-3">
-                                <Label htmlFor="edit-status-name">Step Name</Label>
-                                <Input
-                                    id="edit-status-name"
-                                    value={editStatusDialog.editedStatusName}
-                                    onChange={(e) => editStatusDialog.setEditedStatusName(e.target.value)}
-                                    placeholder="Step name"
-                                    disabled={editStatusDialog.isEditing}
-                                    autoFocus
-                                />
-                                {editStatusDialog.errors.status_name && <p className="text-sm text-red-600">{editStatusDialog.errors.status_name}</p>}
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button
-                                type="submit"
-                                disabled={editStatusDialog.isEditing || !editStatusDialog.editedStatusName.trim()}
-                                onClick={editStatusDialog.handleEditStatus}
-                            >
-                                {editStatusDialog.isEditing ? 'Updating...' : 'Update Step'}
-                            </Button>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <EditStatusDialog
+                    open={editStatusDialog.isOpen}
+                    onOpenChange={editStatusDialog.closeDialog}
+                    editedStatusName={editStatusDialog.editedStatusName}
+                    setEditedStatusName={editStatusDialog.setEditedStatusName}
+                    isEditing={editStatusDialog.isEditing}
+                    errors={editStatusDialog.errors}
+                    handleEditStatus={editStatusDialog.handleEditStatus}
+                />
 
                 {/* Add Sub-Status Dialog */}
-                <Dialog open={subStatusDialog.isOpen} onOpenChange={closeSubStatusDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Add Sub-Step to "{subStatusDialog.statusName}"</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4">
-                            <div className="grid gap-3">
-                                <Label htmlFor="sub-status-name">Sub-Step Name</Label>
-                                <Input
-                                    id="sub-status-name"
-                                    value={subStatusDialog.newSubStatusName}
-                                    onChange={(e) => setSubStatusDialog((prev) => ({ ...prev, newSubStatusName: e.target.value }))}
-                                    placeholder="e.g., Document Review, Interview, Approval"
-                                    disabled={subStatusDialog.isAdding}
-                                    autoFocus
-                                />
-                                {subStatusDialog.errors.name && <p className="text-sm text-red-600">{subStatusDialog.errors.name}</p>}
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button
-                                type="submit"
-                                disabled={subStatusDialog.isAdding || !subStatusDialog.newSubStatusName.trim()}
-                                onClick={handleAddSubStatusSubmit}
-                            >
-                                {subStatusDialog.isAdding ? 'Adding...' : 'Add Sub-Step'}
-                            </Button>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <AddSubStatusDialog
+                    open={subStatusDialog.isOpen}
+                    onOpenChange={closeSubStatusDialog}
+                    statusName={subStatusDialog.statusName}
+                    newSubStatusName={subStatusDialog.newSubStatusName}
+                    setNewSubStatusName={(name: string) => setSubStatusDialog((prev) => ({ ...prev, newSubStatusName: name }))}
+                    isAdding={subStatusDialog.isAdding}
+                    errors={subStatusDialog.errors}
+                    handleAddSubStatus={() => handleAddSubStatusSubmit()}
+                />
 
                 {/* Edit Sub-Status Dialog */}
-                <Dialog open={subStatusActions.editDialog.isOpen} onOpenChange={subStatusActions.closeEditDialog}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Edit Sub-Step</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4">
-                            <div className="grid gap-3">
-                                <Label htmlFor="edit-sub-status-name">Sub-Step Name</Label>
-                                <Input
-                                    id="edit-sub-status-name"
-                                    value={subStatusActions.editDialog.editedName}
-                                    onChange={(e) => subStatusActions.setEditedName(e.target.value)}
-                                    placeholder="Sub-step name"
-                                    disabled={subStatusActions.editDialog.isEditing}
-                                    autoFocus
-                                />
-                                {subStatusActions.editDialog.errors.name && (
-                                    <p className="text-sm text-red-600">{subStatusActions.editDialog.errors.name}</p>
-                                )}
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button
-                                type="submit"
-                                disabled={subStatusActions.editDialog.isEditing || !subStatusActions.editDialog.editedName.trim()}
-                                onClick={subStatusActions.handleEditSubStatus}
-                            >
-                                {subStatusActions.editDialog.isEditing ? 'Updating...' : 'Update Sub-Step'}
-                            </Button>
-                            <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <EditSubStatusDialog
+                    open={subStatusActions.editDialog.isOpen}
+                    onOpenChange={subStatusActions.closeEditDialog}
+                    editedName={subStatusActions.editDialog.editedName}
+                    setEditedName={subStatusActions.setEditedName}
+                    isEditing={subStatusActions.editDialog.isEditing}
+                    errors={subStatusActions.editDialog.errors}
+                    handleEditSubStatus={() => subStatusActions.handleEditSubStatus()}
+                />
 
                 {/* Sub-Statuses Sheet */}
                 <Sheet open={subStatusesSheet.isOpen} onOpenChange={handleSheetOpenChange}>

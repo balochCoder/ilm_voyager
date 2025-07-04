@@ -6,7 +6,7 @@ import Heading from '@/components/heading';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Search } from 'lucide-react';
-import StatsCard from '@/components/StatsCard';
+import StatsCard from '@/components/stats-card';
 
 interface Props {
     countries: Country[];
@@ -34,7 +34,7 @@ export default function CountriesIndex({ countries }: Props) {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
                     <div className="w-full">
-                        <Heading title='Countries Database' description='Browse and manage all available countries in the system'/>
+                        <Heading title='Countries Database' description='Browse and manage all available countries in the system' />
                     </div>
                     <div className="flex items-center space-x-2 w-full sm:w-auto justify-start sm:justify-end">
                         <Badge variant="default" className="bg-blue-100 text-blue-800">

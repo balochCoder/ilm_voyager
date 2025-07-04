@@ -1,6 +1,6 @@
 import { Switch } from '@/components/ui/switch';
 import { Loader } from 'lucide-react';
-import { useSwitchState } from '@/hooks/useSwitchState';
+import { useSwitchState } from '@/hooks/use-switch-state';
 
 interface StatusSwitchProps {
     id: string;
@@ -36,4 +36,4 @@ export function StatusSwitch({ id, checked, route, showLabel = true, onSuccess }
             )}
         </div>
     );
-} 
+}

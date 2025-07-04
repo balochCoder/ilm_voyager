@@ -1,6 +1,5 @@
 import { router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { RepCountryStatus } from '@/types';
 
 interface UseEditStatusDialogReturn {
@@ -13,7 +12,7 @@ interface UseEditStatusDialogReturn {
     openDialog: (status: RepCountryStatus) => void;
     closeDialog: () => void;
     setEditedStatusName: (name: string) => void;
-    handleEditStatus: (e: React.FormEvent) => void;
+    handleEditStatus: (e?: React.FormEvent) => void;
     clearErrors: () => void;
 }
 
@@ -50,8 +49,8 @@ export function useEditStatusDialog(): UseEditStatusDialogReturn {
         setErrors({});
     };
 
-    const handleEditStatus = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleEditStatus = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!currentStatus || !editedStatusName.trim()) return;
 
         setIsEditing(true);
