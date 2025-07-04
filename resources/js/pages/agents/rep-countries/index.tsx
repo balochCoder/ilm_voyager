@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import StatsCard from '@/components/StatsCard';
 
 interface Props {
     repCountries: RepCountryResource;
@@ -364,32 +365,20 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
 
                     {/* Stats Cards */}
                     <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-                        <Card>
-                            <CardContent className="p-4">
-                                <div className="flex items-center space-x-2">
-                                    <div className="rounded-lg bg-blue-100 p-2">
-                                        <Settings className="h-4 w-4 text-blue-600" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-muted-foreground text-sm">Total Countries</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">{repCountriesTotal}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="p-4">
-                                <div className="flex items-center space-x-2">
-                                    <div className="rounded-lg bg-green-100 p-2">
-                                        <Check className="h-4 w-4 text-green-600" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-muted-foreground text-sm">Active</p>
-                                        <p className="text-xl font-semibold sm:text-2xl">{repCountriesActive}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <StatsCard
+                            icon={<Settings className="h-4 w-4 text-blue-600" aria-label="Total countries icon" />}
+                            label="Total Countries"
+                            value={repCountriesTotal}
+                            bgColor="bg-blue-100"
+                            iconAriaLabel="Total countries icon"
+                        />
+                        <StatsCard
+                            icon={<Check className="h-4 w-4 text-green-600" aria-label="Active countries icon" />}
+                            label="Active"
+                            value={repCountriesActive}
+                            bgColor="bg-green-100"
+                            iconAriaLabel="Active countries icon"
+                        />
                     </div>
                 </div>
 
