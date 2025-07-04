@@ -150,8 +150,8 @@ export interface Institution {
     application_fee?: string | null;
     currency_id: number;
     contract_terms?: string | null;
-    institute_type: 'direct' | 'indirect';
-    quality_of_desired_application: 'excellent' | 'good' | 'average' | 'below_average';
+    institute_type: string;
+    quality_of_desired_application: string;
     contract_expiry_date?: string | null;
     is_language_mandatory: boolean;
     language_requirements?: string | null;
