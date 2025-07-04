@@ -6,6 +6,7 @@ namespace App\Actions\Course;
 
 use App\Http\Requests\Course\StoreCourseRequest;
 use App\Models\Course;
+use Illuminate\Support\Facades\Log;
 
 class StoreCourseAction
 {
@@ -37,9 +38,18 @@ class StoreCourseAction
             $documents = $request->file('documents');
             $titles = $request->input('document_titles', []);
             foreach (array_slice($documents, 0, self::MAX_DOCUMENTS) as $idx => $file) {
-                $course->addMedia($file)
-                    ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
-                    ->toMediaCollection('documents');
+                try {
+                    $course->addMedia($file)
+                        ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
+                        ->toMediaCollection('documents');
+                } catch (\Throwable $e) {
+                    Log::error('Failed to upload course document', [
+                        'course_id' => $course->id,
+                        'file_name' => $file->getClientOriginalName(),
+                        'exception' => $e->getMessage(),
+                    ]);
+                    // Optionally: throw $e;
+                }
             }
         }
     }

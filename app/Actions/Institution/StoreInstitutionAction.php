@@ -48,9 +48,18 @@ class StoreInstitutionAction
                 $institution->clearMediaCollection('additional_files');
             }
             foreach ($additionalFiles as $idx => $file) {
-                $institution->addMedia($file)
-                    ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
-                    ->toMediaCollection('additional_files');
+                try {
+                    $institution->addMedia($file)
+                        ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
+                        ->toMediaCollection('additional_files');
+                } catch (\Throwable $e) {
+                    Log::error('Failed to upload additional institution file', [
+                        'institution_id' => $institution->id,
+                        'file_name' => $file->getClientOriginalName(),
+                        'exception' => $e->getMessage(),
+                    ]);
+                    // Optionally: throw $e;
+                }
             }
         }
     }
