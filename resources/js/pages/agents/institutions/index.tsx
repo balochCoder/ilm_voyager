@@ -56,6 +56,14 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [initialFilters, setInitialFilters] = useState({
+        country: 'all',
+        type: 'all',
+        name: '',
+        email: '',
+        keyword: '',
+        dateRange: undefined as DateRange | undefined,
+    });
 
     useEffect(() => {
         if (flash?.success) {
@@ -66,29 +74,63 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
     // Initialize filters from URL params
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const countryId = urlParams.get('country_id');
-        const type = urlParams.get('type');
+        const countryId = urlParams.get('country_id') || 'all';
+        const type = urlParams.get('type') || 'all';
         const name = urlParams.get('institution_name') || '';
         const email = urlParams.get('contact_person_email') || '';
         const kw = urlParams.get('keyword') || '';
         const start = urlParams.get('contract_expiry_start');
         const end = urlParams.get('contract_expiry_end');
-        if (countryId) {
+
+        if (countryId && countryId !== 'all') {
             setSelectedCountry(countryId);
         }
-        if (type) {
+        if (type && type !== 'all') {
             setSelectedType(type);
         }
         if (start || end) {
-            setDateRange({
+            const dateRangeValue = {
                 from: start ? new Date(start) : undefined,
                 to: end ? new Date(end) : undefined,
-            });
+            };
+            setDateRange(dateRangeValue);
         }
         setInstitutionName(name);
         setContactEmail(email);
         setKeyword(kw);
+
+        setInitialFilters({
+            country: countryId,
+            type: type,
+            name,
+            email,
+            keyword: kw,
+            dateRange: start || end ? {
+                from: start ? new Date(start) : undefined,
+                to: end ? new Date(end) : undefined,
+            } : undefined,
+        });
     }, []);
+
+    // Check if filters have been modified from initial state
+    const hasFilterChanges = () => {
+        return selectedCountry !== initialFilters.country ||
+               selectedType !== initialFilters.type ||
+               institutionName !== initialFilters.name ||
+               contactEmail !== initialFilters.email ||
+               keyword !== initialFilters.keyword ||
+               JSON.stringify(dateRange) !== JSON.stringify(initialFilters.dateRange);
+    };
+
+    // Check if any filters are currently applied
+    const hasActiveFilters = () => {
+        return selectedCountry !== 'all' ||
+               selectedType !== 'all' ||
+               institutionName !== '' ||
+               contactEmail !== '' ||
+               keyword !== '' ||
+               dateRange !== undefined;
+    };
 
     const handlePageChange = (page: number) => {
         // Preserve all current query params and just update the page param
@@ -351,11 +393,23 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                         </div>
                         {/* Search/Reset Buttons */}
                         <div className="flex flex-1 flex-row gap-2 flex-nowrap items-end min-w-[180px]">
-                            <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading} className="flex-1">
+                            <Button
+                                type="button"
+                                variant="default"
+                                onClick={handleSearch}
+                                disabled={isLoading || !hasFilterChanges()}
+                                className="flex-1"
+                            >
                                 <Search className="w-4 h-4" />
                                 Search
                             </Button>
-                            <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading} className="min-w-[100px]">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleReset}
+                                disabled={isLoading || !hasActiveFilters()}
+                                className="min-w-[100px]"
+                            >
                                 <RotateCcw className="w-4 h-4" />
                                 Reset
                             </Button>

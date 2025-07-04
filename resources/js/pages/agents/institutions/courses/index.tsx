@@ -50,11 +50,56 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
     const [courseName, setCourseName] = useState('');
     const [campus, setCampus] = useState('');
     const [keyword, setKeyword] = useState('');
+    const [initialFilters, setInitialFilters] = useState({
+        courseLevel: 'all',
+        courseName: '',
+        campus: '',
+        keyword: '',
+    });
 
     // Set loading state on page change
     useEffect(() => {
         setIsLoading(false);
     }, [courses.meta.current_page]);
+
+    // Initialize filters from URL params
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseLevel = urlParams.get('course_level_id') || 'all';
+        const name = urlParams.get('course_name') || '';
+        const campusValue = urlParams.get('campus') || '';
+        const keywordValue = urlParams.get('keyword') || '';
+
+        if (courseLevel && courseLevel !== 'all') {
+            setSelectedCourseLevel(courseLevel);
+        }
+        setCourseName(name);
+        setCampus(campusValue);
+        setKeyword(keywordValue);
+
+        setInitialFilters({
+            courseLevel,
+            courseName: name,
+            campus: campusValue,
+            keyword: keywordValue,
+        });
+    }, []);
+
+    // Check if filters have been modified from initial state
+    const hasFilterChanges = () => {
+        return selectedCourseLevel !== initialFilters.courseLevel ||
+               courseName !== initialFilters.courseName ||
+               campus !== initialFilters.campus ||
+               keyword !== initialFilters.keyword;
+    };
+
+    // Check if any filters are currently applied
+    const hasActiveFilters = () => {
+        return selectedCourseLevel !== 'all' ||
+               courseName !== '' ||
+               campus !== '' ||
+               keyword !== '';
+    };
 
     // Pagination handler
     const handlePageChange = (page: number) => {
@@ -154,11 +199,23 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
                         <Input id="keyword" type="text" value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Any keyword" className="w-full" />
                     </div>
                     <div className="flex flex-1 flex-row gap-2 flex-nowrap items-end">
-                        <Button type="button" variant="default" onClick={handleSearch} disabled={isLoading} className="flex-1">
+                        <Button
+                            type="button"
+                            variant="default"
+                            onClick={handleSearch}
+                            disabled={isLoading || !hasFilterChanges()}
+                            className="flex-1"
+                        >
                             <Search className="w-4 h-4" />
                             Search
                         </Button>
-                        <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading} className="min-w-[100px]">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleReset}
+                            disabled={isLoading || !hasActiveFilters()}
+                            className="min-w-[100px]"
+                        >
                             <RotateCcw className="w-4 h-4" />
                             Reset
                         </Button>

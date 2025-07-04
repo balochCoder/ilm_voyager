@@ -5,11 +5,17 @@ import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { BranchResource, BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, Edit, Building2, Check, Clock } from 'lucide-react';
+import { Plus, Edit, Building2, Check, Clock, Search, RotateCcw, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 import {
   Pagination,
   PaginationContent,
@@ -24,6 +30,7 @@ interface Props {
   branches: BranchResource;
   branchesTotal: number;
   branchesActive: number;
+  countries?: { id: string; name: string; flag?: string }[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -31,18 +38,121 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Branches', href: '/agents/branches' },
 ];
 
-export default function BranchesIndex({ branches, branchesTotal, branchesActive }: Props) {
+export default function BranchesIndex({ branches, branchesTotal, branchesActive, countries = [] }: Props) {
     const {flash} = usePage<SharedData>().props;
+    const [selectedStatus, setSelectedStatus] = useState<string>('all');
+    const [selectedCountry, setSelectedCountry] = useState<string>('all');
+    const [isLoading, setIsLoading] = useState(false);
+    const [statusOpen, setStatusOpen] = useState(false);
+    const [countryOpen, setCountryOpen] = useState(false);
+    const [keyword, setKeyword] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [initialFilters, setInitialFilters] = useState({
+        status: 'all',
+        country: 'all',
+        keyword: '',
+        email: '',
+    });
+
 useEffect(() => {
     if (flash?.success) {
         toast.success(flash.success);
     }
 }, [flash]);
 
+useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status') || 'all';
+    const countryId = urlParams.get('country_id') || 'all';
+    const kw = urlParams.get('keyword') || '';
+    const email = urlParams.get('contact_person_email') || '';
+
+    setSelectedStatus(status);
+    setSelectedCountry(countryId);
+    setKeyword(kw);
+    setContactEmail(email);
+    setInitialFilters({
+        status,
+        country: countryId,
+        keyword: kw,
+        email,
+    });
+}, []);
+
 const handlePageChange = (page: number) => {
     const url = new URL(window.location.href);
     url.searchParams.set('page', String(page));
     router.visit(url.toString(), { preserveState: true, preserveScroll: true });
+};
+
+const handleStatusFilter = (status: string) => {
+    setSelectedStatus(status);
+    setStatusOpen(false);
+};
+
+const handleCountryFilter = (countryId: string) => {
+    setSelectedCountry(countryId);
+    setCountryOpen(false);
+};
+
+const handleSearch = () => {
+    const url = new URL(window.location.href);
+    if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('status', selectedStatus);
+    else url.searchParams.delete('status');
+    if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('country_id', selectedCountry);
+    else url.searchParams.delete('country_id');
+    if (keyword) url.searchParams.set('keyword', keyword);
+    else url.searchParams.delete('keyword');
+    if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
+    else url.searchParams.delete('contact_person_email');
+    url.searchParams.delete('page');
+    setIsLoading(true);
+    router.visit(url.toString(), {
+        onFinish: () => setIsLoading(false),
+        onError: () => setIsLoading(false),
+    });
+};
+
+const handleReset = () => {
+    setKeyword('');
+    setContactEmail('');
+    setSelectedStatus('all');
+    setSelectedCountry('all');
+    setIsLoading(true);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('keyword');
+    url.searchParams.delete('contact_person_email');
+    url.searchParams.delete('status');
+    url.searchParams.delete('country_id');
+    router.visit(url.toString(), {
+        onFinish: () => setIsLoading(false),
+        onError: () => setIsLoading(false),
+    });
+};
+
+const getSelectedStatusName = () => {
+    if (selectedStatus === 'all') return 'All Status';
+    return selectedStatus === 'active' ? 'Active' : 'Inactive';
+};
+
+const getSelectedCountryName = () => {
+    if (selectedCountry === 'all') return 'All Countries';
+    const country = countries.find((c) => c.id === selectedCountry);
+    return country ? country.name : 'All Countries';
+};
+
+const hasFilterChanges = () => {
+    return selectedStatus !== initialFilters.status ||
+           selectedCountry !== initialFilters.country ||
+           keyword !== initialFilters.keyword ||
+           contactEmail !== initialFilters.email;
+};
+
+const hasActiveFilters = () => {
+    return selectedStatus !== 'all' ||
+           selectedCountry !== 'all' ||
+           keyword !== '' ||
+           contactEmail !== '';
 };
 
   return (
@@ -61,6 +171,172 @@ const handlePageChange = (page: number) => {
             </Button>
           </Link>
         </div>
+
+        {/* Filters Row */}
+        <div className="flex flex-row flex-wrap gap-4 w-full mb-2">
+            {/* Status Filter */}
+            <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                <Label htmlFor="status-filter" className="text-sm font-medium">
+                    Filter by Status
+                </Label>
+                <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={statusOpen}
+                            className="w-full justify-between"
+                            disabled={isLoading}
+                        >
+                            <span className="truncate">{getSelectedStatusName()}</span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0 md:w-[160px]">
+                        <Command>
+                            <CommandList>
+                                <CommandGroup>
+                                    <CommandItem value="all" onSelect={() => handleStatusFilter('all')}>
+                                        <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                        All Status
+                                    </CommandItem>
+                                    <CommandItem value="active" onSelect={() => handleStatusFilter('active')}>
+                                        <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'active' ? 'opacity-100' : 'opacity-0')} />
+                                        Active
+                                    </CommandItem>
+                                    <CommandItem value="inactive" onSelect={() => handleStatusFilter('inactive')}>
+                                        <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'inactive' ? 'opacity-100' : 'opacity-0')} />
+                                        Inactive
+                                    </CommandItem>
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            {/* Country Filter */}
+            <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                <Label htmlFor="country-filter" className="text-sm font-medium">
+                    Filter by Country
+                </Label>
+                <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={countryOpen}
+                            className="w-full justify-between"
+                            disabled={isLoading}
+                        >
+                            <div className="flex min-w-0 items-center space-x-2">
+                                {selectedCountry !== 'all' && (
+                                    <img
+                                        src={countries.find((c) => c.id === selectedCountry)?.flag}
+                                        alt=""
+                                        className="h-3 w-4 flex-shrink-0 rounded"
+                                    />
+                                )}
+                                <span className="truncate">{getSelectedCountryName()}</span>
+                            </div>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0 md:w-[220px]">
+                        <Command>
+                            <CommandInput placeholder="Search countries..." />
+                            <CommandList>
+                                <CommandEmpty>No country found.</CommandEmpty>
+                                <CommandGroup>
+                                    <CommandItem value="all" onSelect={() => handleCountryFilter('all')}>
+                                        <Check className={cn('mr-2 h-4 w-4', selectedCountry === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                        All Countries
+                                    </CommandItem>
+                                    {countries.map((country) => (
+                                        <CommandItem
+                                            key={country.id}
+                                            value={country.name}
+                                            onSelect={() => handleCountryFilter(country.id)}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    'mr-2 h-4 w-4',
+                                                    selectedCountry === country.id ? 'opacity-100' : 'opacity-0',
+                                                )}
+                                            />
+                                            <div className="flex min-w-0 items-center space-x-2">
+                                                {country.flag && (
+                                                    <img
+                                                        src={country.flag}
+                                                        alt={country.name}
+                                                        className="h-3 w-4 flex-shrink-0 rounded"
+                                                    />
+                                                )}
+                                                <span className="truncate">{country.name}</span>
+                                            </div>
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            {/* Keyword Filter */}
+            <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                <Label htmlFor="keyword" className="text-sm font-medium">
+                    Keyword
+                </Label>
+                <Input
+                    id="keyword"
+                    type="text"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    placeholder="Search branches..."
+                />
+            </div>
+
+            {/* Contact Email Filter */}
+            <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                <Label htmlFor="contact_person_email" className="text-sm font-medium">
+                    Contact Email
+                </Label>
+                <Input
+                    id="contact_person_email"
+                    type="text"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="Search by email"
+                />
+            </div>
+
+            {/* Search/Reset Buttons */}
+            <div className="flex flex-1 flex-row gap-2 flex-nowrap items-end min-w-[180px]">
+                <Button
+                    type="button"
+                    variant="default"
+                    onClick={handleSearch}
+                    disabled={isLoading || !hasFilterChanges()}
+                    className="flex-1"
+                >
+                    <Search className="w-4 h-4" />
+                    Search
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReset}
+                    disabled={isLoading || !hasActiveFilters()}
+                    className="min-w-[100px]"
+                >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset
+                </Button>
+            </div>
+        </div>
+
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
 
         {/* Stats Cards */}
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
