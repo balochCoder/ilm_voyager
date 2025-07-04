@@ -18,6 +18,7 @@ use App\Actions\Branch\StoreBranchAction;
 use App\Http\Resources\BranchResource;
 use App\Http\Requests\Branch\UpdateBranchRequest;
 use App\Actions\Branch\UpdateBranchAction;
+use App\Actions\Branch\IndexBranchAction;
 
 class BranchController extends Controller
 {
@@ -42,50 +43,11 @@ class BranchController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request, IndexBranchAction $action)
     {
-        $query = Branch::with(['country', 'user']);
+        $data = $action->execute($request);
 
-        // Apply filters
-        if (request('keyword')) {
-            $keyword = request('keyword');
-            $query->where(function($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('address', 'like', "%{$keyword}%")
-                  ->orWhere('city', 'like', "%{$keyword}%")
-                  ->orWhere('state', 'like', "%{$keyword}%")
-                  ->orWhereHas('user', function($userQuery) use ($keyword) {
-                      $userQuery->where('name', 'like', "%{$keyword}%");
-                  });
-            });
-        }
-
-        if (request('status')) {
-            $isActive = request('status') === 'active';
-            $query->where('is_active', $isActive);
-        }
-
-        if (request('country_id')) {
-            $query->where('country_id', request('country_id'));
-        }
-
-        if (request('contact_person_email')) {
-            $email = request('contact_person_email');
-            $query->whereHas('user', function($userQuery) use ($email) {
-                $userQuery->where('email', 'like', "%{$email}%");
-            });
-        }
-
-        $branches = $query->paginate(10)->withQueryString();
-        $branchesActive = Branch::where('is_active', true)->count();
-        $countries = Country::query()->orderBy('name')->get(['id', 'name', 'flag']);
-
-        return $this->factory->render('agents/branches/index', [
-            'branches' => BranchResource::collection($branches),
-            'branchesTotal' => $branches->total(),
-            'branchesActive' => $branchesActive,
-            'countries' => $countries,
-        ]);
+        return $this->factory->render('agents/branches/index', $data);
     }
 
     public function toggleStatus(Request $request, Branch $branch)
