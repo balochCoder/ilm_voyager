@@ -23,16 +23,21 @@ class CourseController extends Controller
         return $this->factory->render('agents/institutions/courses/index', $result);
     }
 
+    private function getCourseFormData()
+    {
+        return [
+            'categories' => CourseCategory::all(['id', 'name']),
+            'courseLevels' => CourseLevel::all(['id', 'name']),
+            'currencies' => Currency::all(),
+        ];
+    }
+
     public function create(Institution $institution)
     {
-        $categories = CourseCategory::all(['id', 'name']);
-        $courseLevels = CourseLevel::all(['id', 'name']);
-        $currencies = Currency::all();
+        $formData = $this->getCourseFormData();
         return $this->factory->render('agents/institutions/courses/create', [
             'institution' => $institution,
-            'categories' => $categories,
-            'courseLevels' => $courseLevels,
-            'currencies' => $currencies,
+            ...$formData,
         ]);
     }
 
@@ -45,15 +50,11 @@ class CourseController extends Controller
 
     public function edit(Institution $institution, \App\Models\Course $course)
     {
-        $categories = CourseCategory::all(['id', 'name']);
-        $courseLevels = CourseLevel::all(['id', 'name']);
-        $currencies = Currency::all();
+        $formData = $this->getCourseFormData();
         return $this->factory->render('agents/institutions/courses/edit', [
             'institution' => $institution,
             'course' => new CourseResource($course),
-            'categories' => $categories,
-            'courseLevels' => $courseLevels,
-            'currencies' => $currencies,
+            ...$formData,
         ]);
     }
 

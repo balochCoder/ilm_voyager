@@ -9,6 +9,8 @@ use App\Models\Course;
 
 class StoreCourseAction
 {
+    private const MAX_DOCUMENTS = 5;
+
     public function execute(StoreCourseRequest $request, ?Course $course = null): Course
     {
         $data = $request->validated();
@@ -21,19 +23,24 @@ class StoreCourseAction
         $course->institution_id = $request->route('institution')->id ?? $data['institution_id'];
         $course->save();
 
-        // Handle up to 5 document uploads using Spatie MediaLibrary
+        $this->handleDocuments($request, $course, $isUpdate);
+
+        return $course;
+    }
+
+    private function handleDocuments($request, Course $course, bool $isUpdate): void
+    {
         if ($request->hasFile('documents') && is_array($request->file('documents'))) {
             if ($isUpdate) {
                 $course->clearMediaCollection('documents');
             }
             $documents = $request->file('documents');
             $titles = $request->input('document_titles', []);
-            foreach (array_slice($documents, 0, 5) as $idx => $file) {
+            foreach (array_slice($documents, 0, self::MAX_DOCUMENTS) as $idx => $file) {
                 $course->addMedia($file)
                     ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
                     ->toMediaCollection('documents');
             }
         }
-        return $course;
     }
 }

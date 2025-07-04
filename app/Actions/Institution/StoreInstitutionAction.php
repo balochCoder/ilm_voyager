@@ -24,18 +24,7 @@ class StoreInstitutionAction
         $this->handleSingleFile($request, $institution, 'logo');
         $this->handleSingleFile($request, $institution, 'contract_copy');
         $this->handleSingleFile($request, $institution, 'prospectus');
-        if ($request->hasFile('additional_files') && is_array($request->file('additional_files'))) {
-            $additionalFiles = $request->file('additional_files');
-            $titles = $request->input('additional_file_titles', []);
-            if ($isUpdate) {
-                $institution->clearMediaCollection('additional_files');
-            }
-            foreach ($additionalFiles as $idx => $file) {
-                $institution->addMedia($file)
-                    ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
-                    ->toMediaCollection('additional_files');
-            }
-        }
+        $this->handleAdditionalFiles($request, $institution, $isUpdate);
         return $institution;
     }
 
@@ -46,6 +35,22 @@ class StoreInstitutionAction
                 $institution->addMediaFromRequest($field)->toMediaCollection($field);
             } catch (\Exception $e) {
                 Log::error("Failed to upload {$field}: " . $e->getMessage());
+            }
+        }
+    }
+
+    private function handleAdditionalFiles($request, Institution $institution, bool $isUpdate): void
+    {
+        if ($request->hasFile('additional_files') && is_array($request->file('additional_files'))) {
+            $additionalFiles = $request->file('additional_files');
+            $titles = $request->input('additional_file_titles', []);
+            if ($isUpdate) {
+                $institution->clearMediaCollection('additional_files');
+            }
+            foreach ($additionalFiles as $idx => $file) {
+                $institution->addMedia($file)
+                    ->withCustomProperties(['title' => $titles[$idx] ?? $file->getClientOriginalName()])
+                    ->toMediaCollection('additional_files');
             }
         }
     }

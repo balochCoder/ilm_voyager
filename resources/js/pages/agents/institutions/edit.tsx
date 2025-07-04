@@ -177,7 +177,7 @@ export default function EditInstitution({ institution, repCountries, currencies 
                     <div className="flex-1 min-w-0">
                         <Heading title="Edit Institution" description='Update institution details and documentation' />
                     </div>
-                    <Link href={route('agents:institutions:show', { institution: institution.id })} className="w-full sm:w-auto">
+                    <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
                         <Button variant="default" className="cursor-pointer w-full">
                             <ArrowLeft className="w-4 h-4" />
                             Back to Institution
