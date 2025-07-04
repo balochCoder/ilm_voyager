@@ -27,7 +27,7 @@ export default function SubStatusesSheet({
 }: SubStatusesSheetProps) {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:w-[400px] lg:w-[540px]">
+            <SheetContent className="fixed top-0 right-0 h-screen w-full sm:w-[540px] lg:w-[700px] bg-white z-50 shadow-lg transition-transform overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle className="text-lg sm:text-xl">{sheetTitle}</SheetTitle>
                     <SheetDescription className="text-sm">
