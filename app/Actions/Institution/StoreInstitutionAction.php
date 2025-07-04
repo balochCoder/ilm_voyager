@@ -6,12 +6,11 @@ namespace App\Actions\Institution;
 
 use App\Http\Requests\Institution\StoreInstitutionRequest;
 use App\Models\Institution;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
 class StoreInstitutionAction
 {
-    public function execute($request, $institution = null): Institution
+    public function execute(StoreInstitutionRequest $request, ?Institution $institution = null): Institution
     {
         $data = $request->validated();
         $isUpdate = $institution !== null;
@@ -50,4 +49,4 @@ class StoreInstitutionAction
             }
         }
     }
-} 
+}

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\Institution;
+namespace App\Actions\Course;
 
+use App\Http\Requests\Course\StoreCourseRequest;
 use App\Models\Course;
-use Illuminate\Http\Request;
 
 class StoreCourseAction
 {
-    public function execute(Request $request, Course $course = null): Course
+    public function execute(StoreCourseRequest $request, ?Course $course = null): Course
     {
         $data = $request->validated();
         $isUpdate = $course !== null;
@@ -36,4 +36,4 @@ class StoreCourseAction
         }
         return $course;
     }
-} 
+}

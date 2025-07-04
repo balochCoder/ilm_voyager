@@ -164,10 +164,10 @@ export default function CreateCourse({ institution, currencies, categories, cour
           <div className="flex-1 min-w-0">
             <Heading title="Add Course" description={`Create a new course for ${institution.institution_name}`} />
           </div>
-          <Link href={route('agents:institutions:index')} className="w-full sm:w-auto">
+          <Link href={route('agents:institutions:courses:index', institution.id)} className="w-full sm:w-auto">
             <Button variant="default" className="cursor-pointer w-full">
               <ArrowLeft className="w-4 h-4" />
-              Back to Institution
+              Back to Courses
             </Button>
           </Link>
         </div>
