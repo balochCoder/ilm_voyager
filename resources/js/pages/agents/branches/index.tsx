@@ -37,7 +37,7 @@ useEffect(() => {
     if (flash?.success) {
         toast.success(flash.success);
     }
-}, [flash?.success]);
+}, [flash]);
 
 const handlePageChange = (page: number) => {
     const url = new URL(window.location.href);

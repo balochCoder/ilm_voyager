@@ -56,6 +56,11 @@ class BranchController extends Controller
     {
         $branch->is_active = !$branch->is_active;
         $branch->save();
+        // Update all users of this branch
+        if ($branch->user) {
+            $branch->user->is_active = $branch->is_active;
+            $branch->user->save();
+        }
         return back()->with('success', 'Branch status updated successfully.');
     }
 }
