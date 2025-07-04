@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Link, useForm, Head } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const downloadCsvOptions = [
   { value: 'allowed', label: 'Allowed' },
@@ -21,14 +21,15 @@ const breadcrumbs = [
   { title: 'Add Branch', href: '/agents/branches/create' },
 ];
 
-export default function CreateBranch() {
+export default function CreateBranch(props: { timeZones?: { id: string; label: string }[] }) {
+  const [timeZones, setTimeZones] = useState<{ id: string; label: string }[]>([]);
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     address: '',
     city: '',
     state: '',
     country: '',
-    timezone: '',
+    time_zone_id: '',
     phone: '',
     website: '',
     email: '',
@@ -44,8 +45,18 @@ export default function CreateBranch() {
     download_csv: 'not_allowed',
   });
 
+  useEffect(() => {
+    if (props.timeZones) {
+      setTimeZones(props.timeZones);
+    } else {
+      fetch('/api/time-zones')
+        .then(res => res.json())
+        .then(zones => setTimeZones(zones));
+    }
+  }, [props.timeZones]);
+
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData(e.target.name, e.target.value);
+        setData(e.target.name as keyof typeof data, e.target.value);
   };
 
   const handleSelect = (name: keyof typeof data, value: string) => {
@@ -105,9 +116,18 @@ export default function CreateBranch() {
                 {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="timezone">Time zone</Label>
-                <Input name="timezone" value={data.timezone} onChange={handleInput} />
-                {errors.timezone && <p className="text-sm text-red-600">{errors.timezone}</p>}
+                <Label htmlFor="time_zone_id">Time Zone <span className="text-red-600">*</span></Label>
+                <Select value={data.time_zone_id} onValueChange={v => setData('time_zone_id' as keyof typeof data, v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Time Zone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeZones.map((tz) => (
+                      <SelectItem key={tz.id} value={tz.id}>{tz.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.time_zone_id && <p className="text-sm text-red-600">{errors.time_zone_id}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>

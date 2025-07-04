@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\User;
+use App\Models\TimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,10 @@ class BranchController extends Controller
 
     public function create()
     {
-        return $this->factory->render('agents/branches/create');
+        $timeZones = TimeZone::query()->orderBy('label')->get(['id', 'label']);
+        return $this->factory->render('agents/branches/create', [
+            'timeZones' => $timeZones,
+        ]);
     }
     public function store(Request $request)
     {
@@ -29,7 +33,7 @@ class BranchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'country' => 'required|string|max:255',
-            'timezone' => 'nullable|string|max:255',
+            'time_zone_id' => 'required|ulid|exists:time_zones,id',
             'phone' => 'nullable|string|max:255',
             'website' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
@@ -67,7 +71,7 @@ class BranchController extends Controller
                 'city' => $validated['city'] ?? null,
                 'state' => $validated['state'] ?? null,
                 'country' => $validated['country'],
-                'timezone' => $validated['timezone'] ?? null,
+                'time_zone_id' => $validated['time_zone_id'],
                 'phone' => $validated['phone'] ?? null,
                 'website' => $validated['website'] ?? null,
                 'email' => $validated['email'] ?? null,
