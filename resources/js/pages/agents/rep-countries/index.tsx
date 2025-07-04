@@ -32,12 +32,12 @@ import AddStatusDialog from '@/components/rep-countries/add-status-dialog';
 import EditStatusDialog from '@/components/rep-countries/edit-status-dialog';
 import AddSubStatusDialog from '@/components/rep-countries/add-sub-status-dialog';
 import EditSubStatusDialog from '@/components/rep-countries/edit-sub-status-dialog';
-import SubStatusesSheet from '@/components/rep-countries/SubStatusesSheet';
+import SubStatusesSheet from '@/components/rep-countries/sub-statuses-sheet';
 import { useAddStatusDialog } from '@/hooks/use-add-status-dialog';
 import { useEditStatusDialog } from '@/hooks/use-edit-status-dialog';
 import { useSubStatusActions } from '@/hooks/use-sub-status-actions';
 import { useSwitchState } from '@/hooks/use-switch-state';
-import RepCountryCard from '@/components/rep-countries/RepCountryCard';
+import RepCountryCard from '@/components/rep-countries/rep-country-card';
 
 interface Props {
     repCountries: RepCountryResource;
