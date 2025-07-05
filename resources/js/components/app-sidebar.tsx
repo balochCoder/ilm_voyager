@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupLabel, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, ChevronRight,  Globe2, GlobeIcon, BuildingIcon } from 'lucide-react';
+import { LayoutGrid, ChevronRight, Globe2, BuildingIcon, Users, BookOpen, Settings, MapPin, Globe } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { usePermission } from '@/hooks/use-permission';
@@ -17,34 +17,73 @@ const mainNavItems: NavItem[] = [
         isActive: false,
         roles: ['super-admin'],
     },
-     {
-        title: "Countries",
+    {
+        title: "Countries in the World",
         href: "/agents/countries",
         icon: Globe2,
         isActive: false,
         roles: ['super-admin'],
+
     },
-     {
+    {
         title: "Representing Countries",
         href: "/agents/representing-countries",
-        icon: GlobeIcon,
+        icon: Globe,
         isActive: false,
         roles: ['super-admin'],
+        items: [
+            {
+                title: "All Countries",
+                href: "/agents/representing-countries",
+                roles: ['super-admin'],
+            },
+            {
+                title: "Add Country",
+                href: "/agents/representing-countries/create",
+                roles: ['super-admin'],
+            },
+        ],
     },
     {
-        title: 'Representing Institutions',
-        href: '/agents/representing-institutions',
+        title: "Institution Management",
+        href: "/agents/representing-institutions",
         icon: BuildingIcon,
         isActive: false,
         roles: ['super-admin'],
+        items: [
+            {
+                title: "All Institutions",
+                href: "/agents/representing-institutions",
+                roles: ['super-admin'],
+            },
+            {
+                title: "Add Institution",
+                href: "/agents/representing-institutions/create",
+                roles: ['super-admin'],
+            },
+        ],
     },
     {
-        title: 'Branches',
-        href: '/agents/branches',
-        icon: BuildingIcon,
+        title: "Branch Management",
+        href: "/agents/branches",
+        icon: MapPin,
         isActive: false,
         roles: ['super-admin'],
+        items: [
+            {
+                title: "All Branches",
+                href: "/agents/branches",
+                roles: ['super-admin'],
+            },
+            {
+                title: "Add Branch",
+                href: "/agents/branches/create",
+                roles: ['super-admin'],
+            },
+        ],
     },
+
+
     {
         title: "Dashboard",
         href: "/counsellors/dashboard",
