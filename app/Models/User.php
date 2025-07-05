@@ -104,4 +104,9 @@ final class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Branch::class);
     }
+
+    public function counsellor()
+    {
+        return $this->hasOne(Counsellor::class);
+    }
 }

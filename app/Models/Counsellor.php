@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Branch extends Model
+class Counsellor extends Model
 {
     use HasUlids;
     use SoftDeletes;
@@ -17,17 +17,20 @@ class Branch extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'name',
-        'address',
-        'city',
-        'state',
-        'country_id',
-        'time_zone_id',
-        'phone',
-        'website',
-        'email',
         'user_id',
+        'branch_id',
+        'as_processing_officer',
         'is_active',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'as_processing_officer' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function user()
@@ -35,13 +38,8 @@ class Branch extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function country()
+    public function branch()
     {
-        return $this->belongsTo(\App\Models\Country::class, 'country_id');
-    }
-
-    public function counsellors()
-    {
-        return $this->hasMany(Counsellor::class);
+        return $this->belongsTo(Branch::class);
     }
 }

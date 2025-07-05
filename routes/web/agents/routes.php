@@ -39,4 +39,8 @@ Route::as('agents:')->middleware(['role:'.TenantRolesEnum::SUPERADMIN->value])->
         [],
         base_path('routes/web/agents/branches.php')
     );
+    Route::group(
+        [],
+        base_path('routes/web/agents/counsellors.php')
+    );
 });

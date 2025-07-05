@@ -64,6 +64,17 @@ final class LoginRequest extends FormRequest
             }
         }
 
+        if ($user && $user->hasRole(\App\Enums\TenantRolesEnum::COUNSELLOR->value)) {
+            $counsellor = $user->counsellor;
+            if ($counsellor && ! $counsellor->is_active) {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'email' => __('Your counsellor is inactive. Please contact the administrator.'),
+                ]);
+            }
+        }
+
+
         // User login restriction
         if ($user && ! $user->is_active) {
             Auth::logout();

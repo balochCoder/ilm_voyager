@@ -283,3 +283,37 @@ export interface BranchResource {
         total: number;
     };
 }
+
+export interface Counsellor {
+    id: string;
+    user_id: string;
+    branch_id: string;
+    as_processing_officer: boolean;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    user: {
+        id: string;
+        name: string;
+        email: string;
+        phone?: string;
+        mobile?: string;
+        whatsapp?: string;
+        download_csv?: boolean;
+        is_active: boolean;
+    };
+    branch: {
+        id: string;
+        name: string;
+    };
+}
+
+export interface CounsellorResource {
+    data: Counsellor[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}
