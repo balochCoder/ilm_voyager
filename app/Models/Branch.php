@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Branch extends Model
 {
-    use SoftDeletes;
     use HasUlids;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

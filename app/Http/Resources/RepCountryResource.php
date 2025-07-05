@@ -25,7 +25,7 @@ final class RepCountryResource extends JsonResource
             'is_active' => $this->is_active,
             'country' => CountryResource::make($this->whenLoaded('country')),
             'statuses' => RepCountryStatusResource::collection($this->whenLoaded('repCountryStatuses')),
-           
+
             'created' => DateResource::make($this->created_at),
             'updated' => DateResource::make($this->updated_at),
         ];

@@ -41,4 +41,4 @@ final class ToggleRepCountryStatusRequest extends FormRequest
             'is_active.boolean' => 'The active status must be true or false.',
         ];
     }
-} 
+}

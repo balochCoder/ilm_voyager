@@ -16,7 +16,6 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property string $guard_name
  * @property CarbonInterface|null $created_at
  * @property CarbonInterface|null $updated_at
- *
  */
 final class Permission extends SpatiePermission
 {

@@ -21,6 +21,7 @@ use App\Models\RepCountryStatus;
 final class StatusController extends Controller
 {
     use InertiaRoute;
+
     public function reorderStatuses(RepCountry $repCountry)
     {
         $repCountry->load(['country', 'repCountryStatuses' => function ($query) {

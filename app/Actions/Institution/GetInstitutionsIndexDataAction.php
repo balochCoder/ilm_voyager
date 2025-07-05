@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Actions\Institution;
 
 use App\Http\Resources\InstitutionResource;
+use App\Models\Currency;
 use App\Models\Institution;
 use App\Models\RepCountry;
-use App\Models\Currency;
 use Illuminate\Http\Request;
 
 final class GetInstitutionsIndexDataAction
@@ -25,18 +25,17 @@ final class GetInstitutionsIndexDataAction
             $query->where('institute_type', $request->type);
         }
         if ($request->filled('institution_name')) {
-            $query->where('institution_name', 'like', '%' . $request->institution_name . '%');
+            $query->where('institution_name', 'like', '%'.$request->institution_name.'%');
         }
         if ($request->filled('contact_person_email')) {
-            $query->where('contact_person_email', 'like', '%' . $request->contact_person_email . '%');
+            $query->where('contact_person_email', 'like', '%'.$request->contact_person_email.'%');
         }
         if ($request->filled('keyword')) {
             $q = $request->keyword;
             $query->where(function ($sub) use ($q) {
                 $sub->where('institution_name', 'like', "%$q%")
                     ->orWhere('contact_person_email', 'like', "%$q%")
-                    ->orWhere('contact_person_name', 'like', "%$q%")
-                ;
+                    ->orWhere('contact_person_name', 'like', "%$q%");
             });
         }
         if ($request->filled('contract_expiry_start')) {

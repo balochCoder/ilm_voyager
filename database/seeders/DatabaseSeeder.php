@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Enums\CentralRolesEnum;
 use App\Enums\TenantRolesEnum;
-use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -23,8 +22,6 @@ final class DatabaseSeeder extends Seeder
             'name' => 'Raheel Ahmed',
             'email' => 'admin@ilmvoyager.com',
         ]);
-
-
 
         $user->assignRole(CentralRolesEnum::OWNER->value);
         $tenant1 = Tenant::create([

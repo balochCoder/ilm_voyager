@@ -22,7 +22,7 @@ final class StoreRepCountryAction
 
         $newStatus = Status::where('name', 'New')->first();
         $allStatusIds = $newStatus ? array_unique(array_merge([$newStatus->id], $statusIds)) : $statusIds;
-        
+
         if (! empty($allStatusIds)) {
             // Check for duplicate status names before creating
             $statusNames = [];

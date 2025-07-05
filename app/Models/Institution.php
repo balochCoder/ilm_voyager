@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Institution extends Model implements HasMedia
 {
-    use SoftDeletes, HasUlids, InteractsWithMedia;
+    use HasUlids, InteractsWithMedia, SoftDeletes;
 
     protected $appends = ['logo_url'];
 
@@ -49,7 +48,7 @@ class Institution extends Model implements HasMedia
                 'image/jpg',
                 'image/png',
                 'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             ]);
     }
 
@@ -75,7 +74,10 @@ class Institution extends Model implements HasMedia
     public function getContractCopyFile()
     {
         $media = $this->getFirstMedia('contract_copy');
-        if (!$media) return null;
+        if (! $media) {
+            return null;
+        }
+
         return [
             'id' => $media->id,
             'name' => $media->name,
@@ -88,7 +90,10 @@ class Institution extends Model implements HasMedia
     public function getProspectusFile()
     {
         $media = $this->getFirstMedia('prospectus');
-        if (!$media) return null;
+        if (! $media) {
+            return null;
+        }
+
         return [
             'id' => $media->id,
             'name' => $media->name,

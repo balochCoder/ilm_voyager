@@ -16,8 +16,8 @@ class StoreCourseAction
     {
         $data = $request->validated();
         $isUpdate = $course !== null;
-        if (!$isUpdate) {
-            $course = new Course();
+        if (! $isUpdate) {
+            $course = new Course;
         }
         unset($data['documents'], $data['document_titles']);
         $course->fill($data);

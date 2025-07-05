@@ -15,7 +15,7 @@ final class EditSubStatusAction
     {
         try {
             $validated = $request->validated();
-            
+
             $subStatus->update([
                 'name' => $validated['name'],
             ]);
@@ -30,4 +30,4 @@ final class EditSubStatusAction
             throw $e;
         }
     }
-} 
+}

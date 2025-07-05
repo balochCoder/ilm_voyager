@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Country;
-use App\Models\RepCountry;
-use App\Models\RepCountryStatus;
-use App\Models\SubStatus;
-use App\Models\Institution;
 use App\Models\Course;
-use App\Models\CourseLevel;
 use App\Models\CourseCategory;
+use App\Models\CourseLevel;
 use App\Models\Currency;
+use App\Models\Institution;
+use App\Models\RepCountry;
 use App\Models\Status;
 use Illuminate\Database\Seeder;
 
@@ -134,7 +132,7 @@ final class RepCountrySeeder extends Seeder
                         'institute_type' => $i % 2 === 0 ? 'direct' : 'indirect',
                         'quality_of_desired_application' => ['excellent', 'good', 'average', 'below_average'][array_rand(['excellent', 'good', 'average', 'below_average'])],
                         'contract_expiry_date' => now()->addYears(rand(1, 3)),
-                        'is_language_mandatory' => (bool)rand(0, 1),
+                        'is_language_mandatory' => (bool) rand(0, 1),
                         'language_requirements' => 'IELTS 6.0 or equivalent',
                         'institutional_benefits' => 'Scholarships available for top students.',
                         'part_time_work_details' => '20 hours per week allowed.',
@@ -144,7 +142,7 @@ final class RepCountrySeeder extends Seeder
                         'contact_person_email' => 'john'.$i.'@example.com',
                         'contact_person_mobile' => '1234567890',
                         'contact_person_designation' => 'Director',
-                        'is_active' => (bool)rand(0, 1),
+                        'is_active' => (bool) rand(0, 1),
                         'created_at' => $now,
                         'updated_at' => $now,
                     ]);
@@ -170,7 +168,7 @@ final class RepCountrySeeder extends Seeder
                             'course_benefits' => 'Internship opportunities, job placement support.',
                             'general_eligibility' => 'Bachelor degree or equivalent.',
                             'quality_of_desired_application' => ['excellent', 'good', 'average', 'below_average'][array_rand(['excellent', 'good', 'average', 'below_average'])],
-                            'is_language_mandatory' => (bool)rand(0, 1),
+                            'is_language_mandatory' => (bool) rand(0, 1),
                             'language_requirements' => 'IELTS 6.0 or equivalent',
                             'additional_info' => 'Additional info for course.',
                             'course_categories' => $categories,

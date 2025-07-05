@@ -13,9 +13,8 @@ class Course extends Model implements HasMedia
 {
     use HasFactory;
     use HasUlids;
-    use SoftDeletes;
     use InteractsWithMedia;
-
+    use SoftDeletes;
 
     protected function casts()
     {
@@ -39,7 +38,7 @@ class Course extends Model implements HasMedia
                 'image/jpg',
                 'image/png',
                 'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             ])
             ->onlyKeepLatest(5);
     }

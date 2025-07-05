@@ -28,4 +28,4 @@ final class ToggleStatusAction
 
         return $repCountryStatus->fresh();
     }
-} 
+}

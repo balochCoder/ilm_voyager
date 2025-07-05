@@ -7,7 +7,6 @@ namespace App\Actions\Status;
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Throwable;
 
 final class SaveStatusOrderAction
@@ -22,7 +21,7 @@ final class SaveStatusOrderAction
 
         try {
             $statusOrder = $request->input('status_order', []);
-    
+
             foreach ($statusOrder as $item) {
                 $repCountry->repCountryStatuses()->where('status_name', $item['status_name'])->update([
                     'order' => $item['order'],
@@ -37,4 +36,4 @@ final class SaveStatusOrderAction
             throw $e;
         }
     }
-} 
+}

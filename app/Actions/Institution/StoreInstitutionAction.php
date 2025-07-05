@@ -14,8 +14,8 @@ class StoreInstitutionAction
     {
         $data = $request->validated();
         $isUpdate = $institution !== null;
-        if (!$isUpdate) {
-            $institution = new Institution();
+        if (! $isUpdate) {
+            $institution = new Institution;
         }
         unset($data['contract_copy'], $data['logo'], $data['prospectus'], $data['additional_files'], $data['additional_file_titles']);
         $institution->fill($data);
@@ -25,6 +25,7 @@ class StoreInstitutionAction
         $this->handleSingleFile($request, $institution, 'contract_copy');
         $this->handleSingleFile($request, $institution, 'prospectus');
         $this->handleAdditionalFiles($request, $institution, $isUpdate);
+
         return $institution;
     }
 
@@ -34,7 +35,7 @@ class StoreInstitutionAction
             try {
                 $institution->addMediaFromRequest($field)->toMediaCollection($field);
             } catch (\Exception $e) {
-                Log::error("Failed to upload {$field}: " . $e->getMessage());
+                Log::error("Failed to upload {$field}: ".$e->getMessage());
             }
         }
     }

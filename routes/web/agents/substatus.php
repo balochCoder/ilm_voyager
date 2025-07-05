@@ -10,4 +10,4 @@ Route::post('rep-country-status/{repCountryStatus}/add-sub-status', [SubStatusCo
 
 Route::patch('sub-status/{subStatus}/toggle-status', [SubStatusController::class, 'toggleSubStatus'])->name('rep-countries:toggle-sub-status');
 
-Route::patch('sub-status/{subStatus}/edit', [SubStatusController::class, 'editSubStatus'])->name('rep-countries:edit-sub-status'); 
+Route::patch('sub-status/{subStatus}/edit', [SubStatusController::class, 'editSubStatus'])->name('rep-countries:edit-sub-status');

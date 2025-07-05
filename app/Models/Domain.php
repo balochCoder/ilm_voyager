@@ -16,7 +16,6 @@ use Stancl\Tenancy\Database\Models\Domain as TenancyDomain;
  * @property string $tenant_id
  * @property CarbonInterface|null $created_at
  * @property CarbonInterface|null $updated_at
- *
  */
 final class Domain extends TenancyDomain
 {

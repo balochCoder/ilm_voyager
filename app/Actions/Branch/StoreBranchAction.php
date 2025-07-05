@@ -8,14 +8,11 @@ use App\Enums\TenantRolesEnum;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Models\Branch;
 use App\Models\User;
-use Dflydev\DotAccessData\Data;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Support\Facades\Hash;
 
 final class StoreBranchAction
 {
-
-
     public function __construct(
         private DatabaseManager $db
     ) {}
@@ -23,6 +20,7 @@ final class StoreBranchAction
     public function execute(StoreBranchRequest $request): Branch
     {
         $validated = $request->validated();
+
         return $this->db->transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['contact_name'],

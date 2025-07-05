@@ -2,8 +2,8 @@
 
 namespace App\Actions\Course;
 
-use App\Models\Institution;
 use App\Http\Resources\CourseResource;
+use App\Models\Institution;
 
 class GetCoursesAction
 {
@@ -37,8 +37,7 @@ class GetCoursesAction
                     ->orWhere('campus', 'like', "%$keyword%")
                     ->orWhere('course_fee', 'like', "%$keyword%")
                     ->orWhere('awarding_body', 'like', "%$keyword%")
-                    ->orWhere('quality_of_desired_application', 'like', "%$keyword%")
-                    ;
+                    ->orWhere('quality_of_desired_application', 'like', "%$keyword%");
             });
         });
 

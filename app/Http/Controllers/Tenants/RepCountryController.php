@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenants;
 
+use App\Actions\RepCountry\GetRepCountriesIndexDataAction;
 use App\Actions\RepCountry\StoreRepCountryAction;
 use App\Actions\RepCountry\StoreRepCountryNotesAction;
 use App\Actions\RepCountry\ToggleStatusAction;
-use App\Actions\RepCountry\GetRepCountriesIndexDataAction;
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RepCountry\StoreRepCountryNotesRequest;
@@ -26,6 +26,7 @@ final class RepCountryController extends Controller
     public function index(Request $request, GetRepCountriesIndexDataAction $action)
     {
         $data = $action->execute($request);
+
         return $this->factory->render('agents/rep-countries/index', $data);
     }
 

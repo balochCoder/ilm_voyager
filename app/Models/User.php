@@ -68,8 +68,6 @@ final class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the user's initials from their name.
-     *
-     * @return string
      */
     public function initials(): string
     {

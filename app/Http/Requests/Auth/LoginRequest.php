@@ -56,7 +56,7 @@ final class LoginRequest extends FormRequest
         $user = Auth::user();
         if ($user && $user->hasRole(\App\Enums\TenantRolesEnum::BRANCHOFFICE->value)) {
             $branch = $user->branch;
-            if ($branch && !$branch->is_active) {
+            if ($branch && ! $branch->is_active) {
                 Auth::logout();
                 throw ValidationException::withMessages([
                     'email' => __('Your branch is inactive. Please contact the administrator.'),
@@ -65,7 +65,7 @@ final class LoginRequest extends FormRequest
         }
 
         // User login restriction
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             Auth::logout();
             throw ValidationException::withMessages([
                 'email' => __('Your account is inactive. Please contact the administrator.'),

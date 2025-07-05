@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $order
  * @property CarbonInterface|null $created_at
  * @property CarbonInterface|null $updated_at
- *
  */
 final class Status extends Model
 {
@@ -37,7 +36,7 @@ final class Status extends Model
     /**
      * Scope a query to order by the order field.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOrdered($query)

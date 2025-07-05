@@ -6,7 +6,6 @@ namespace App\Http\Requests\RepCountry;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 final class EditRepCountryStatusRequest extends FormRequest
 {
@@ -46,7 +45,7 @@ final class EditRepCountryStatusRequest extends FormRequest
             'status_name.required' => 'The status name is required.',
             'status_name.string' => 'The status name must be a string.',
             'status_name.max' => 'The status name may not be greater than 255 characters.',
-         
+
         ];
     }
 }

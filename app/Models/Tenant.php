@@ -24,7 +24,6 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
  * @property bool $is_approved
  * @property CarbonInterface|null $created_at
  * @property CarbonInterface|null $updated_at
- *
  */
 final class Tenant extends BaseTenant implements TenantWithDatabase
 {
@@ -56,8 +55,8 @@ final class Tenant extends BaseTenant implements TenantWithDatabase
     protected function password(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value,
-            set: fn($value) => bcrypt($value)
+            get: fn ($value) => $value,
+            set: fn ($value) => bcrypt($value)
         );
     }
 

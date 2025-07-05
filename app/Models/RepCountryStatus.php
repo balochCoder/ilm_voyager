@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $is_active
  * @property CarbonInterface|null $created_at
  * @property CarbonInterface|null $updated_at
- *
  * @property-read RepCountry $repCountry
  * @property-read SubStatus[] $subStatuses
  *
@@ -30,8 +29,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 final class RepCountryStatus extends Model
 {
-
-
     protected $table = 'rep_country_status';
 
     /** @return BelongsTo<RepCountry> */

@@ -2,9 +2,9 @@
 
 namespace App\Actions\Branch;
 
+use App\Http\Resources\BranchResource;
 use App\Models\Branch;
 use App\Models\Country;
-use App\Http\Resources\BranchResource;
 use Illuminate\Http\Request;
 
 class IndexBranchAction
@@ -16,14 +16,14 @@ class IndexBranchAction
         // Apply filters
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
-            $query->where(function($q) use ($keyword) {
+            $query->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('address', 'like', "%{$keyword}%")
-                  ->orWhere('city', 'like', "%{$keyword}%")
-                  ->orWhere('state', 'like', "%{$keyword}%")
-                  ->orWhereHas('user', function($userQuery) use ($keyword) {
-                      $userQuery->where('name', 'like', "%{$keyword}%");
-                  });
+                    ->orWhere('address', 'like', "%{$keyword}%")
+                    ->orWhere('city', 'like', "%{$keyword}%")
+                    ->orWhere('state', 'like', "%{$keyword}%")
+                    ->orWhereHas('user', function ($userQuery) use ($keyword) {
+                        $userQuery->where('name', 'like', "%{$keyword}%");
+                    });
             });
         }
 
@@ -38,7 +38,7 @@ class IndexBranchAction
 
         if ($request->filled('contact_person_email')) {
             $email = $request->contact_person_email;
-            $query->whereHas('user', function($userQuery) use ($email) {
+            $query->whereHas('user', function ($userQuery) use ($email) {
                 $userQuery->where('email', 'like', "%{$email}%");
             });
         }

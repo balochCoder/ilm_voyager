@@ -14,4 +14,4 @@ Route::post('representing-countries/{repCountry}/add-status', [StatusController:
 // RepCountryStatus routes
 Route::patch('rep-country-status/{repCountryStatus}/toggle-status', [StatusController::class, 'toggleRepCountryStatus'])->name('rep-countries:toggle-rep-country-status');
 
-Route::patch('rep-country-status/{repCountryStatus}/edit', [StatusController::class, 'editRepCountryStatus'])->name('rep-countries:edit-status'); 
+Route::patch('rep-country-status/{repCountryStatus}/edit', [StatusController::class, 'editRepCountryStatus'])->name('rep-countries:edit-status');

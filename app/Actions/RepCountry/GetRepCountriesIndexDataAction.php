@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\RepCountry;
 
 use App\Http\Resources\RepCountryResource;
-use App\Http\Resources\CountryResource;
-use App\Models\RepCountry;
 use App\Models\Country;
+use App\Models\RepCountry;
 use App\Models\Status;
 use Illuminate\Http\Request;
 

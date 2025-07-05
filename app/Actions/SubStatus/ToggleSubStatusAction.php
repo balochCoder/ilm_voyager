@@ -15,7 +15,7 @@ final class ToggleSubStatusAction
     {
         try {
             $validated = $request->validated();
-            
+
             $subStatus->update([
                 'is_active' => $validated['is_active'],
             ]);
@@ -30,4 +30,4 @@ final class ToggleSubStatusAction
             throw $e;
         }
     }
-} 
+}
