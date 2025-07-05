@@ -11,6 +11,7 @@ import StatsCard from '@/components/stats-card';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
@@ -23,6 +24,22 @@ interface CounsellorRemark {
     remark: string;
     remark_date: string;
     remark_date_formatted: string;
+    added_by_user: {
+        id: string;
+        name: string;
+    };
+    created_at: string;
+    created_at_formatted: string;
+    updated_at: string;
+    updated_at_formatted: string;
+    is_edited: boolean;
+}
+
+interface CounsellorTarget {
+    id: string;
+    number_of_applications: number;
+    year: number;
+    description: string;
     added_by_user: {
         id: string;
         name: string;
@@ -50,13 +67,23 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const { flash } = usePage<SharedData>().props;
     const [selectedCounsellor, setSelectedCounsellor] = useState<CounsellorResource['data'][0] | null>(null);
     const [remarks, setRemarks] = useState<CounsellorRemark[]>([]);
+    const [targets, setTargets] = useState<CounsellorTarget[]>([]);
     const [isRemarksSheetOpen, setIsRemarksSheetOpen] = useState(false);
+    const [isTargetsSheetOpen, setIsTargetsSheetOpen] = useState(false);
     const [editingRemark, setEditingRemark] = useState<CounsellorRemark | null>(null);
+    const [editingTarget, setEditingTarget] = useState<CounsellorTarget | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isEditingTarget, setIsEditingTarget] = useState(false);
 
     const { data, setData, post, processing, errors, put} = useForm({
         remark: '',
         remark_date: format(new Date(), 'yyyy-MM-dd'),
+    });
+
+    const { data: targetData, setData: setTargetData, post: postTarget, processing: processingTarget, errors: targetErrors, put: putTarget } = useForm({
+        number_of_applications: '',
+        year: new Date().getFullYear(),
+        description: '',
     });
 
     useEffect(() => {
@@ -135,7 +162,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         setData('remark_date', format(new Date(), 'yyyy-MM-dd'));
     };
 
-    const handleUpdateRemark = (e: React.FormEvent) => {
+        const handleUpdateRemark = (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedCounsellor || !editingRemark) return;
 
@@ -151,6 +178,97 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                 }, 500);
             },
         });
+    };
+
+    // Targets functionality
+    const handleOpenTargets = async (counsellor: CounsellorResource['data'][0]) => {
+        setSelectedCounsellor(counsellor);
+        setIsTargetsSheetOpen(true);
+        // Manual reset of form data
+        setTargetData('number_of_applications', '');
+        setTargetData('year', new Date().getFullYear());
+        setTargetData('description', '');
+        console.log('Form reset when opening targets sheet');
+        // Fetch targets for this counsellor
+        await fetchTargets(counsellor);
+    };
+
+    const fetchTargets = async (counsellor: CounsellorResource['data'][0]) => {
+        try {
+            console.log('Fetching targets for counsellor:', counsellor.id);
+            const response = await fetch(`/agents/counsellors/${counsellor.id}/targets`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            console.log('Response status:', response.status);
+            const data = await response.json();
+            console.log('Targets data received:', data);
+            setTargets(data.data || []);
+            console.log('Targets state updated with:', data.data || []);
+        } catch (error) {
+            console.error('Error fetching targets:', error);
+            setTargets([]);
+        }
+    };
+
+    const handleSubmitTarget = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedCounsellor) return;
+
+        postTarget(route('agents:counsellors:targets:store', { counsellor: selectedCounsellor.id }), {
+            onSuccess: () => {
+                // Manual reset of form data
+                setTargetData('number_of_applications', '');
+                setTargetData('year', new Date().getFullYear());
+                setTargetData('description', '');
+                console.log('Form reset after successful submission');
+                // Add a small delay to ensure the data is saved before fetching
+                setTimeout(() => {
+                    fetchTargets(selectedCounsellor);
+                }, 500);
+            },
+        });
+    };
+
+    const handleEditTarget = (target: CounsellorTarget) => {
+        setEditingTarget(target);
+        setIsEditingTarget(true);
+        setTargetData('number_of_applications', target.number_of_applications.toString());
+        setTargetData('year', new Date().getFullYear());
+        setTargetData('description', target.description);
+    };
+
+    const handleCancelEditTarget = () => {
+        setEditingTarget(null);
+        setIsEditingTarget(false);
+        setTargetData('number_of_applications', '');
+        setTargetData('year', new Date().getFullYear());
+        setTargetData('description', '');
+    };
+
+    const handleUpdateTarget = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedCounsellor || !editingTarget) return;
+
+        putTarget(route('agents:counsellors:targets:update', {
+            counsellor: selectedCounsellor.id,
+            target: editingTarget.id
+        }), {
+            onSuccess: () => {
+                handleCancelEditTarget();
+                // Add a small delay to ensure the data is saved before fetching
+                setTimeout(() => {
+                    fetchTargets(selectedCounsellor);
+                }, 500);
+            },
+        });
+    };
+
+    const handleTargetInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setTargetData(name as keyof typeof targetData, value);
     };
 
     return (
@@ -257,7 +375,12 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
 
                                         {/* Secondary Actions */}
                                         <div className="flex gap-2">
-                                            <Button size="sm" variant="ghost" className="flex-1">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="flex-1"
+                                                onClick={() => handleOpenTargets(counsellor)}
+                                            >
                                                 <Target className="h-3 w-3 mr-1" />
                                                 Add Target
                                             </Button>
@@ -451,6 +574,171 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                         <h3 className="mb-2 text-base font-medium text-gray-900">No remarks found</h3>
                                         <p className="text-sm text-gray-500">
                                             Add your first remark using the form above.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+
+                {/* Unified Targets Sheet */}
+                <Sheet open={isTargetsSheetOpen} onOpenChange={setIsTargetsSheetOpen}>
+                    <SheetContent className="!w-[800px] sm:!w-[1000px] lg:!w-[1200px] !max-w-none">
+                        <SheetHeader>
+                            <SheetTitle className="text-lg sm:text-xl">Targets for {selectedCounsellor?.user?.name}</SheetTitle>
+                            <SheetDescription className="text-sm">
+                                Add new targets and view existing ones for this counsellor.
+                            </SheetDescription>
+                        </SheetHeader>
+
+                        <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                            {/* Add/Edit Target Form */}
+                            <div className="grid gap-3">
+                                <h3 className="text-sm font-medium mb-3">
+                                    {isEditingTarget ? 'Edit Target' : 'Add New Target'}
+                                </h3>
+                                <form onSubmit={isEditingTarget ? handleUpdateTarget : handleSubmitTarget} className="space-y-4">
+                                    {/* Number of Applications */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="number_of_applications">Number of Applications <span className="text-red-600">*</span></Label>
+                                        <Input
+                                            id="number_of_applications"
+                                            name="number_of_applications"
+                                            type="number"
+                                            value={targetData.number_of_applications}
+                                            onChange={handleTargetInput}
+                                            min="1"
+                                            required
+                                        />
+                                        {targetErrors.number_of_applications && (
+                                            <p className="text-sm text-red-600">{targetErrors.number_of_applications}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Year */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="year">Year <span className="text-red-600">*</span></Label>
+                                        <Input
+                                            id="year"
+                                            name="year"
+                                            type="number"
+                                            value={targetData.year}
+                                            onChange={handleTargetInput}
+                                            min="2020"
+                                            max="2030"
+                                            required
+                                            readOnly
+                                            className="bg-gray-50 cursor-not-allowed"
+                                        />
+                                        <p className="text-xs text-muted-foreground">Year is automatically set to current year</p>
+                                        {targetErrors.year && (
+                                            <p className="text-sm text-red-600">{targetErrors.year}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Description */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="description">Description <span className="text-red-600">*</span></Label>
+                                        <Textarea
+                                            id="description"
+                                            name="description"
+                                            value={targetData.description}
+                                            onChange={handleTargetInput}
+                                            placeholder="Enter target description..."
+                                            rows={4}
+                                            maxLength={1000}
+                                            required
+                                        />
+                                        <div className="flex justify-between text-xs text-muted-foreground">
+                                            <span>Maximum 1000 characters</span>
+                                            <span>{targetData.description.length}/1000</span>
+                                        </div>
+                                        {targetErrors.description && (
+                                            <p className="text-sm text-red-600">{targetErrors.description}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <div className="flex justify-end gap-2">
+                                        {isEditingTarget && (
+                                            <Button type="button" variant="outline" onClick={handleCancelEditTarget}>
+                                                Cancel
+                                            </Button>
+                                        )}
+                                        <Button type="submit" disabled={processingTarget}>
+                                            {processingTarget
+                                                ? (isEditingTarget ? 'Updating Target...' : 'Adding Target...')
+                                                : (isEditingTarget ? 'Update Target' : 'Add Target')
+                                            }
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Targets Table */}
+                            <div>
+                                <h3 className="text-sm font-medium mb-3">Existing Targets</h3>
+                                {targets.length > 0 ? (
+                                    <div className="w-full rounded border border-border bg-background shadow-sm overflow-x-auto">
+                                        <div className="min-w-[700px] flex items-center px-2 sm:px-4 py-2 font-semibold text-gray-700 border-b text-xs sm:text-sm">
+                                            <div className="w-24">Year</div>
+                                            <div className="w-32">Applications</div>
+                                            <div className="flex-1">Description</div>
+                                            <div className="w-32">Added By</div>
+                                            <div className="w-32">Created</div>
+                                            <div className="w-32">Updated</div>
+                                            <div className="w-16 text-center">Actions</div>
+                                        </div>
+                                        {targets.map((target) => (
+                                            <div key={target.id} className="flex items-center px-2 sm:px-4 py-3 border-b last:border-b-0 text-xs sm:text-sm hover:bg-gray-50">
+                                                <div className="w-24 font-medium">
+                                                    {target.year}
+                                                </div>
+                                                <div className="w-32 font-medium">
+                                                    {target.number_of_applications}
+                                                </div>
+                                                <div className="flex-1 pr-4">
+                                                    <div className="text-sm leading-relaxed">
+                                                        {target.description}
+                                                        {target.is_edited && (
+                                                            <span className="ml-2 text-xs text-blue-600 font-medium">(edited)</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="w-32">
+                                                    <div className="flex items-center gap-1 text-sm">
+                                                        <User className="h-3 w-3" />
+                                                        {target.added_by_user.name}
+                                                    </div>
+                                                </div>
+                                                <div className="w-32 text-muted-foreground">
+                                                    {target.created_at_formatted}
+                                                </div>
+                                                <div className="w-32 text-muted-foreground">
+                                                    {target.updated_at_formatted}
+                                                </div>
+                                                <div className="w-16 text-center">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => handleEditTarget(target)}
+                                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-6 w-6 p-0"
+                                                    >
+                                                        <Pencil className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="py-6 text-center">
+                                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                                            <Target className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                        <h3 className="mb-2 text-base font-medium text-gray-900">No targets found</h3>
+                                        <p className="text-sm text-gray-500">
+                                            Add your first target using the form above.
                                         </p>
                                     </div>
                                 )}

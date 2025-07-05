@@ -52,4 +52,12 @@ class Counsellor extends Model
     {
         return $this->hasMany(CounsellorRemark::class)->orderBy('remark_date', 'desc');
     }
+
+    /**
+     * Get the targets for the counsellor.
+     */
+    public function targets()
+    {
+        return $this->hasMany(CounsellorTarget::class)->orderBy('year', 'desc');
+    }
 }
