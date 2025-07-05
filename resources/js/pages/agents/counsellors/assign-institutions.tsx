@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Link, useForm, Head } from '@inertiajs/react';
 import { ArrowLeft, Building2, Users } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Counsellor } from '@/types';
 
 const breadcrumbs = [
@@ -16,15 +16,39 @@ const breadcrumbs = [
 
 interface Props {
   counsellor: Counsellor;
-  institutions: { id: string; institution_name: string }[];
+  institutionsByCountry: Record<string, Array<{ id: string; institution_name: string; country_id: string }>>;
+  assignedInstitutionIds: string[];
 }
 
-export default function AssignInstitutions({ counsellor, institutions }: Props) {
-  const [selectedInstitutions, setSelectedInstitutions] = useState<string[]>([]);
-  const { setData, post, processing } = useForm({
+export default function AssignInstitutions({ counsellor, institutionsByCountry, assignedInstitutionIds }: Props) {
+  const [selectedInstitutions, setSelectedInstitutions] = useState<string[]>(assignedInstitutionIds);
+  const [shouldSubmit, setShouldSubmit] = useState(false);
+  const { data, setData, post, processing, errors } = useForm({
     counsellor_id: counsellor.id,
     institution_ids: [] as string[],
   });
+
+  // Watch for changes in selectedInstitutions and update form data
+  useEffect(() => {
+    setData('institution_ids', selectedInstitutions);
+  }, [selectedInstitutions, setData]);
+
+  // Watch for shouldSubmit flag and submit form
+  useEffect(() => {
+    if (shouldSubmit) {
+      console.log('Submitting form with data:', data);
+      post(route('agents:counsellors:assign-institutions-store', { counsellor: counsellor.id }), {
+        onError: (errors) => {
+          console.error('Form submission errors:', errors);
+          setShouldSubmit(false);
+        },
+        onSuccess: () => {
+          console.log('Form submitted successfully');
+          setShouldSubmit(false);
+        },
+      });
+    }
+  }, [shouldSubmit, data, post, counsellor.id]);
 
   const handleInstitutionToggle = (institutionId: string) => {
     setSelectedInstitutions(prev => {
@@ -36,10 +60,44 @@ export default function AssignInstitutions({ counsellor, institutions }: Props) 
     });
   };
 
+  const handleCountryToggle = (countryName: string) => {
+    const countryInstitutions = institutionsByCountry[countryName] || [];
+    const countryInstitutionIds = countryInstitutions.map(inst => inst.id);
+
+    const allSelected = countryInstitutionIds.every(id => selectedInstitutions.includes(id));
+
+    if (allSelected) {
+      // If all are selected, unselect all
+      setSelectedInstitutions(prev => prev.filter(id => !countryInstitutionIds.includes(id)));
+    } else {
+      // If not all are selected, select all
+      setSelectedInstitutions(prev => {
+        const newSelection = prev.filter(id => !countryInstitutionIds.includes(id));
+        return [...newSelection, ...countryInstitutionIds];
+      });
+    }
+  };
+
+  const isCountrySelected = (countryName: string) => {
+    const countryInstitutions = institutionsByCountry[countryName] || [];
+    const countryInstitutionIds = countryInstitutions.map(inst => inst.id);
+    return countryInstitutionIds.length > 0 && countryInstitutionIds.every(id => selectedInstitutions.includes(id));
+  };
+
+  const getCountrySelectionStatus = (countryName: string) => {
+    const countryInstitutions = institutionsByCountry[countryName] || [];
+    const countryInstitutionIds = countryInstitutions.map(inst => inst.id);
+    const selectedCount = countryInstitutionIds.filter(id => selectedInstitutions.includes(id)).length;
+
+    if (selectedCount === 0) return 'none';
+    if (selectedCount === countryInstitutionIds.length) return 'all';
+    return 'partial';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setData('institution_ids', selectedInstitutions);
-    post(route('agents:counsellors:assign-institutions-store', { counsellor: counsellor.id }));
+    console.log('Submit button clicked, selected institutions:', selectedInstitutions);
+    setShouldSubmit(true);
   };
 
   return (
@@ -94,25 +152,50 @@ export default function AssignInstitutions({ counsellor, institutions }: Props) 
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {institutions.map((institution) => (
-                  <div key={institution.id} className="flex items-center space-x-2 p-3 border rounded-lg">
-                    <Checkbox
-                      id={institution.id}
-                      checked={selectedInstitutions.includes(institution.id)}
-                      onCheckedChange={() => handleInstitutionToggle(institution.id)}
-                    />
-                    <label
-                      htmlFor={institution.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {institution.institution_name}
-                    </label>
+              <div className="space-y-6">
+                {Object.entries(institutionsByCountry).map(([countryName, institutions]) => (
+                  <div key={countryName} className="space-y-3">
+                    {/* Country Header */}
+                    <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                      <Checkbox
+                        id={`country-${countryName}`}
+                        checked={isCountrySelected(countryName)}
+                        onCheckedChange={() => handleCountryToggle(countryName)}
+                      />
+                      <label
+                        htmlFor={`country-${countryName}`}
+                        className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {countryName} ({institutions.length} institutions)
+                        {getCountrySelectionStatus(countryName) === 'partial' && (
+                          <span className="text-xs text-muted-foreground ml-2">(Partially selected)</span>
+                        )}
+                      </label>
+                    </div>
+
+                    {/* Institutions under this country */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 ml-6">
+                      {institutions.map((institution) => (
+                        <div key={institution.id} className="flex items-center space-x-2 p-2 border rounded-lg">
+                          <Checkbox
+                            id={institution.id}
+                            checked={selectedInstitutions.includes(institution.id)}
+                            onCheckedChange={() => handleInstitutionToggle(institution.id)}
+                          />
+                          <label
+                            htmlFor={institution.id}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {institution.institution_name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {institutions.length === 0 && (
+              {Object.keys(institutionsByCountry).length === 0 && (
                 <div className="text-center py-8">
                   <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">No institutions available for assignment.</p>
@@ -120,6 +203,13 @@ export default function AssignInstitutions({ counsellor, institutions }: Props) 
               )}
             </CardContent>
           </Card>
+
+          {/* Error Display */}
+          {errors.institution_ids && (
+            <div className="text-red-600 text-sm mt-2">
+              {errors.institution_ids}
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="flex justify-end mt-6">
