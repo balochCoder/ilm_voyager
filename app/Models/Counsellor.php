@@ -44,4 +44,12 @@ class Counsellor extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    /**
+     * Get the remarks for the counsellor.
+     */
+    public function remarks()
+    {
+        return $this->hasMany(CounsellorRemark::class)->orderBy('remark_date', 'desc');
+    }
 }

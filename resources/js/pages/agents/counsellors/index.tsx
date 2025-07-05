@@ -4,12 +4,29 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { Plus, Edit, Users, Check, Target, MessageSquare, Building2 } from 'lucide-react';
+import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
+import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, Trash2, User } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+
+interface CounsellorRemark {
+    id: string;
+    remark: string;
+    remark_date: string;
+    remark_date_formatted: string;
+    added_by_user: {
+        id: string;
+        name: string;
+    };
+    created_at: string;
+    created_at_formatted: string;
+}
 
 interface Props {
   counsellors: CounsellorResource;
@@ -24,13 +41,85 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CounsellorsIndex({ counsellors, counsellorsTotal, counsellorsActive }: Props) {
-    const {flash} = usePage<SharedData>().props;
+    const { flash } = usePage<SharedData>().props;
+    const [selectedCounsellor, setSelectedCounsellor] = useState<CounsellorResource['data'][0] | null>(null);
+    const [remarks, setRemarks] = useState<CounsellorRemark[]>([]);
+    const [isRemarksSheetOpen, setIsRemarksSheetOpen] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        remark: '',
+        remark_date: format(new Date(), 'yyyy-MM-dd'),
+    });
 
     useEffect(() => {
         if (flash?.success) {
             toast.success(flash.success);
         }
     }, [flash]);
+
+    const handleOpenRemarks = async (counsellor: CounsellorResource['data'][0]) => {
+        setSelectedCounsellor(counsellor);
+        setIsRemarksSheetOpen(true);
+        reset();
+        // Fetch remarks for this counsellor
+        await fetchRemarks(counsellor);
+    };
+
+    const handleSubmitRemark = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedCounsellor) return;
+
+        post(route('agents:counsellors:remarks:store', { counsellor: selectedCounsellor.id }), {
+            onSuccess: () => {
+                reset();
+                // Add a small delay to ensure the data is saved before fetching
+                setTimeout(() => {
+                    fetchRemarks(selectedCounsellor);
+                }, 500);
+            },
+        });
+    };
+
+    const fetchRemarks = async (counsellor: CounsellorResource['data'][0]) => {
+        try {
+            console.log('Fetching remarks for counsellor:', counsellor.id);
+            const response = await fetch(`/agents/counsellors/${counsellor.id}/remarks`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            console.log('Response status:', response.status);
+            const data = await response.json();
+            console.log('Remarks data received:', data);
+            setRemarks(data.data || []);
+            console.log('Remarks state updated with:', data.data || []);
+        } catch (error) {
+            console.error('Error fetching remarks:', error);
+            setRemarks([]);
+        }
+    };
+
+    const handleDeleteRemark = (remarkId: string) => {
+        if (!selectedCounsellor) return;
+
+        if (confirm('Are you sure you want to delete this remark?')) {
+            router.delete(route('agents:counsellors:remarks:destroy', {
+                counsellor: selectedCounsellor.id,
+                remark: remarkId
+            }), {
+                onSuccess: () => {
+                    // Refresh remarks list
+                    fetchRemarks(selectedCounsellor);
+                },
+            });
+        }
+    };
+
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setData(name as keyof typeof data, value);
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -140,7 +229,12 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                                 <Target className="h-3 w-3 mr-1" />
                                                 Add Target
                                             </Button>
-                                            <Button size="sm" variant="ghost" className="flex-1">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="flex-1"
+                                                onClick={() => handleOpenRemarks(counsellor)}
+                                            >
                                                 <MessageSquare className="h-3 w-3 mr-1" />
                                                 Add Remarks
                                             </Button>
@@ -170,6 +264,129 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Unified Remarks Sheet */}
+                <Sheet open={isRemarksSheetOpen} onOpenChange={setIsRemarksSheetOpen}>
+                    <SheetContent className="!w-[800px] sm:!w-[1000px] lg:!w-[1200px] !max-w-none">
+                        <SheetHeader>
+                            <SheetTitle className="text-lg sm:text-xl">Remarks for {selectedCounsellor?.user?.name}</SheetTitle>
+                            <SheetDescription className="text-sm">
+                                Add new remarks and view existing ones for this counsellor.
+                            </SheetDescription>
+                        </SheetHeader>
+
+                        <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                            {/* Add Remark Form */}
+                            <div className="grid gap-3">
+                                <h3 className="text-sm font-medium mb-3">Add New Remark</h3>
+                                <form onSubmit={handleSubmitRemark} className="space-y-4">
+                                    {/* Remark Date */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="remark_date">Remark Date <span className="text-red-600">*</span></Label>
+                                        <Input
+                                            id="remark_date"
+                                            name="remark_date"
+                                            type="date"
+                                            value={data.remark_date}
+                                            onChange={handleInput}
+                                            max={format(new Date(), 'yyyy-MM-dd')}
+                                            required
+                                        />
+                                        {errors.remark_date && (
+                                            <p className="text-sm text-red-600">{errors.remark_date}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Remark Text */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="remark">Remark <span className="text-red-600">*</span></Label>
+                                        <Textarea
+                                            id="remark"
+                                            name="remark"
+                                            value={data.remark}
+                                            onChange={handleInput}
+                                            placeholder="Enter your remark about this counsellor..."
+                                            rows={4}
+                                            maxLength={1000}
+                                            required
+                                        />
+                                        <div className="flex justify-between text-xs text-muted-foreground">
+                                            <span>Maximum 1000 characters</span>
+                                            <span>{data.remark.length}/1000</span>
+                                        </div>
+                                        {errors.remark && (
+                                            <p className="text-sm text-red-600">{errors.remark}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <div className="flex justify-end">
+                                        <Button type="submit" disabled={processing}>
+                                            {processing ? 'Adding Remark...' : 'Add Remark'}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Remarks Table */}
+                            <div>
+                                <h3 className="text-sm font-medium mb-3">Existing Remarks</h3>
+                                {remarks.length > 0 ? (
+                                    <div className="w-full rounded border border-border bg-background shadow-sm overflow-x-auto">
+                                        <div className="min-w-[600px] flex items-center px-2 sm:px-4 py-2 font-semibold text-gray-700 border-b text-xs sm:text-sm">
+                                            <div className="w-24">Date</div>
+                                            <div className="flex-1">Remark</div>
+                                            <div className="w-32">Added By</div>
+                                            <div className="w-32">Created</div>
+                                            <div className="w-16 text-center">Actions</div>
+                                        </div>
+                                        {remarks.map((remark) => (
+                                            <div key={remark.id} className="flex items-center px-2 sm:px-4 py-3 border-b last:border-b-0 text-xs sm:text-sm hover:bg-gray-50">
+                                                <div className="w-24 font-medium">
+                                                    {remark.remark_date_formatted}
+                                                </div>
+                                                <div className="flex-1 pr-4">
+                                                    <div className="text-sm leading-relaxed">
+                                                        {remark.remark}
+                                                    </div>
+                                                </div>
+                                                <div className="w-32">
+                                                    <div className="flex items-center gap-1 text-sm">
+                                                        <User className="h-3 w-3" />
+                                                        {remark.added_by_user.name}
+                                                    </div>
+                                                </div>
+                                                <div className="w-32 text-muted-foreground">
+                                                    {remark.created_at_formatted}
+                                                </div>
+                                                <div className="w-16 text-center">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => handleDeleteRemark(remark.id)}
+                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                                                    >
+                                                        <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="py-6 text-center">
+                                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                                            <MessageSquare className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                        <h3 className="mb-2 text-base font-medium text-gray-900">No remarks found</h3>
+                                        <p className="text-sm text-gray-500">
+                                            Add your first remark using the form above.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </SheetContent>
+                </Sheet>
             </div>
         </AppLayout>
     );

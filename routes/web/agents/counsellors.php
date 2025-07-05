@@ -10,3 +10,8 @@ Route::get('counsellors/{counsellor}/edit', [\App\Http\Controllers\Tenants\Couns
 Route::put('counsellors/{counsellor}', [\App\Http\Controllers\Tenants\CounsellorController::class, 'update'])->name('counsellors:update');
 Route::get('counsellors/{counsellor}/assign-institutions', [\App\Http\Controllers\Tenants\CounsellorController::class, 'assignInstitutions'])->name('counsellors:assign-institutions');
 Route::post('counsellors/{counsellor}/assign-institutions', [\App\Http\Controllers\Tenants\CounsellorController::class, 'storeInstitutionAssignments'])->name('counsellors:assign-institutions-store');
+
+// Counsellor Remarks Routes
+Route::get('counsellors/{counsellor}/remarks', [\App\Http\Controllers\Tenants\CounsellorRemarkController::class, 'index'])->name('counsellors:remarks:index');
+Route::post('counsellors/{counsellor}/remarks', [\App\Http\Controllers\Tenants\CounsellorRemarkController::class, 'store'])->name('counsellors:remarks:store');
+Route::delete('counsellors/{counsellor}/remarks/{remark}', [\App\Http\Controllers\Tenants\CounsellorRemarkController::class, 'destroy'])->name('counsellors:remarks:destroy');
