@@ -12,7 +12,7 @@ class UpdateCounsellorAction
     public function execute(UpdateCounsellorRequest $request, Counsellor $counsellor): void
     {
         DB::transaction(function () use ($request, $counsellor) {
-            // Update user
+            // Prepare user data
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
@@ -22,11 +22,12 @@ class UpdateCounsellorAction
                 'download_csv' => $request->download_csv,
             ];
 
-            // Only update password if provided
-            if ($request->filled('password')) {
+            // Update password if provided
+            if ($request->password) {
                 $userData['password'] = Hash::make($request->password);
             }
 
+            // Update user
             $counsellor->user->update($userData);
 
             // Update counsellor

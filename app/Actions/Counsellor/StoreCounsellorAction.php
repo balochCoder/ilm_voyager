@@ -2,6 +2,7 @@
 
 namespace App\Actions\Counsellor;
 
+use App\Enums\TenantRolesEnum;
 use App\Http\Requests\Counsellor\StoreCounsellorRequest;
 use App\Models\Counsellor;
 use App\Models\User;
@@ -24,6 +25,9 @@ class StoreCounsellorAction
                 'download_csv' => $request->download_csv,
                 'is_active' => true,
             ]);
+
+            // Assign counsellor role
+            $user->assignRole(TenantRolesEnum::COUNSELLOR->value);
 
             // Create counsellor
             Counsellor::create([
