@@ -55,5 +55,28 @@ class CounsellorRemarkController extends Controller
         }
     }
 
+    /**
+     * Update the specified remark in storage.
+     */
+    public function update(StoreCounsellorRemarkRequest $request, Counsellor $counsellor, CounsellorRemark $remark)
+    {
+        try {
+            // Check if the current user is authorized to edit this remark
+            if ($remark->added_by_user_id !== auth()->id() && !auth()->user()->hasRole('superadmin')) {
+                return back()->withErrors(['error' => 'You are not authorized to edit this remark.']);
+            }
+
+            $remark->update([
+                'remark' => $request->remark,
+                'remark_date' => $request->remark_date,
+                'is_edited' => true,
+            ]);
+
+            return back()
+                ->with('success', 'Remark updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to update remark: ' . $e->getMessage()]);
+        }
+    }
 
 }

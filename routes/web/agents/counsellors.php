@@ -14,3 +14,4 @@ Route::post('counsellors/{counsellor}/assign-institutions', [\App\Http\Controlle
 // Counsellor Remarks Routes
 Route::get('counsellors/{counsellor}/remarks', [\App\Http\Controllers\Tenants\CounsellorRemarkController::class, 'index'])->name('counsellors:remarks:index');
 Route::post('counsellors/{counsellor}/remarks', [\App\Http\Controllers\Tenants\CounsellorRemarkController::class, 'store'])->name('counsellors:remarks:store');
+Route::put('counsellors/{counsellor}/remarks/{remark}', [\App\Http\Controllers\Tenants\CounsellorRemarkController::class, 'update'])->name('counsellors:remarks:update');

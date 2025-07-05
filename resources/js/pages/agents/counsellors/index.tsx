@@ -5,7 +5,7 @@ import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, usePage, useForm } from '@inertiajs/react';
-import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User } from 'lucide-react';
+import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect, useState } from 'react';
@@ -31,6 +31,7 @@ interface CounsellorRemark {
     created_at_formatted: string;
     updated_at: string;
     updated_at_formatted: string;
+    is_edited: boolean;
 }
 
 interface Props {
@@ -50,8 +51,10 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const [selectedCounsellor, setSelectedCounsellor] = useState<CounsellorResource['data'][0] | null>(null);
     const [remarks, setRemarks] = useState<CounsellorRemark[]>([]);
     const [isRemarksSheetOpen, setIsRemarksSheetOpen] = useState(false);
+    const [editingRemark, setEditingRemark] = useState<CounsellorRemark | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, put} = useForm({
         remark: '',
         remark_date: format(new Date(), 'yyyy-MM-dd'),
     });
@@ -116,6 +119,38 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setData(name as keyof typeof data, value);
+    };
+
+    const handleEditRemark = (remark: CounsellorRemark) => {
+        setEditingRemark(remark);
+        setIsEditing(true);
+        setData('remark', remark.remark);
+        setData('remark_date', remark.remark_date);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingRemark(null);
+        setIsEditing(false);
+        setData('remark', '');
+        setData('remark_date', format(new Date(), 'yyyy-MM-dd'));
+    };
+
+    const handleUpdateRemark = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedCounsellor || !editingRemark) return;
+
+        put(route('agents:counsellors:remarks:update', {
+            counsellor: selectedCounsellor.id,
+            remark: editingRemark.id
+        }), {
+            onSuccess: () => {
+                handleCancelEdit();
+                // Add a small delay to ensure the data is saved before fetching
+                setTimeout(() => {
+                    fetchRemarks(selectedCounsellor);
+                }, 500);
+            },
+        });
     };
 
     return (
@@ -273,10 +308,12 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                         </SheetHeader>
 
                         <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                            {/* Add Remark Form */}
+                            {/* Add/Edit Remark Form */}
                             <div className="grid gap-3">
-                                <h3 className="text-sm font-medium mb-3">Add New Remark</h3>
-                                <form onSubmit={handleSubmitRemark} className="space-y-4">
+                                <h3 className="text-sm font-medium mb-3">
+                                    {isEditing ? 'Edit Remark' : 'Add New Remark'}
+                                </h3>
+                                <form onSubmit={isEditing ? handleUpdateRemark : handleSubmitRemark} className="space-y-4">
                                     {/* Remark Date */}
                                     <div className="space-y-2">
                                         <Label htmlFor="remark_date">Remark Date <span className="text-red-600">*</span></Label>
@@ -339,9 +376,17 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                     </div>
 
                                     {/* Submit Button */}
-                                    <div className="flex justify-end">
+                                    <div className="flex justify-end gap-2">
+                                        {isEditing && (
+                                            <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                                                Cancel
+                                            </Button>
+                                        )}
                                         <Button type="submit" disabled={processing}>
-                                            {processing ? 'Adding Remark...' : 'Add Remark'}
+                                            {processing
+                                                ? (isEditing ? 'Updating Remark...' : 'Adding Remark...')
+                                                : (isEditing ? 'Update Remark' : 'Add Remark')
+                                            }
                                         </Button>
                                     </div>
                                 </form>
@@ -352,12 +397,13 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                 <h3 className="text-sm font-medium mb-3">Existing Remarks</h3>
                                 {remarks.length > 0 ? (
                                     <div className="w-full rounded border border-border bg-background shadow-sm overflow-x-auto">
-                                        <div className="min-w-[600px] flex items-center px-2 sm:px-4 py-2 font-semibold text-gray-700 border-b text-xs sm:text-sm">
+                                        <div className="min-w-[700px] flex items-center px-2 sm:px-4 py-2 font-semibold text-gray-700 border-b text-xs sm:text-sm">
                                             <div className="w-24">Date</div>
                                             <div className="flex-1">Remark</div>
                                             <div className="w-32">Added By</div>
                                             <div className="w-32">Created</div>
                                             <div className="w-32">Updated</div>
+                                            <div className="w-16 text-center">Actions</div>
                                         </div>
                                         {remarks.map((remark) => (
                                             <div key={remark.id} className="flex items-center px-2 sm:px-4 py-3 border-b last:border-b-0 text-xs sm:text-sm hover:bg-gray-50">
@@ -367,6 +413,9 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                                 <div className="flex-1 pr-4">
                                                     <div className="text-sm leading-relaxed">
                                                         {remark.remark}
+                                                        {remark.is_edited && (
+                                                            <span className="ml-2 text-xs text-blue-600 font-medium">(edited)</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="w-32">
@@ -380,6 +429,16 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                                 </div>
                                                 <div className="w-32 text-muted-foreground">
                                                     {remark.updated_at_formatted}
+                                                </div>
+                                                <div className="w-16 text-center">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => handleEditRemark(remark)}
+                                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-6 w-6 p-0"
+                                                    >
+                                                        <Pencil className="h-3 w-3" />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         ))}

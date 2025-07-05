@@ -21,6 +21,7 @@ class CounsellorRemark extends Model
         'remark',
         'remark_date',
         'added_by_user_id',
+        'is_edited',
     ];
 
     /**
@@ -30,6 +31,7 @@ class CounsellorRemark extends Model
      */
     protected $casts = [
         'remark_date' => 'date',
+        'is_edited' => 'boolean',
     ];
 
     /**
