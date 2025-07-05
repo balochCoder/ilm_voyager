@@ -3,7 +3,6 @@
 namespace App\Actions\Counsellor;
 
 use App\Http\Requests\Counsellor\StoreCounsellorRequest;
-use App\Models\Branch;
 use App\Models\Counsellor;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;

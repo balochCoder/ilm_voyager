@@ -74,7 +74,6 @@ final class LoginRequest extends FormRequest
             }
         }
 
-
         // User login restriction
         if ($user && ! $user->is_active) {
             Auth::logout();

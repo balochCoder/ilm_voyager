@@ -27,8 +27,6 @@ class Institution extends Model implements HasMedia
         return $this->belongsTo(Currency::class);
     }
 
-
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('contract_copy')

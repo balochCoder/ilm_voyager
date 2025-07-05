@@ -39,7 +39,7 @@ class CounsellorController extends Controller
 
             return to_route('agents:counsellors:index')->with('success', 'Counsellor and user created successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to create counsellor and user: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to create counsellor and user: '.$e->getMessage()]);
         }
     }
 
@@ -85,7 +85,7 @@ class CounsellorController extends Controller
 
             return to_route('agents:counsellors:index')->with('success', 'Counsellor updated successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to update counsellor: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to update counsellor: '.$e->getMessage()]);
         }
     }
 
@@ -132,8 +132,9 @@ class CounsellorController extends Controller
             $hasColumn = Schema::hasColumn('counsellors', 'assigned_institutions');
             Log::info('Column check', ['has_assigned_institutions_column' => $hasColumn]);
 
-            if (!$hasColumn) {
+            if (! $hasColumn) {
                 Log::error('assigned_institutions column does not exist');
+
                 return back()->withErrors(['error' => 'Database column not found. Please run migrations.']);
             }
 
@@ -156,7 +157,7 @@ class CounsellorController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->withErrors(['error' => 'Failed to assign institutions: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to assign institutions: '.$e->getMessage()]);
         }
     }
 }
