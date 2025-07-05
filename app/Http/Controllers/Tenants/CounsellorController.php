@@ -39,7 +39,7 @@ class CounsellorController extends Controller
 
             return to_route('agents:counsellors:index')->with('success', 'Counsellor and user created successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to create counsellor and user: '.$e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to create counsellor and user: ' . $e->getMessage()]);
         }
     }
 
@@ -85,11 +85,11 @@ class CounsellorController extends Controller
 
             return to_route('agents:counsellors:index')->with('success', 'Counsellor updated successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to update counsellor: '.$e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to update counsellor: ' . $e->getMessage()]);
         }
     }
 
-        public function assignInstitutions(Counsellor $counsellor)
+    public function assignInstitutions(Counsellor $counsellor)
     {
         $counsellor->load(['user', 'branch']);
 
@@ -156,7 +156,7 @@ class CounsellorController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->withErrors(['error' => 'Failed to assign institutions: '.$e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to assign institutions: ' . $e->getMessage()]);
         }
     }
 }

@@ -301,6 +301,7 @@ export interface Counsellor {
         whatsapp?: string;
         download_csv?: boolean;
         is_active: boolean;
+        last_login_at?: string;
     };
     branch: {
         id: string;

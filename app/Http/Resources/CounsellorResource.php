@@ -28,6 +28,7 @@ class CounsellorResource extends JsonResource
                 'whatsapp' => $this->user->whatsapp,
                 'download_csv' => $this->user->download_csv,
                 'is_active' => $this->user->is_active,
+                'last_login_at' => $this->user->last_login_at,
             ],
 
             // Branch details

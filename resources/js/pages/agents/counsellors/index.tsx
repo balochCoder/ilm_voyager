@@ -105,6 +105,15 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                             <span className="text-muted-foreground">Branch:</span>
                                             <span className="font-medium">{counsellor.branch.name}</span>
                                         </div>
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="text-muted-foreground">Last Login:</span>
+                                            <span className="font-medium">
+                                                {counsellor.user.last_login_at
+                                                    ? format(new Date(counsellor.user.last_login_at), 'MMM dd, yyyy HH:mm')
+                                                    : 'Never'
+                                                }
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {/* Actions */}
