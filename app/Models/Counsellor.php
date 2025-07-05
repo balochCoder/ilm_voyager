@@ -21,6 +21,7 @@ class Counsellor extends Model
         'branch_id',
         'as_processing_officer',
         'is_active',
+        'assigned_institutions',
     ];
 
     /**
@@ -31,6 +32,7 @@ class Counsellor extends Model
     protected $casts = [
         'as_processing_officer' => 'boolean',
         'is_active' => 'boolean',
+        'assigned_institutions' => 'array',
     ];
 
     public function user()

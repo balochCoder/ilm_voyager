@@ -35,6 +35,7 @@ export default function EditCounsellor({ counsellor, branches = [] }: Props) {
     name: counsellor.user.name,
     email: counsellor.user.email,
     password: '',
+    password_confirmation: '',
     phone: counsellor.user.phone || '',
     mobile: counsellor.user.mobile || '',
     whatsapp: counsellor.user.whatsapp || '',
@@ -196,8 +197,13 @@ export default function EditCounsellor({ counsellor, branches = [] }: Props) {
                     </Tooltip>
                   </TooltipProvider>
                 </Label>
-                <Input name="password" type="password" value={data.password} onChange={handleInput} />
+                <Input name="password" type="password" placeholder='Password' value={data.password} onChange={handleInput} />
                 {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password_confirmation">Confirm Password</Label>
+                <Input name="password_confirmation" placeholder='Confrim Password' type="password" value={data.password_confirmation} onChange={handleInput} />
+                {errors.password_confirmation && <p className="text-sm text-red-600">{errors.password_confirmation}</p>}
               </div>
             </CardContent>
           </Card>

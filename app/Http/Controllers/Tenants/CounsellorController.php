@@ -86,4 +86,40 @@ class CounsellorController extends Controller
             return back()->withErrors(['error' => 'Failed to update counsellor: '.$e->getMessage()]);
         }
     }
+
+    public function assignInstitutions(Counsellor $counsellor)
+    {
+        $counsellor->load(['user', 'branch']);
+
+        // Get all institutions for assignment
+        $institutions = \App\Models\Institution::query()
+            ->where('is_active', true)
+            ->orderBy('institution_name')
+            ->get(['id', 'institution_name']);
+
+        return $this->factory->render('agents/counsellors/assign-institutions', [
+            'counsellor' => new CounsellorResource($counsellor),
+            'institutions' => $institutions,
+        ]);
+    }
+
+    public function storeInstitutionAssignments(Request $request, Counsellor $counsellor)
+    {
+        $request->validate([
+            'institution_ids' => 'array',
+            'institution_ids.*' => 'exists:institutions,id',
+        ]);
+
+        try {
+            // For now, we'll just store the assignments in a simple way
+            // You might want to create a pivot table for counsellor_institution relationships
+            $counsellor->update([
+                'assigned_institutions' => $request->institution_ids ?? [],
+            ]);
+
+            return to_route('agents:counsellors:index')->with('success', 'Institutions assigned successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to assign institutions: '.$e->getMessage()]);
+        }
+    }
 }

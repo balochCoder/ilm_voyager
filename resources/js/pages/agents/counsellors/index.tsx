@@ -5,7 +5,7 @@ import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Plus, Edit, Users, Check } from 'lucide-react';
+import { Plus, Edit, Users, Check, Target, MessageSquare, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect } from 'react';
@@ -93,7 +93,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                         />
                                     </div>
 
-                                    {/* Contact Information */}
+                                    {/* Essential Information */}
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="text-muted-foreground">Email:</span>
@@ -102,44 +102,39 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">Phone:</span>
-                                            <span className="font-medium">{counsellor.user.phone || 'Not specified'}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">Mobile:</span>
-                                            <span className="font-medium">{counsellor.user.mobile || 'Not specified'}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">WhatsApp:</span>
-                                            <span className="font-medium">{counsellor.user.whatsapp || 'Not specified'}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs">
                                             <span className="text-muted-foreground">Branch:</span>
                                             <span className="font-medium">{counsellor.branch.name}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">Type:</span>
-                                            <span className="font-medium">
-                                                {counsellor.as_processing_officer ? 'Processing Officer' : 'Regular Counsellor'}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">Download CSV:</span>
-                                            <span className="font-medium">
-                                                {counsellor.user.download_csv ? 'Allowed' : 'Not Allowed'}
-                                            </span>
                                         </div>
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="mt-4 pt-3 border-t">
-                                        <div className="flex justify-end">
+                                    <div className="mt-4 pt-3 border-t space-y-2">
+                                        {/* Primary Actions */}
+                                        <div className="flex justify-between items-center">
                                             <Link href={route('agents:counsellors:edit', { counsellor: counsellor.id })}>
                                                 <Button size="sm" variant="outline">
                                                     <Edit className="h-3 w-3 mr-1" />
                                                     Edit
                                                 </Button>
                                             </Link>
+                                            <Link href={route('agents:counsellors:assign-institutions', { counsellor: counsellor.id })}>
+                                                <Button size="sm" variant="outline">
+                                                    <Building2 className="h-3 w-3 mr-1" />
+                                                    Assign Institutions
+                                                </Button>
+                                            </Link>
+                                        </div>
+
+                                        {/* Secondary Actions */}
+                                        <div className="flex gap-2">
+                                            <Button size="sm" variant="ghost" className="flex-1">
+                                                <Target className="h-3 w-3 mr-1" />
+                                                Add Target
+                                            </Button>
+                                            <Button size="sm" variant="ghost" className="flex-1">
+                                                <MessageSquare className="h-3 w-3 mr-1" />
+                                                Add Remarks
+                                            </Button>
                                         </div>
                                     </div>
                                 </CardContent>
