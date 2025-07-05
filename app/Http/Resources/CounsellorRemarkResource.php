@@ -25,6 +25,8 @@ class CounsellorRemarkResource extends JsonResource
             ],
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'created_at_formatted' => $this->created_at?->diffForHumans(),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            'updated_at_formatted' => $this->updated_at?->diffForHumans(),
         ];
     }
 }

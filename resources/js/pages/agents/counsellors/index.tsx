@@ -4,16 +4,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
-import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, Trash2, User } from 'lucide-react';
+import { Head, Link, usePage, useForm } from '@inertiajs/react';
+import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CounsellorRemark {
     id: string;
@@ -26,6 +29,8 @@ interface CounsellorRemark {
     };
     created_at: string;
     created_at_formatted: string;
+    updated_at: string;
+    updated_at_formatted: string;
 }
 
 interface Props {
@@ -46,7 +51,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const [remarks, setRemarks] = useState<CounsellorRemark[]>([]);
     const [isRemarksSheetOpen, setIsRemarksSheetOpen] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         remark: '',
         remark_date: format(new Date(), 'yyyy-MM-dd'),
     });
@@ -60,7 +65,10 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const handleOpenRemarks = async (counsellor: CounsellorResource['data'][0]) => {
         setSelectedCounsellor(counsellor);
         setIsRemarksSheetOpen(true);
-        reset();
+        // Manual reset of form data
+        setData('remark', '');
+        setData('remark_date', format(new Date(), 'yyyy-MM-dd'));
+        console.log('Form reset when opening remarks sheet');
         // Fetch remarks for this counsellor
         await fetchRemarks(counsellor);
     };
@@ -71,7 +79,10 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
 
         post(route('agents:counsellors:remarks:store', { counsellor: selectedCounsellor.id }), {
             onSuccess: () => {
-                reset();
+                // Manual reset of form data
+                setData('remark', '');
+                setData('remark_date', format(new Date(), 'yyyy-MM-dd'));
+                console.log('Form reset after successful submission');
                 // Add a small delay to ensure the data is saved before fetching
                 setTimeout(() => {
                     fetchRemarks(selectedCounsellor);
@@ -100,21 +111,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         }
     };
 
-    const handleDeleteRemark = (remarkId: string) => {
-        if (!selectedCounsellor) return;
 
-        if (confirm('Are you sure you want to delete this remark?')) {
-            router.delete(route('agents:counsellors:remarks:destroy', {
-                counsellor: selectedCounsellor.id,
-                remark: remarkId
-            }), {
-                onSuccess: () => {
-                    // Refresh remarks list
-                    fetchRemarks(selectedCounsellor);
-                },
-            });
-        }
-    };
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -283,15 +280,37 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                     {/* Remark Date */}
                                     <div className="space-y-2">
                                         <Label htmlFor="remark_date">Remark Date <span className="text-red-600">*</span></Label>
-                                        <Input
-                                            id="remark_date"
-                                            name="remark_date"
-                                            type="date"
-                                            value={data.remark_date}
-                                            onChange={handleInput}
-                                            max={format(new Date(), 'yyyy-MM-dd')}
-                                            required
-                                        />
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !data.remark_date && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {data.remark_date ? format(new Date(data.remark_date), 'PPP') : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={data.remark_date ? new Date(data.remark_date) : undefined}
+                                                    onSelect={(date) => {
+                                                        if (date) {
+                                                            setData('remark_date', format(date, 'yyyy-MM-dd'));
+                                                        }
+                                                    }}
+                                                    disabled={(date) => {
+                                                        const today = new Date();
+                                                        today.setHours(0, 0, 0, 0);
+                                                        return date < today;
+                                                    }}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
                                         {errors.remark_date && (
                                             <p className="text-sm text-red-600">{errors.remark_date}</p>
                                         )}
@@ -338,7 +357,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                             <div className="flex-1">Remark</div>
                                             <div className="w-32">Added By</div>
                                             <div className="w-32">Created</div>
-                                            <div className="w-16 text-center">Actions</div>
+                                            <div className="w-32">Updated</div>
                                         </div>
                                         {remarks.map((remark) => (
                                             <div key={remark.id} className="flex items-center px-2 sm:px-4 py-3 border-b last:border-b-0 text-xs sm:text-sm hover:bg-gray-50">
@@ -359,15 +378,8 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                                 <div className="w-32 text-muted-foreground">
                                                     {remark.created_at_formatted}
                                                 </div>
-                                                <div className="w-16 text-center">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        onClick={() => handleDeleteRemark(remark.id)}
-                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
-                                                    >
-                                                        <Trash2 className="h-3 w-3" />
-                                                    </Button>
+                                                <div className="w-32 text-muted-foreground">
+                                                    {remark.updated_at_formatted}
                                                 </div>
                                             </div>
                                         ))}

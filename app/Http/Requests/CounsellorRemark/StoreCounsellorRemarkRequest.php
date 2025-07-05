@@ -23,7 +23,7 @@ class StoreCounsellorRemarkRequest extends FormRequest
     {
         return [
             'remark' => 'required|string|max:1000',
-            'remark_date' => 'nullable|date|before_or_equal:today',
+            'remark_date' => 'nullable|date',
         ];
     }
 
@@ -37,7 +37,7 @@ class StoreCounsellorRemarkRequest extends FormRequest
         return [
             'remark.required' => 'The remark field is required.',
             'remark.max' => 'The remark may not be greater than 1000 characters.',
-            'remark_date.before_or_equal' => 'The remark date must be a date before or equal to today.',
+            'remark_date.date' => 'The remark date must be a valid date.',
         ];
     }
 }
