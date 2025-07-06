@@ -5,7 +5,7 @@ import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { ProcessingOfficeResource, BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, Edit, Building2, Check, Clock, Search, RotateCcw, ChevronsUpDown } from 'lucide-react';
+import { Plus, Edit, Building2, Check, Search, RotateCcw, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect, useState } from 'react';
@@ -474,13 +474,22 @@ export default function ProcessingOfficesIndex({ processingOffices, processingOf
                       </div>
 
                       {/* Actions */}
-                      <div className="flex justify-end">
-                        <Link href={route('agents:processing-offices:edit', { processingOffice: processingOffice.id })}>
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-4 w-4" />
-                            Edit
-                          </Button>
-                        </Link>
+                      <div className="flex flex-col gap-2">
+                        {/* Primary Actions */}
+                        <div className="flex gap-2">
+                          <Link href={route('agents:processing-offices:edit', { processingOffice: processingOffice.id })}>
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                          </Link>
+                          <Link href={route('agents:processing-offices:assign-institutions', { processingOffice: processingOffice.id })}>
+                            <Button size="sm" variant="outline">
+                              <Building2 className="h-3 w-3 mr-1" />
+                              Assign Institutions
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

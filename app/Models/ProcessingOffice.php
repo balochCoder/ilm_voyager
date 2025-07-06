@@ -26,6 +26,7 @@ class ProcessingOffice extends Model
         'phone',
         'user_id',
         'is_active',
+        'assigned_institutions',
     ];
 
     /**
@@ -35,6 +36,7 @@ class ProcessingOffice extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'assigned_institutions' => 'array',
     ];
 
     public function user()
