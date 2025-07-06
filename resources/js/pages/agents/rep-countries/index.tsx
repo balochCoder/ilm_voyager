@@ -133,15 +133,14 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
         }
     }, [subStatusesSheet.isOpen, subStatusActions.editDialog.isOpen, subStatusDialog.isOpen, refreshSubStatusesInSheetCb]);
 
-    // Initialize selected country from URL params
+    // Update reading country filter from URL
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const countryId = urlParams.get('country_id');
-        if (countryId) {
-            setSelectedCountry(countryId);
-        }
+        const filterCountryId = urlParams.get('filter[country_id]') || urlParams.get('country_id') || 'all';
+        setSelectedCountry(filterCountryId);
     }, [setSelectedCountry]);
 
+    // Update handleCountryFilter to use filter[country_id]
     const handleCountryFilter = (countryId: string) => {
         setSelectedCountry(countryId);
         setOpen(false);
@@ -149,9 +148,11 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
 
         const url = new URL(window.location.href);
         if (countryId === 'all') {
+            url.searchParams.delete('filter[country_id]');
             url.searchParams.delete('country_id');
         } else {
-            url.searchParams.set('country_id', countryId);
+            url.searchParams.set('filter[country_id]', countryId);
+            url.searchParams.delete('country_id');
         }
         url.searchParams.delete('page');
 

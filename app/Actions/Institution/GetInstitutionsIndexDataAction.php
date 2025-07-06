@@ -9,41 +9,49 @@ use App\Models\Currency;
 use App\Models\Institution;
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
 
 final class GetInstitutionsIndexDataAction
 {
     public function execute(Request $request): array
     {
-        $query = Institution::with(['repCountry.country', 'currency'])->orderByDesc('created_at');
-
-        if ($request->filled('country_id') && $request->country_id !== 'all') {
-            $query->whereHas('repCountry', function ($q) use ($request) {
-                $q->where('rep_country_id', $request->country_id);
-            });
-        }
-        if ($request->filled('type') && $request->type !== 'all') {
-            $query->where('institute_type', $request->type);
-        }
-        if ($request->filled('institution_name')) {
-            $query->where('institution_name', 'like', '%'.$request->institution_name.'%');
-        }
-        if ($request->filled('contact_person_email')) {
-            $query->where('contact_person_email', 'like', '%'.$request->contact_person_email.'%');
-        }
-        if ($request->filled('keyword')) {
-            $q = $request->keyword;
-            $query->where(function ($sub) use ($q) {
-                $sub->where('institution_name', 'like', "%$q%")
-                    ->orWhere('contact_person_email', 'like', "%$q%")
-                    ->orWhere('contact_person_name', 'like', "%$q%");
-            });
-        }
-        if ($request->filled('contract_expiry_start')) {
-            $query->whereDate('contract_expiry_date', '>=', $request->contract_expiry_start);
-        }
-        if ($request->filled('contract_expiry_end')) {
-            $query->whereDate('contract_expiry_date', '<=', $request->contract_expiry_end);
-        }
+        $query = QueryBuilder::for(Institution::class)
+            ->with(['repCountry.country', 'currency'])
+            ->allowedFilters([
+                AllowedFilter::callback('country_id', function ($query, $value) {
+                    if ($value !== 'all') {
+                        $query->whereHas('repCountry', function ($q) use ($value) {
+                            $q->where('rep_country_id', $value);
+                        });
+                    }
+                }),
+                AllowedFilter::callback('type', function ($query, $value) {
+                    if ($value !== 'all') {
+                        $query->where('institute_type', $value);
+                    }
+                }),
+                AllowedFilter::callback('institution_name', function ($query, $value) {
+                    $query->where('institution_name', 'like', "%{$value}%");
+                }),
+                AllowedFilter::callback('contact_person_email', function ($query, $value) {
+                    $query->where('contact_person_email', 'like', "%{$value}%");
+                }),
+                AllowedFilter::callback('keyword', function ($query, $value) {
+                    $query->where(function ($sub) use ($value) {
+                        $sub->where('institution_name', 'like', "%$value%")
+                            ->orWhere('contact_person_email', 'like', "%$value%")
+                            ->orWhere('contact_person_name', 'like', "%$value%");
+                    });
+                }),
+                AllowedFilter::callback('contract_expiry_start', function ($query, $value) {
+                    $query->whereDate('contract_expiry_date', '>=', $value);
+                }),
+                AllowedFilter::callback('contract_expiry_end', function ($query, $value) {
+                    $query->whereDate('contract_expiry_date', '<=', $value);
+                }),
+            ])
+            ->defaultSort('-created_at');
 
         $institutions = InstitutionResource::collection($query->paginate(10)->withQueryString());
         $institutionsTotal = Institution::count();

@@ -31,7 +31,6 @@ export default function CreateProcessingOffice(props: { timeZones?: { id: string
     country_id: '',
     time_zone_id: '',
     phone: '',
-    whatsapp: '',
     // User fields
     contact_name: '',
     user_email: '',
@@ -166,18 +165,7 @@ export default function CreateProcessingOffice(props: { timeZones?: { id: string
                 {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp">WhatsApp</Label>
-                <Input
-                  id="whatsapp"
-                  value={data.whatsapp}
-                  onChange={(e) => setData('whatsapp', e.target.value)}
-                  placeholder="Enter WhatsApp number"
-                  className={errors.whatsapp ? 'border-red-500' : ''}
-                />
-                {errors.whatsapp && <p className="text-sm text-red-500">{errors.whatsapp}</p>}
-              </div>
-
+          
               <div className="space-y-2">
                 <Label htmlFor="download_csv">Download CSV <span className="text-red-600">*</span></Label>
                 <Select value={data.download_csv} onValueChange={(value) => setData('download_csv', value)}>

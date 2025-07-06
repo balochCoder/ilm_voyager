@@ -117,11 +117,11 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     // Effect: initialize filters from URL
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const status = urlParams.get('status') || 'all';
-        const branch = urlParams.get('branch_id') || 'all';
-        const keyword = urlParams.get('keyword') || '';
-        const email = urlParams.get('contact_person_email') || '';
-        const exportType = urlParams.get('export') || 'all';
+        const status = urlParams.get('filter[status]') || urlParams.get('status') || 'all';
+        const branch = urlParams.get('filter[branch_id]') || urlParams.get('branch_id') || 'all';
+        const keyword = urlParams.get('filter[keyword]') || urlParams.get('keyword') || '';
+        const email = urlParams.get('filter[contact_person_email]') || urlParams.get('contact_person_email') || '';
+        const exportType = urlParams.get('filter[export]') || urlParams.get('export') || 'all';
         setFilters({ status, branch, keyword, email, export: exportType });
         setInitialFilters({ status, branch, keyword, email, export: exportType });
     }, []);
@@ -136,19 +136,13 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         setError(null);
         const url = new URL(window.location.href);
         Object.entries(filters).forEach(([key, value]) => {
-            if (key === 'branch') {
-                if (value !== 'all') url.searchParams.set('branch_id', value);
-                else url.searchParams.delete('branch_id');
-            } else if (key === 'email') {
-                if (value) url.searchParams.set('contact_person_email', value);
-                else url.searchParams.delete('contact_person_email');
-            } else if (key === 'status' || key === 'export') {
-                if (value !== 'all') url.searchParams.set(key, value);
-                else url.searchParams.delete(key);
-            } else {
-                if (value) url.searchParams.set(key, value);
-                else url.searchParams.delete(key);
-            }
+            let paramKey = key;
+            if (key === 'branch') paramKey = 'branch_id';
+            if (key === 'email') paramKey = 'contact_person_email';
+            if (key === 'export') paramKey = 'export';
+            if (key === 'status') paramKey = 'status';
+            if (value !== 'all' && value !== '') url.searchParams.set(`filter[${paramKey}]`, value);
+            else url.searchParams.delete(`filter[${paramKey}]`);
         });
         url.searchParams.delete('page');
         setIsLoading(true);

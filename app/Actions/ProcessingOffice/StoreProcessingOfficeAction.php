@@ -43,7 +43,6 @@ final class StoreProcessingOfficeAction
                 'country_id' => $validated['country_id'],
                 'time_zone_id' => $validated['time_zone_id'],
                 'phone' => $validated['phone'] ?? null,
-                'whatsapp' => $validated['whatsapp'] ?? null,
             ]);
 
             return $processingOffice;

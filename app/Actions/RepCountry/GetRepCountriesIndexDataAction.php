@@ -9,6 +9,8 @@ use App\Models\Country;
 use App\Models\RepCountry;
 use App\Models\Status;
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
 
 final class GetRepCountriesIndexDataAction
 {
@@ -17,15 +19,20 @@ final class GetRepCountriesIndexDataAction
      */
     public function execute(Request $request): array
     {
-        $query = RepCountry::with(['country', 'repCountryStatuses' => function ($query) {
-            $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
-                $subQuery->orderBy('order', 'asc');
-            }]);
-        }])->orderBy('created_at', 'desc');
-
-        if ($request->filled('country_id') && $request->country_id !== 'all') {
-            $query->where('country_id', $request->country_id);
-        }
+        $query = QueryBuilder::for(RepCountry::class)
+            ->with(['country', 'repCountryStatuses' => function ($query) {
+                $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
+                    $subQuery->orderBy('order', 'asc');
+                }]);
+            }])
+            ->allowedFilters([
+                AllowedFilter::callback('country_id', function ($query, $value) {
+                    if ($value !== 'all') {
+                        $query->where('country_id', $value);
+                    }
+                }),
+            ])
+            ->defaultSort('-created_at');
 
         $repCountries = RepCountryResource::collection($query->paginate(6));
 

@@ -62,21 +62,15 @@ useEffect(() => {
 
 useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status') || 'all';
-    const countryId = urlParams.get('country_id') || 'all';
-    const kw = urlParams.get('keyword') || '';
-    const email = urlParams.get('contact_person_email') || '';
-
+    const status = urlParams.get('filter[status]') || urlParams.get('status') || 'all';
+    const countryId = urlParams.get('filter[country_id]') || urlParams.get('country_id') || 'all';
+    const kw = urlParams.get('filter[keyword]') || urlParams.get('keyword') || '';
+    const email = urlParams.get('filter[contact_person_email]') || urlParams.get('contact_person_email') || '';
     setSelectedStatus(status);
     setSelectedCountry(countryId);
     setKeyword(kw);
     setContactEmail(email);
-    setInitialFilters({
-        status,
-        country: countryId,
-        keyword: kw,
-        email,
-    });
+    setInitialFilters({ status, country: countryId, keyword: kw, email });
 }, []);
 
 const handlePageChange = (page: number) => {
@@ -97,14 +91,14 @@ const handleCountryFilter = (countryId: string) => {
 
 const handleSearch = () => {
     const url = new URL(window.location.href);
-    if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('status', selectedStatus);
-    else url.searchParams.delete('status');
-    if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('country_id', selectedCountry);
-    else url.searchParams.delete('country_id');
-    if (keyword) url.searchParams.set('keyword', keyword);
-    else url.searchParams.delete('keyword');
-    if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
-    else url.searchParams.delete('contact_person_email');
+    if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('filter[status]', selectedStatus);
+    else url.searchParams.delete('filter[status]');
+    if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('filter[country_id]', selectedCountry);
+    else url.searchParams.delete('filter[country_id]');
+    if (keyword) url.searchParams.set('filter[keyword]', keyword);
+    else url.searchParams.delete('filter[keyword]');
+    if (contactEmail) url.searchParams.set('filter[contact_person_email]', contactEmail);
+    else url.searchParams.delete('filter[contact_person_email]');
     url.searchParams.delete('page');
     setIsLoading(true);
     router.visit(url.toString(), {
@@ -120,10 +114,10 @@ const handleReset = () => {
     setSelectedCountry('all');
     setIsLoading(true);
     const url = new URL(window.location.href);
-    url.searchParams.delete('keyword');
-    url.searchParams.delete('contact_person_email');
-    url.searchParams.delete('status');
-    url.searchParams.delete('country_id');
+    url.searchParams.delete('filter[keyword]');
+    url.searchParams.delete('filter[contact_person_email]');
+    url.searchParams.delete('filter[status]');
+    url.searchParams.delete('filter[country_id]');
     router.visit(url.toString(), {
         onFinish: () => setIsLoading(false),
         onError: () => setIsLoading(false),

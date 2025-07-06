@@ -31,7 +31,6 @@ class StoreProcessingOfficeRequest extends FormRequest
             'country_id' => 'required|ulid|exists:countries,id',
             'time_zone_id' => 'required|ulid|exists:time_zones,id',
             'phone' => 'nullable|string|max:255',
-            'whatsapp' => 'nullable|string|max:255',
             // User fields
             'contact_name' => 'required|string|max:255',
             'user_email' => 'required|email|unique:users,email',

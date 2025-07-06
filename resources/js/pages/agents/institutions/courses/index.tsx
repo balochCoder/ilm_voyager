@@ -62,21 +62,19 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
         setIsLoading(false);
     }, [courses.meta.current_page]);
 
-    // Initialize filters from URL params
+    // Initialize filters from URL
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const courseLevel = urlParams.get('course_level_id') || 'all';
-        const name = urlParams.get('course_name') || '';
-        const campusValue = urlParams.get('campus') || '';
-        const keywordValue = urlParams.get('keyword') || '';
-
+        const courseLevel = urlParams.get('filter[course_level_id]') || urlParams.get('course_level_id') || 'all';
+        const name = urlParams.get('filter[course_name]') || urlParams.get('course_name') || '';
+        const campusValue = urlParams.get('filter[campus]') || urlParams.get('campus') || '';
+        const keywordValue = urlParams.get('filter[keyword]') || urlParams.get('keyword') || '';
         if (courseLevel && courseLevel !== 'all') {
             setSelectedCourseLevel(courseLevel);
         }
         setCourseName(name);
         setCampus(campusValue);
         setKeyword(keywordValue);
-
         setInitialFilters({
             courseLevel,
             courseName: name,
@@ -111,14 +109,14 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
 
     function handleSearch() {
         const url = new URL(window.location.href);
-        if (selectedCourseLevel && selectedCourseLevel !== 'all') url.searchParams.set('course_level_id', selectedCourseLevel);
-        else url.searchParams.delete('course_level_id');
-        if (courseName) url.searchParams.set('course_name', courseName);
-        else url.searchParams.delete('course_name');
-        if (campus) url.searchParams.set('campus', campus);
-        else url.searchParams.delete('campus');
-        if (keyword) url.searchParams.set('keyword', keyword);
-        else url.searchParams.delete('keyword');
+        if (selectedCourseLevel && selectedCourseLevel !== 'all') url.searchParams.set('filter[course_level_id]', selectedCourseLevel);
+        else url.searchParams.delete('filter[course_level_id]');
+        if (courseName) url.searchParams.set('filter[course_name]', courseName);
+        else url.searchParams.delete('filter[course_name]');
+        if (campus) url.searchParams.set('filter[campus]', campus);
+        else url.searchParams.delete('filter[campus]');
+        if (keyword) url.searchParams.set('filter[keyword]', keyword);
+        else url.searchParams.delete('filter[keyword]');
         url.searchParams.delete('page');
         setIsLoading(true);
         router.visit(url.toString(), {
@@ -130,17 +128,16 @@ export default function CoursesIndex({ courses, institution, not_language_mandat
     }
 
     function handleReset() {
-        setSelectedCourseLevel('all');
         setCourseName('');
         setCampus('');
         setKeyword('');
+        setSelectedCourseLevel('all');
         setIsLoading(true);
         const url = new URL(window.location.href);
-        url.searchParams.delete('course_level_id');
-        url.searchParams.delete('course_name');
-        url.searchParams.delete('campus');
-        url.searchParams.delete('keyword');
-        url.searchParams.delete('page');
+        url.searchParams.delete('filter[course_level_id]');
+        url.searchParams.delete('filter[course_name]');
+        url.searchParams.delete('filter[campus]');
+        url.searchParams.delete('filter[keyword]');
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
             onError: () => setIsLoading(false),

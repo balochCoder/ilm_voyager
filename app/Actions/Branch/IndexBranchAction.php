@@ -6,42 +6,41 @@ use App\Http\Resources\BranchResource;
 use App\Models\Branch;
 use App\Models\Country;
 use Illuminate\Http\Request;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexBranchAction
 {
     public function execute(Request $request): array
     {
-        $query = Branch::with(['country', 'user']);
-
-        // Apply filters
-        if ($request->filled('keyword')) {
-            $keyword = $request->keyword;
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                    ->orWhere('address', 'like', "%{$keyword}%")
-                    ->orWhere('city', 'like', "%{$keyword}%")
-                    ->orWhere('state', 'like', "%{$keyword}%")
-                    ->orWhereHas('user', function ($userQuery) use ($keyword) {
-                        $userQuery->where('name', 'like', "%{$keyword}%");
+        $query = QueryBuilder::for(Branch::class)
+            ->with(['country', 'user'])
+            ->allowedFilters([
+                AllowedFilter::callback('keyword', function ($query, $value) {
+                    $query->where(function ($q) use ($value) {
+                        $q->where('name', 'like', "%{$value}%")
+                            ->orWhere('address', 'like', "%{$value}%")
+                            ->orWhere('city', 'like', "%{$value}%")
+                            ->orWhere('state', 'like', "%{$value}%")
+                            ->orWhereHas('user', function ($userQuery) use ($value) {
+                                $userQuery->where('name', 'like', "%{$value}%");
+                            });
                     });
-            });
-        }
-
-        if ($request->filled('status')) {
-            $isActive = $request->status === 'active';
-            $query->where('is_active', $isActive);
-        }
-
-        if ($request->filled('country_id')) {
-            $query->where('country_id', $request->country_id);
-        }
-
-        if ($request->filled('contact_person_email')) {
-            $email = $request->contact_person_email;
-            $query->whereHas('user', function ($userQuery) use ($email) {
-                $userQuery->where('email', 'like', "%{$email}%");
-            });
-        }
+                }),
+                AllowedFilter::callback('status', function ($query, $value) {
+                    if ($value === 'active') {
+                        $query->where('is_active', true);
+                    } elseif ($value === 'inactive') {
+                        $query->where('is_active', false);
+                    }
+                }),
+                AllowedFilter::exact('country_id'),
+                AllowedFilter::callback('contact_person_email', function ($query, $value) {
+                    $query->whereHas('user', function ($userQuery) use ($value) {
+                        $userQuery->where('email', 'like', "%{$value}%");
+                    });
+                }),
+            ]);
 
         $branches = $query->paginate(10)->withQueryString();
         $branchesActive = Branch::where('is_active', true)->count();

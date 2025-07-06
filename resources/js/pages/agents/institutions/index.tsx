@@ -71,43 +71,41 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
         }
     }, [flash]);
 
-    // Initialize filters from URL params
+    // Update reading filters from URL
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const countryId = urlParams.get('country_id') || 'all';
-        const type = urlParams.get('type') || 'all';
-        const name = urlParams.get('institution_name') || '';
-        const email = urlParams.get('contact_person_email') || '';
-        const kw = urlParams.get('keyword') || '';
-        const start = urlParams.get('contract_expiry_start');
-        const end = urlParams.get('contract_expiry_end');
-
-        if (countryId && countryId !== 'all') {
-            setSelectedCountry(countryId);
+        const filterCountryId = urlParams.get('filter[country_id]') || urlParams.get('country_id') || 'all';
+        const filterType = urlParams.get('filter[type]') || urlParams.get('type') || 'all';
+        const filterName = urlParams.get('filter[institution_name]') || urlParams.get('institution_name') || '';
+        const filterEmail = urlParams.get('filter[contact_person_email]') || urlParams.get('contact_person_email') || '';
+        const filterKeyword = urlParams.get('filter[keyword]') || urlParams.get('keyword') || '';
+        const filterStart = urlParams.get('filter[contract_expiry_start]') || urlParams.get('contract_expiry_start');
+        const filterEnd = urlParams.get('filter[contract_expiry_end]') || urlParams.get('contract_expiry_end');
+        if (filterCountryId && filterCountryId !== 'all') {
+            setSelectedCountry(filterCountryId);
         }
-        if (type && type !== 'all') {
-            setSelectedType(type);
+        if (filterType && filterType !== 'all') {
+            setSelectedType(filterType);
         }
-        if (start || end) {
+        if (filterStart || filterEnd) {
             const dateRangeValue = {
-                from: start ? new Date(start) : undefined,
-                to: end ? new Date(end) : undefined,
+                from: filterStart ? new Date(filterStart) : undefined,
+                to: filterEnd ? new Date(filterEnd) : undefined,
             };
             setDateRange(dateRangeValue);
         }
-        setInstitutionName(name);
-        setContactEmail(email);
-        setKeyword(kw);
-
+        setInstitutionName(filterName);
+        setContactEmail(filterEmail);
+        setKeyword(filterKeyword);
         setInitialFilters({
-            country: countryId,
-            type: type,
-            name,
-            email,
-            keyword: kw,
-            dateRange: start || end ? {
-                from: start ? new Date(start) : undefined,
-                to: end ? new Date(end) : undefined,
+            country: filterCountryId,
+            type: filterType,
+            name: filterName,
+            email: filterEmail,
+            keyword: filterKeyword,
+            dateRange: filterStart || filterEnd ? {
+                from: filterStart ? new Date(filterStart) : undefined,
+                to: filterEnd ? new Date(filterEnd) : undefined,
             } : undefined,
         });
     }, []);
@@ -151,20 +149,20 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
 
     const handleSearch = () => {
         const url = new URL(window.location.href);
-        if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('country_id', selectedCountry);
-        else url.searchParams.delete('country_id');
-        if (selectedType && selectedType !== 'all') url.searchParams.set('type', selectedType);
-        else url.searchParams.delete('type');
-        if (institutionName) url.searchParams.set('institution_name', institutionName);
-        else url.searchParams.delete('institution_name');
-        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
-        else url.searchParams.delete('contact_person_email');
-        if (keyword) url.searchParams.set('keyword', keyword);
-        else url.searchParams.delete('keyword');
-        if (dateRange?.from) url.searchParams.set('contract_expiry_start', dateRange.from.toISOString().slice(0, 10));
-        else url.searchParams.delete('contract_expiry_start');
-        if (dateRange?.to) url.searchParams.set('contract_expiry_end', dateRange.to.toISOString().slice(0, 10));
-        else url.searchParams.delete('contract_expiry_end');
+        if (selectedCountry && selectedCountry !== 'all') url.searchParams.set('filter[country_id]', selectedCountry);
+        else url.searchParams.delete('filter[country_id]');
+        if (selectedType && selectedType !== 'all') url.searchParams.set('filter[type]', selectedType);
+        else url.searchParams.delete('filter[type]');
+        if (institutionName) url.searchParams.set('filter[institution_name]', institutionName);
+        else url.searchParams.delete('filter[institution_name]');
+        if (contactEmail) url.searchParams.set('filter[contact_person_email]', contactEmail);
+        else url.searchParams.delete('filter[contact_person_email]');
+        if (keyword) url.searchParams.set('filter[keyword]', keyword);
+        else url.searchParams.delete('filter[keyword]');
+        if (dateRange?.from) url.searchParams.set('filter[contract_expiry_start]', dateRange.from.toISOString().slice(0, 10));
+        else url.searchParams.delete('filter[contract_expiry_start]');
+        if (dateRange?.to) url.searchParams.set('filter[contract_expiry_end]', dateRange.to.toISOString().slice(0, 10));
+        else url.searchParams.delete('filter[contract_expiry_end]');
         url.searchParams.delete('page');
         setIsLoading(true);
         router.visit(url.toString(), {
@@ -182,13 +180,13 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
         setSelectedType('all');
         setIsLoading(true);
         const url = new URL(window.location.href);
-        url.searchParams.delete('institution_name');
-        url.searchParams.delete('contact_person_email');
-        url.searchParams.delete('keyword');
-        url.searchParams.delete('contract_expiry_start');
-        url.searchParams.delete('contract_expiry_end');
-        url.searchParams.delete('country_id');
-        url.searchParams.delete('type');
+        url.searchParams.delete('filter[institution_name]');
+        url.searchParams.delete('filter[contact_person_email]');
+        url.searchParams.delete('filter[keyword]');
+        url.searchParams.delete('filter[contract_expiry_start]');
+        url.searchParams.delete('filter[contract_expiry_end]');
+        url.searchParams.delete('filter[country_id]');
+        url.searchParams.delete('filter[type]');
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
             onError: () => setIsLoading(false),
