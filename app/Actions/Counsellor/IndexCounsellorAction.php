@@ -59,7 +59,7 @@ class IndexCounsellorAction
         }
 
         // Filter by download_csv (export) if present
-        if ($request->filled('export') && $request->export !== 'allowed') {
+        if ($request->filled('export') && $request->export !== 'all') {
             if ($request->export === 'not_allowed') {
                 $query->whereHas('user', function ($q) {
                     $q->where('download_csv', 'not_allowed');

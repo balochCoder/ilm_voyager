@@ -80,7 +80,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     // Search state management
     const [selectedStatus, setSelectedStatus] = useState<string>('all');
     const [selectedBranch, setSelectedBranch] = useState<string>('all');
-    const [selectedExport, setSelectedExport] = useState<string>('allowed');
+    const [selectedExport, setSelectedExport] = useState<string>('all');
     const [isLoading, setIsLoading] = useState(false);
     const [statusOpen, setStatusOpen] = useState(false);
     const [branchOpen, setBranchOpen] = useState(false);
@@ -92,7 +92,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         branch: 'all',
         keyword: '',
         email: '',
-        export: 'allowed',
+        export: 'all',
     });
 
     const { data, setData, post, processing, errors, put} = useForm({
@@ -170,7 +170,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         setContactEmail('');
         setSelectedStatus('all');
         setSelectedBranch('all');
-        setSelectedExport('allowed');
+        setSelectedExport('all');
         setIsLoading(true);
         const url = new URL(window.location.href);
         url.searchParams.delete('keyword');
@@ -213,6 +213,8 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
 
     const getSelectedExportName = () => {
         switch (selectedExport) {
+            case 'all':
+                return 'Download CSV';
             case 'allowed':
                 return 'Allowed';
             case 'allowed_without_contact':
@@ -220,7 +222,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
             case 'not_allowed':
                 return 'Not Allowed';
             default:
-                return 'Allowed';
+                return 'Download CSV';
         }
     };
 
@@ -563,6 +565,10 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                 <Command>
                                     <CommandList>
                                         <CommandGroup>
+                                            <CommandItem value="all" onSelect={() => { setSelectedExport('all'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                                Download CSV
+                                            </CommandItem>
                                             <CommandItem value="allowed" onSelect={() => { setSelectedExport('allowed'); setExportOpen(false); }}>
                                                 <Check className={cn('mr-2 h-4 w-4', selectedExport === 'allowed' ? 'opacity-100' : 'opacity-0')} />
                                                 Allowed
