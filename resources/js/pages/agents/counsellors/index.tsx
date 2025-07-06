@@ -5,7 +5,7 @@ import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User, Pencil, Search, RotateCcw, ChevronsUpDown, Download } from 'lucide-react';
+import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User, Pencil, Search, RotateCcw, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect, useState } from 'react';
@@ -80,9 +80,11 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     // Search state management
     const [selectedStatus, setSelectedStatus] = useState<string>('all');
     const [selectedBranch, setSelectedBranch] = useState<string>('all');
+    const [selectedExport, setSelectedExport] = useState<string>('allowed');
     const [isLoading, setIsLoading] = useState(false);
     const [statusOpen, setStatusOpen] = useState(false);
     const [branchOpen, setBranchOpen] = useState(false);
+    const [exportOpen, setExportOpen] = useState(false);
     const [keyword, setKeyword] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [initialFilters, setInitialFilters] = useState({
@@ -90,6 +92,7 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         branch: 'all',
         keyword: '',
         email: '',
+        export: 'allowed',
     });
 
     const { data, setData, post, processing, errors, put} = useForm({
@@ -116,16 +119,19 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         const branchId = urlParams.get('branch_id') || 'all';
         const kw = urlParams.get('keyword') || '';
         const email = urlParams.get('contact_person_email') || '';
+        const exportType = urlParams.get('export') || 'allowed';
 
         setSelectedStatus(status);
         setSelectedBranch(branchId);
         setKeyword(kw);
         setContactEmail(email);
+        setSelectedExport(exportType);
         setInitialFilters({
             status,
             branch: branchId,
             keyword: kw,
             email,
+            export: exportType,
         });
     }, []);
 
@@ -149,6 +155,8 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         else url.searchParams.delete('keyword');
         if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
         else url.searchParams.delete('contact_person_email');
+        if (selectedExport) url.searchParams.set('export', selectedExport);
+        else url.searchParams.delete('export');
         url.searchParams.delete('page');
         setIsLoading(true);
         router.visit(url.toString(), {
@@ -162,12 +170,14 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         setContactEmail('');
         setSelectedStatus('all');
         setSelectedBranch('all');
+        setSelectedExport('allowed');
         setIsLoading(true);
         const url = new URL(window.location.href);
         url.searchParams.delete('keyword');
         url.searchParams.delete('contact_person_email');
         url.searchParams.delete('status');
         url.searchParams.delete('branch_id');
+        url.searchParams.delete('export');
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
             onError: () => setIsLoading(false),
@@ -189,27 +199,29 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         return selectedStatus !== initialFilters.status ||
                selectedBranch !== initialFilters.branch ||
                keyword !== initialFilters.keyword ||
-               contactEmail !== initialFilters.email;
+               contactEmail !== initialFilters.email ||
+               selectedExport !== initialFilters.export;
     };
 
     const hasActiveFilters = () => {
         return selectedStatus !== 'all' ||
                selectedBranch !== 'all' ||
                keyword !== '' ||
-               contactEmail !== '';
+               contactEmail !== '' ||
+               selectedExport !== 'allowed';
     };
 
-    const handleDownloadCSV = () => {
-        const url = new URL(route('agents:counsellors:export'), window.location.origin);
-
-        // Add current filters to the export URL
-        if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('status', selectedStatus);
-        if (selectedBranch && selectedBranch !== 'all') url.searchParams.set('branch_id', selectedBranch);
-        if (keyword) url.searchParams.set('keyword', keyword);
-        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
-
-        // Trigger download
-        window.open(url.toString(), '_blank');
+    const getSelectedExportName = () => {
+        switch (selectedExport) {
+            case 'allowed':
+                return 'Allowed';
+            case 'allowed_without_contact':
+                return 'Allowed without Contact';
+            case 'not_allowed':
+                return 'Not Allowed';
+            default:
+                return 'Allowed';
+        }
     };
 
     const handleOpenRemarks = async (counsellor: CounsellorResource['data'][0]) => {
@@ -399,15 +411,6 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                         <Heading title="Counsellors" description="Manage your counsellors and their contact information" />
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleDownloadCSV}
-                            className="min-w-[100px]"
-                        >
-                            <Download className="w-4 h-4" />
-                            Download CSV
-                        </Button>
                         <Link href={route('agents:counsellors:create')} className="w-full sm:w-auto">
                             <Button className="w-full cursor-pointer">
                                 <Plus className="h-4 w-4" />
@@ -536,6 +539,47 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                             onChange={(e) => setKeyword(e.target.value)}
                             placeholder="Search counsellors..."
                         />
+                    </div>
+
+                    {/* Export Filter */}
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="export-filter" className="text-sm font-medium">
+                            Export Type
+                        </Label>
+                        <Popover open={exportOpen} onOpenChange={setExportOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={exportOpen}
+                                    className="w-full justify-between"
+                                    disabled={isLoading}
+                                >
+                                    <span className="truncate">{getSelectedExportName()}</span>
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 md:w-[200px]">
+                                <Command>
+                                    <CommandList>
+                                        <CommandGroup>
+                                            <CommandItem value="allowed" onSelect={() => { setSelectedExport('allowed'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'allowed' ? 'opacity-100' : 'opacity-0')} />
+                                                Allowed
+                                            </CommandItem>
+                                            <CommandItem value="allowed_without_contact" onSelect={() => { setSelectedExport('allowed_without_contact'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'allowed_without_contact' ? 'opacity-100' : 'opacity-0')} />
+                                                Allowed without Contact
+                                            </CommandItem>
+                                            <CommandItem value="not_allowed" onSelect={() => { setSelectedExport('not_allowed'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'not_allowed' ? 'opacity-100' : 'opacity-0')} />
+                                                Not Allowed
+                                            </CommandItem>
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
                     </div>
 
                     {/* Search/Reset Buttons */}
