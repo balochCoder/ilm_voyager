@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\TenantRolesEnum;
+use App\Models\Branch;
 use App\Models\Country;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\CourseLevel;
+use App\Models\Counsellor;
 use App\Models\Currency;
 use App\Models\Institution;
+use App\Models\ProcessingOffice;
 use App\Models\RepCountry;
 use App\Models\Status;
+use App\Models\TimeZone;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 final class RepCountrySeeder extends Seeder
 {
@@ -34,6 +41,7 @@ final class RepCountrySeeder extends Seeder
         $courseLevels = CourseLevel::all();
         $courseCategories = CourseCategory::all();
         $statusNames = Status::orderBy('order')->pluck('name')->take(10)->toArray();
+        $timeZones = TimeZone::all();
         $now = now();
 
         $repCountriesData = [
@@ -184,6 +192,165 @@ final class RepCountrySeeder extends Seeder
             }
         }
 
+        // Create 4 branches with 3 counsellors each (only if they don't exist)
+        if (Branch::count() === 0) {
+            $this->createBranchesAndCounsellors($countries, $timeZones);
+        } else {
+            $this->command->info('Branches already exist, skipping branch creation.');
+        }
+
+        // Create 4 processing offices (only if they don't exist)
+        if (ProcessingOffice::count() === 0) {
+            $this->createProcessingOffices($countries, $timeZones);
+        } else {
+            $this->command->info('Processing offices already exist, skipping processing office creation.');
+        }
+
         $this->command->info('RepCountrySeeder completed successfully!');
+    }
+
+    /**
+     * Create branches and counsellors
+     */
+    private function createBranchesAndCounsellors($countries, $timeZones): void
+    {
+        $branchNames = ['Main Branch', 'North Branch', 'South Branch', 'East Branch'];
+        $counsellorNames = [
+            ['John Smith', 'Sarah Johnson', 'Michael Brown'],
+            ['Emily Davis', 'David Wilson', 'Lisa Anderson'],
+            ['Robert Taylor', 'Jennifer Martinez', 'Christopher Garcia'],
+            ['Amanda Rodriguez', 'James Lee', 'Michelle White']
+        ];
+
+        for ($i = 0; $i < 4; $i++) {
+            $country = $countries->random();
+            $timeZone = $timeZones->random();
+
+            // Check if branch user already exists
+            $branchEmail = 'branch' . ($i + 1) . '@example.com';
+            $existingBranchUser = User::where('email', $branchEmail)->first();
+
+            if ($existingBranchUser) {
+                $this->command->warn('Branch user already exists: ' . $branchEmail);
+                continue;
+            }
+
+            // Create branch user
+            $branchUser = User::create([
+                'name' => $branchNames[$i] . ' Manager',
+                'email' => 'branch' . ($i + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'mobile' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'whatsapp' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'download_csv' => 'allowed',
+                'is_active' => true,
+            ]);
+
+            $branchUser->assignRole(TenantRolesEnum::BRANCHOFFICE->value);
+
+            // Create branch
+            $branch = Branch::create([
+                'name' => $branchNames[$i],
+                'address' => (string) rand(100, 9999) . ' ' . ['Main St', 'Oak Ave', 'Pine Rd', 'Elm Blvd'][rand(0, 3)],
+                'city' => ['New York', 'Los Angeles', 'Chicago', 'Houston'][$i],
+                'state' => ['NY', 'CA', 'IL', 'TX'][$i],
+                'country_id' => $country->id,
+                'time_zone_id' => $timeZone->id,
+                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'website' => 'https://branch' . ($i + 1) . '.example.com',
+                'email' => 'info@branch' . ($i + 1) . '.example.com',
+                'user_id' => $branchUser->id,
+                'is_active' => true,
+            ]);
+
+            $this->command->info('Created branch: ' . $branch->name);
+
+            // Create 3 counsellors for this branch
+            for ($j = 0; $j < 3; $j++) {
+                $counsellorEmail = 'counsellor' . ($i + 1) . ($j + 1) . '@example.com';
+                $existingCounsellorUser = User::where('email', $counsellorEmail)->first();
+
+                if ($existingCounsellorUser) {
+                    $this->command->warn('Counsellor user already exists: ' . $counsellorEmail);
+                    continue;
+                }
+
+                $counsellorUser = User::create([
+                    'name' => $counsellorNames[$i][$j],
+                    'email' => 'counsellor' . ($i + 1) . ($j + 1) . '@example.com',
+                    'password' => Hash::make('password'),
+                    'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                    'mobile' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                    'whatsapp' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                    'download_csv' => ['allowed', 'allowed_without_contact', 'not_allowed'][rand(0, 2)],
+                    'is_active' => true,
+                ]);
+
+                $counsellorUser->assignRole(TenantRolesEnum::COUNSELLOR->value);
+
+                $counsellor = Counsellor::create([
+                    'user_id' => $counsellorUser->id,
+                    'branch_id' => $branch->id,
+                    'as_processing_officer' => (bool) rand(0, 1),
+                    'is_active' => true,
+                ]);
+
+                $this->command->info('Created counsellor: ' . $counsellorUser->name . ' for branch: ' . $branch->name);
+            }
+        }
+    }
+
+    /**
+     * Create processing offices
+     */
+    private function createProcessingOffices($countries, $timeZones): void
+    {
+        $processingOfficeNames = ['Central Processing', 'North Processing', 'South Processing', 'East Processing'];
+        $contactNames = ['Alex Thompson', 'Maria Garcia', 'Kevin Chen', 'Rachel Kim'];
+
+        for ($i = 0; $i < 4; $i++) {
+            $country = $countries->random();
+            $timeZone = $timeZones->random();
+
+            // Check if processing office user already exists
+            $processingEmail = 'processing' . ($i + 1) . '@example.com';
+            $existingProcessingUser = User::where('email', $processingEmail)->first();
+
+            if ($existingProcessingUser) {
+                $this->command->warn('Processing office user already exists: ' . $processingEmail);
+                continue;
+            }
+
+            // Create processing office user
+            $processingUser = User::create([
+                'name' => $contactNames[$i],
+                'email' => 'processing' . ($i + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'designation' => 'Processing Manager',
+                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'mobile' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'skype' => 'processing' . ($i + 1),
+                'download_csv' => 'allowed',
+                'is_active' => true,
+            ]);
+
+            $processingUser->assignRole(TenantRolesEnum::PROCESSINGOFFICE->value);
+
+            // Create processing office
+            $processingOffice = ProcessingOffice::create([
+                'name' => $processingOfficeNames[$i],
+                'address' => (string) rand(100, 9999) . ' ' . ['Processing St', 'Visa Ave', 'Document Rd', 'Application Blvd'][rand(0, 3)],
+                'city' => ['Miami', 'Seattle', 'Denver', 'Atlanta'][$i],
+                'state' => ['FL', 'WA', 'CO', 'GA'][$i],
+                'country_id' => $country->id,
+                'time_zone_id' => $timeZone->id,
+                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'user_id' => $processingUser->id,
+                'is_active' => true,
+            ]);
+
+            $this->command->info('Created processing office: ' . $processingOffice->name);
+        }
     }
 }
