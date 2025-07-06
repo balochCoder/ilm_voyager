@@ -65,6 +65,17 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Counsellors', href: '/agents/counsellors' },
 ];
 
+// Define filter type and default
+const DEFAULT_FILTERS = {
+    status: 'all',
+    branch: 'all',
+    keyword: '',
+    email: '',
+    export: 'all',
+};
+
+type FilterState = typeof DEFAULT_FILTERS;
+
 export default function CounsellorsIndex({ counsellors, counsellorsTotal, counsellorsActive, branches }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [selectedCounsellor, setSelectedCounsellor] = useState<CounsellorResource['data'][0] | null>(null);
@@ -77,25 +88,16 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const [isEditing, setIsEditing] = useState(false);
     const [isEditingTarget, setIsEditingTarget] = useState(false);
 
-    // Search state management
-    const [selectedStatus, setSelectedStatus] = useState<string>('all');
-    const [selectedBranch, setSelectedBranch] = useState<string>('all');
-    const [selectedExport, setSelectedExport] = useState<string>('all');
+    // Refactored filter state
+    const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
     const [isLoading, setIsLoading] = useState(false);
     const [statusOpen, setStatusOpen] = useState(false);
     const [branchOpen, setBranchOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
-    const [keyword, setKeyword] = useState('');
-    const [contactEmail, setContactEmail] = useState('');
-    const [initialFilters, setInitialFilters] = useState({
-        status: 'all',
-        branch: 'all',
-        keyword: '',
-        email: '',
-        export: 'all',
-    });
+    const [initialFilters, setInitialFilters] = useState(DEFAULT_FILTERS);
+    const [error, setError] = useState<string | null>(null);
 
-    const { data, setData, post, processing, errors, put} = useForm({
+    const { data, setData, post, processing, errors, put } = useForm({
         remark: '',
         remark_date: format(new Date(), 'yyyy-MM-dd'),
     });
@@ -112,66 +114,58 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         }
     }, [flash]);
 
-    // Search functionality
+    // Effect: initialize filters from URL
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const status = urlParams.get('status') || 'all';
-        const branchId = urlParams.get('branch_id') || 'all';
-        const kw = urlParams.get('keyword') || '';
+        const branch = urlParams.get('branch_id') || 'all';
+        const keyword = urlParams.get('keyword') || '';
         const email = urlParams.get('contact_person_email') || '';
-        const exportType = urlParams.get('export') || 'allowed';
-
-        setSelectedStatus(status);
-        setSelectedBranch(branchId);
-        setKeyword(kw);
-        setContactEmail(email);
-        setSelectedExport(exportType);
-        setInitialFilters({
-            status,
-            branch: branchId,
-            keyword: kw,
-            email,
-            export: exportType,
-        });
+        const exportType = urlParams.get('export') || 'all';
+        setFilters({ status, branch, keyword, email, export: exportType });
+        setInitialFilters({ status, branch, keyword, email, export: exportType });
     }, []);
 
-    const handleStatusFilter = (status: string) => {
-        setSelectedStatus(status);
-        setStatusOpen(false);
+    // Filter update helper
+    const updateFilter = (key: keyof FilterState, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
     };
 
-    const handleBranchFilter = (branchId: string) => {
-        setSelectedBranch(branchId);
-        setBranchOpen(false);
-    };
-
+    // Search handler
     const handleSearch = () => {
+        setError(null);
         const url = new URL(window.location.href);
-        if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('status', selectedStatus);
-        else url.searchParams.delete('status');
-        if (selectedBranch && selectedBranch !== 'all') url.searchParams.set('branch_id', selectedBranch);
-        else url.searchParams.delete('branch_id');
-        if (keyword) url.searchParams.set('keyword', keyword);
-        else url.searchParams.delete('keyword');
-        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
-        else url.searchParams.delete('contact_person_email');
-        if (selectedExport) url.searchParams.set('export', selectedExport);
-        else url.searchParams.delete('export');
+        Object.entries(filters).forEach(([key, value]) => {
+            if (key === 'branch') {
+                if (value !== 'all') url.searchParams.set('branch_id', value);
+                else url.searchParams.delete('branch_id');
+            } else if (key === 'email') {
+                if (value) url.searchParams.set('contact_person_email', value);
+                else url.searchParams.delete('contact_person_email');
+            } else if (key === 'status' || key === 'export') {
+                if (value !== 'all') url.searchParams.set(key, value);
+                else url.searchParams.delete(key);
+            } else {
+                if (value) url.searchParams.set(key, value);
+                else url.searchParams.delete(key);
+            }
+        });
         url.searchParams.delete('page');
         setIsLoading(true);
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
-            onError: () => setIsLoading(false),
+            onError: () => {
+                setIsLoading(false);
+                setError('Failed to fetch results. Please try again.');
+            },
         });
     };
 
+    // Reset handler
     const handleReset = () => {
-        setKeyword('');
-        setContactEmail('');
-        setSelectedStatus('all');
-        setSelectedBranch('all');
-        setSelectedExport('all');
+        setFilters(DEFAULT_FILTERS);
         setIsLoading(true);
+        setError(null);
         const url = new URL(window.location.href);
         url.searchParams.delete('keyword');
         url.searchParams.delete('contact_person_email');
@@ -180,39 +174,25 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         url.searchParams.delete('export');
         router.visit(url.toString(), {
             onFinish: () => setIsLoading(false),
-            onError: () => setIsLoading(false),
+            onError: () => {
+                setIsLoading(false);
+                setError('Failed to reset filters. Please try again.');
+            },
         });
     };
 
+    // Filter helpers
     const getSelectedStatusName = () => {
-        if (selectedStatus === 'all') return 'All Status';
-        return selectedStatus === 'active' ? 'Active' : 'Inactive';
+        if (filters.status === 'all') return 'All Status';
+        return filters.status === 'active' ? 'Active' : 'Inactive';
     };
-
     const getSelectedBranchName = () => {
-        if (selectedBranch === 'all') return 'All Branches';
-        const branch = branches?.find((b: { id: string; name: string }) => b.id === selectedBranch);
+        if (filters.branch === 'all') return 'All Branches';
+        const branch = branches?.find((b: { id: string; name: string }) => b.id === filters.branch);
         return branch ? branch.name : 'All Branches';
     };
-
-    const hasFilterChanges = () => {
-        return selectedStatus !== initialFilters.status ||
-               selectedBranch !== initialFilters.branch ||
-               keyword !== initialFilters.keyword ||
-               contactEmail !== initialFilters.email ||
-               selectedExport !== initialFilters.export;
-    };
-
-    const hasActiveFilters = () => {
-        return selectedStatus !== 'all' ||
-               selectedBranch !== 'all' ||
-               keyword !== '' ||
-               contactEmail !== '' ||
-               selectedExport !== 'allowed';
-    };
-
     const getSelectedExportName = () => {
-        switch (selectedExport) {
+        switch (filters.export) {
             case 'all':
                 return 'Download CSV';
             case 'allowed':
@@ -224,6 +204,14 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
             default:
                 return 'Download CSV';
         }
+    };
+    const hasFilterChanges = () => {
+        return Object.keys(DEFAULT_FILTERS).some(
+            (key) => filters[key as keyof FilterState] !== initialFilters[key as keyof FilterState]
+        );
+    };
+    const hasActiveFilters = () => {
+        return Object.entries(filters).some(([key, value]) => value !== DEFAULT_FILTERS[key as keyof FilterState]);
     };
 
     const handleOpenRemarks = async (counsellor: CounsellorResource['data'][0]) => {
@@ -422,6 +410,13 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                     </div>
                 </div>
 
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-2 p-2 bg-red-100 text-red-700 rounded border border-red-300">
+                        {error}
+                    </div>
+                )}
+
                 {/* Filters Row */}
                 <div className="flex flex-row flex-wrap gap-4 w-full mb-2">
                     {/* Status Filter */}
@@ -446,16 +441,16 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                 <Command>
                                     <CommandList>
                                         <CommandGroup>
-                                            <CommandItem value="all" onSelect={() => handleStatusFilter('all')}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="all" onSelect={() => updateFilter('status', 'all')}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.status === 'all' ? 'opacity-100' : 'opacity-0')} />
                                                 All Status
                                             </CommandItem>
-                                            <CommandItem value="active" onSelect={() => handleStatusFilter('active')}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'active' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="active" onSelect={() => updateFilter('status', 'active')}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.status === 'active' ? 'opacity-100' : 'opacity-0')} />
                                                 Active
                                             </CommandItem>
-                                            <CommandItem value="inactive" onSelect={() => handleStatusFilter('inactive')}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'inactive' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="inactive" onSelect={() => updateFilter('status', 'inactive')}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.status === 'inactive' ? 'opacity-100' : 'opacity-0')} />
                                                 Inactive
                                             </CommandItem>
                                         </CommandGroup>
@@ -489,20 +484,20 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                     <CommandList>
                                         <CommandEmpty>No branch found.</CommandEmpty>
                                         <CommandGroup>
-                                            <CommandItem value="all" onSelect={() => handleBranchFilter('all')}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedBranch === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="all" onSelect={() => updateFilter('branch', 'all')}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.branch === 'all' ? 'opacity-100' : 'opacity-0')} />
                                                 All Branches
                                             </CommandItem>
                                             {branches?.map((branch) => (
                                                 <CommandItem
                                                     key={branch.id}
                                                     value={branch.name}
-                                                    onSelect={() => handleBranchFilter(branch.id)}
+                                                    onSelect={() => updateFilter('branch', branch.id)}
                                                 >
                                                     <Check
                                                         className={cn(
                                                             'mr-2 h-4 w-4',
-                                                            selectedBranch === branch.id ? 'opacity-100' : 'opacity-0',
+                                                            filters.branch === branch.id ? 'opacity-100' : 'opacity-0',
                                                         )}
                                                     />
                                                     <span className="truncate">{branch.name}</span>
@@ -523,8 +518,8 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                         <Input
                             id="contact_person_email"
                             type="text"
-                            value={contactEmail}
-                            onChange={(e) => setContactEmail(e.target.value)}
+                            value={filters.email}
+                            onChange={(e) => updateFilter('email', e.target.value)}
                             placeholder="Search by email"
                         />
                     </div>
@@ -537,8 +532,8 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                         <Input
                             id="keyword"
                             type="text"
-                            value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
+                            value={filters.keyword}
+                            onChange={(e) => updateFilter('keyword', e.target.value)}
                             placeholder="Search counsellors..."
                         />
                     </div>
@@ -565,20 +560,20 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                 <Command>
                                     <CommandList>
                                         <CommandGroup>
-                                            <CommandItem value="all" onSelect={() => { setSelectedExport('all'); setExportOpen(false); }}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="all" onSelect={() => { updateFilter('export', 'all'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.export === 'all' ? 'opacity-100' : 'opacity-0')} />
                                                 Download CSV
                                             </CommandItem>
-                                            <CommandItem value="allowed" onSelect={() => { setSelectedExport('allowed'); setExportOpen(false); }}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'allowed' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="allowed" onSelect={() => { updateFilter('export', 'allowed'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.export === 'allowed' ? 'opacity-100' : 'opacity-0')} />
                                                 Allowed
                                             </CommandItem>
-                                            <CommandItem value="allowed_without_contact" onSelect={() => { setSelectedExport('allowed_without_contact'); setExportOpen(false); }}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'allowed_without_contact' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="allowed_without_contact" onSelect={() => { updateFilter('export', 'allowed_without_contact'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.export === 'allowed_without_contact' ? 'opacity-100' : 'opacity-0')} />
                                                 Allowed without Contact
                                             </CommandItem>
-                                            <CommandItem value="not_allowed" onSelect={() => { setSelectedExport('not_allowed'); setExportOpen(false); }}>
-                                                <Check className={cn('mr-2 h-4 w-4', selectedExport === 'not_allowed' ? 'opacity-100' : 'opacity-0')} />
+                                            <CommandItem value="not_allowed" onSelect={() => { updateFilter('export', 'not_allowed'); setExportOpen(false); }}>
+                                                <Check className={cn('mr-2 h-4 w-4', filters.export === 'not_allowed' ? 'opacity-100' : 'opacity-0')} />
                                                 Not Allowed
                                             </CommandItem>
                                         </CommandGroup>
