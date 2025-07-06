@@ -50,6 +50,82 @@ class CounsellorController extends Controller
         return $this->factory->render('agents/counsellors/index', $data);
     }
 
+    public function export(Request $request)
+    {
+        $query = Counsellor::query()
+            ->with(['user', 'branch'])
+            ->orderBy('created_at', 'desc');
+
+        // Apply filters
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('is_active', $request->status === 'active');
+        }
+
+        if ($request->filled('branch_id') && $request->branch_id !== 'all') {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where(function ($q) use ($keyword) {
+                $q->whereHas('user', function ($userQuery) use ($keyword) {
+                    $userQuery->where('name', 'like', "%{$keyword}%");
+                })
+                ->orWhereHas('branch', function ($branchQuery) use ($keyword) {
+                    $branchQuery->where('name', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        if ($request->filled('contact_person_email')) {
+            $email = $request->contact_person_email;
+            $query->whereHas('user', function ($userQuery) use ($email) {
+                $userQuery->where('email', 'like', "%{$email}%");
+            });
+        }
+
+        $counsellors = $query->get();
+
+        $filename = 'counsellors_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($counsellors) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Headers
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Email',
+                'Branch',
+                'Status',
+                'Last Login',
+                'Created At',
+            ]);
+
+            // CSV Data
+            foreach ($counsellors as $counsellor) {
+                fputcsv($file, [
+                    $counsellor->id,
+                    $counsellor->user->name ?? 'N/A',
+                    $counsellor->user->email ?? 'N/A',
+                    $counsellor->branch->name ?? 'N/A',
+                    $counsellor->is_active ? 'Active' : 'Inactive',
+                    $counsellor->user->last_login_at ? $counsellor->user->last_login_at : 'Never',
+                    $counsellor->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function toggleStatus(Request $request, Counsellor $counsellor)
     {
         $counsellor->is_active = ! $counsellor->is_active;

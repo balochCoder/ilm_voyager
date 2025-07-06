@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupLabel, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, ChevronRight, Globe2, BuildingIcon, MapPin, Globe, Users } from 'lucide-react';
+import { LayoutGrid, ChevronRight, Globe2, BuildingIcon, MapPin, Globe, Users, Building2 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { usePermission } from '@/hooks/use-permission';
@@ -97,6 +97,25 @@ const mainNavItems: NavItem[] = [
             {
                 title: "Add Counsellor",
                 href: "/agents/counsellors/create",
+                roles: ['super-admin'],
+            },
+        ],
+    },
+    {
+        title: "Processing Office",
+        href: "/agents/processing-offices",
+        icon: Building2,
+        isActive: false,
+        roles: ['super-admin'],
+        items: [
+            {
+                title: "All Processing Offices",
+                href: "/agents/processing-offices",
+                roles: ['super-admin'],
+            },
+            {
+                title: "Add Processing Office",
+                href: "/agents/processing-offices/create",
                 roles: ['super-admin'],
             },
         ],

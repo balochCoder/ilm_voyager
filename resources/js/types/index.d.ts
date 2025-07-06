@@ -318,3 +318,53 @@ export interface CounsellorResource {
         total: number;
     };
 }
+
+export interface ProcessingOffice {
+    id: string;
+    name: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country_id: string;
+    country?: {
+        id: string;
+        name: string;
+        flag: string;
+    };
+    time_zone_id: string;
+    time_zone?: {
+        id: string;
+        label: string;
+    };
+    phone?: string;
+    website?: string;
+    email?: string;
+    whatsapp?: string;
+    contact_person_name: string;
+    contact_person_email: string;
+    contact_person_mobile: string;
+    created_at: string;
+    is_active: boolean;
+    user?: {
+        id: string;
+        name: string;
+        email: string;
+        designation?: string;
+        phone?: string;
+        mobile: string;
+        whatsapp?: string;
+        skype?: string;
+        download_csv: string;
+        last_login_at?: string;
+    };
+}
+
+export interface ProcessingOfficeResource {
+    data: ProcessingOffice[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}

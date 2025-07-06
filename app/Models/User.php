@@ -109,4 +109,9 @@ final class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Counsellor::class);
     }
+
+    public function processingOffice()
+    {
+        return $this->hasOne(ProcessingOffice::class);
+    }
 }

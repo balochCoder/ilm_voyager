@@ -4,8 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
 import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
-import { Head, Link, usePage, useForm } from '@inertiajs/react';
-import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User, Pencil } from 'lucide-react';
+import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
+import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User, Pencil, Search, RotateCcw, ChevronsUpDown, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import StatsCard from '@/components/stats-card';
 import { useEffect, useState } from 'react';
@@ -18,6 +18,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Loader2 } from 'lucide-react';
 
 interface CounsellorRemark {
     id: string;
@@ -63,7 +65,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Counsellors', href: '/agents/counsellors' },
 ];
 
-export default function CounsellorsIndex({ counsellors, counsellorsTotal, counsellorsActive }: Props) {
+export default function CounsellorsIndex({ counsellors, counsellorsTotal, counsellorsActive, branches }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [selectedCounsellor, setSelectedCounsellor] = useState<CounsellorResource['data'][0] | null>(null);
     const [remarks, setRemarks] = useState<CounsellorRemark[]>([]);
@@ -74,6 +76,21 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
     const [editingTarget, setEditingTarget] = useState<CounsellorTarget | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isEditingTarget, setIsEditingTarget] = useState(false);
+
+    // Search state management
+    const [selectedStatus, setSelectedStatus] = useState<string>('all');
+    const [selectedBranch, setSelectedBranch] = useState<string>('all');
+    const [isLoading, setIsLoading] = useState(false);
+    const [statusOpen, setStatusOpen] = useState(false);
+    const [branchOpen, setBranchOpen] = useState(false);
+    const [keyword, setKeyword] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [initialFilters, setInitialFilters] = useState({
+        status: 'all',
+        branch: 'all',
+        keyword: '',
+        email: '',
+    });
 
     const { data, setData, post, processing, errors, put} = useForm({
         remark: '',
@@ -91,6 +108,109 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
             toast.success(flash.success);
         }
     }, [flash]);
+
+    // Search functionality
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status') || 'all';
+        const branchId = urlParams.get('branch_id') || 'all';
+        const kw = urlParams.get('keyword') || '';
+        const email = urlParams.get('contact_person_email') || '';
+
+        setSelectedStatus(status);
+        setSelectedBranch(branchId);
+        setKeyword(kw);
+        setContactEmail(email);
+        setInitialFilters({
+            status,
+            branch: branchId,
+            keyword: kw,
+            email,
+        });
+    }, []);
+
+    const handleStatusFilter = (status: string) => {
+        setSelectedStatus(status);
+        setStatusOpen(false);
+    };
+
+    const handleBranchFilter = (branchId: string) => {
+        setSelectedBranch(branchId);
+        setBranchOpen(false);
+    };
+
+    const handleSearch = () => {
+        const url = new URL(window.location.href);
+        if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('status', selectedStatus);
+        else url.searchParams.delete('status');
+        if (selectedBranch && selectedBranch !== 'all') url.searchParams.set('branch_id', selectedBranch);
+        else url.searchParams.delete('branch_id');
+        if (keyword) url.searchParams.set('keyword', keyword);
+        else url.searchParams.delete('keyword');
+        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
+        else url.searchParams.delete('contact_person_email');
+        url.searchParams.delete('page');
+        setIsLoading(true);
+        router.visit(url.toString(), {
+            onFinish: () => setIsLoading(false),
+            onError: () => setIsLoading(false),
+        });
+    };
+
+    const handleReset = () => {
+        setKeyword('');
+        setContactEmail('');
+        setSelectedStatus('all');
+        setSelectedBranch('all');
+        setIsLoading(true);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('keyword');
+        url.searchParams.delete('contact_person_email');
+        url.searchParams.delete('status');
+        url.searchParams.delete('branch_id');
+        router.visit(url.toString(), {
+            onFinish: () => setIsLoading(false),
+            onError: () => setIsLoading(false),
+        });
+    };
+
+    const getSelectedStatusName = () => {
+        if (selectedStatus === 'all') return 'All Status';
+        return selectedStatus === 'active' ? 'Active' : 'Inactive';
+    };
+
+    const getSelectedBranchName = () => {
+        if (selectedBranch === 'all') return 'All Branches';
+        const branch = branches?.find((b: { id: string; name: string }) => b.id === selectedBranch);
+        return branch ? branch.name : 'All Branches';
+    };
+
+    const hasFilterChanges = () => {
+        return selectedStatus !== initialFilters.status ||
+               selectedBranch !== initialFilters.branch ||
+               keyword !== initialFilters.keyword ||
+               contactEmail !== initialFilters.email;
+    };
+
+    const hasActiveFilters = () => {
+        return selectedStatus !== 'all' ||
+               selectedBranch !== 'all' ||
+               keyword !== '' ||
+               contactEmail !== '';
+    };
+
+    const handleDownloadCSV = () => {
+        const url = new URL(route('agents:counsellors:export'), window.location.origin);
+
+        // Add current filters to the export URL
+        if (selectedStatus && selectedStatus !== 'all') url.searchParams.set('status', selectedStatus);
+        if (selectedBranch && selectedBranch !== 'all') url.searchParams.set('branch_id', selectedBranch);
+        if (keyword) url.searchParams.set('keyword', keyword);
+        if (contactEmail) url.searchParams.set('contact_person_email', contactEmail);
+
+        // Trigger download
+        window.open(url.toString(), '_blank');
+    };
 
     const handleOpenRemarks = async (counsellor: CounsellorResource['data'][0]) => {
         setSelectedCounsellor(counsellor);
@@ -140,8 +260,6 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
             setRemarks([]);
         }
     };
-
-
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -280,13 +398,172 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                     <div className="min-w-0 flex-1">
                         <Heading title="Counsellors" description="Manage your counsellors and their contact information" />
                     </div>
-                    <Link href={route('agents:counsellors:create')} className="w-full sm:w-auto">
-                        <Button className="w-full cursor-pointer">
-                            <Plus className="h-4 w-4" />
-                            Add Counsellor
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleDownloadCSV}
+                            className="min-w-[100px]"
+                        >
+                            <Download className="w-4 h-4" />
+                            Download CSV
                         </Button>
-                    </Link>
+                        <Link href={route('agents:counsellors:create')} className="w-full sm:w-auto">
+                            <Button className="w-full cursor-pointer">
+                                <Plus className="h-4 w-4" />
+                                Add Counsellor
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
+
+                {/* Filters Row */}
+                <div className="flex flex-row flex-wrap gap-4 w-full mb-2">
+                    {/* Status Filter */}
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="status-filter" className="text-sm font-medium">
+                            Filter by Status
+                        </Label>
+                        <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={statusOpen}
+                                    className="w-full justify-between"
+                                    disabled={isLoading}
+                                >
+                                    <span className="truncate">{getSelectedStatusName()}</span>
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 md:w-[160px]">
+                                <Command>
+                                    <CommandList>
+                                        <CommandGroup>
+                                            <CommandItem value="all" onSelect={() => handleStatusFilter('all')}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                                All Status
+                                            </CommandItem>
+                                            <CommandItem value="active" onSelect={() => handleStatusFilter('active')}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'active' ? 'opacity-100' : 'opacity-0')} />
+                                                Active
+                                            </CommandItem>
+                                            <CommandItem value="inactive" onSelect={() => handleStatusFilter('inactive')}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedStatus === 'inactive' ? 'opacity-100' : 'opacity-0')} />
+                                                Inactive
+                                            </CommandItem>
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
+                    {/* Branch Filter */}
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="branch-filter" className="text-sm font-medium">
+                            Filter by Branch
+                        </Label>
+                        <Popover open={branchOpen} onOpenChange={setBranchOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={branchOpen}
+                                    className="w-full justify-between"
+                                    disabled={isLoading}
+                                >
+                                    <span className="truncate">{getSelectedBranchName()}</span>
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 md:w-[220px]">
+                                <Command>
+                                    <CommandInput placeholder="Search branches..." />
+                                    <CommandList>
+                                        <CommandEmpty>No branch found.</CommandEmpty>
+                                        <CommandGroup>
+                                            <CommandItem value="all" onSelect={() => handleBranchFilter('all')}>
+                                                <Check className={cn('mr-2 h-4 w-4', selectedBranch === 'all' ? 'opacity-100' : 'opacity-0')} />
+                                                All Branches
+                                            </CommandItem>
+                                            {branches?.map((branch) => (
+                                                <CommandItem
+                                                    key={branch.id}
+                                                    value={branch.name}
+                                                    onSelect={() => handleBranchFilter(branch.id)}
+                                                >
+                                                    <Check
+                                                        className={cn(
+                                                            'mr-2 h-4 w-4',
+                                                            selectedBranch === branch.id ? 'opacity-100' : 'opacity-0',
+                                                        )}
+                                                    />
+                                                    <span className="truncate">{branch.name}</span>
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
+                    {/* Contact Email Filter */}
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="contact_person_email" className="text-sm font-medium">
+                            Contact Email
+                        </Label>
+                        <Input
+                            id="contact_person_email"
+                            type="text"
+                            value={contactEmail}
+                            onChange={(e) => setContactEmail(e.target.value)}
+                            placeholder="Search by email"
+                        />
+                    </div>
+
+                    {/* Keyword Filter */}
+                    <div className="flex flex-1 flex-col gap-1 min-w-[180px]">
+                        <Label htmlFor="keyword" className="text-sm font-medium">
+                            Keyword
+                        </Label>
+                        <Input
+                            id="keyword"
+                            type="text"
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
+                            placeholder="Search counsellors..."
+                        />
+                    </div>
+
+                    {/* Search/Reset Buttons */}
+                    <div className="flex flex-1 flex-row gap-2 flex-nowrap items-end min-w-[180px]">
+                        <Button
+                            type="button"
+                            variant="default"
+                            onClick={handleSearch}
+                            disabled={isLoading || !hasFilterChanges()}
+                            className="flex-1"
+                        >
+                            <Search className="w-4 h-4" />
+                            Search
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleReset}
+                            disabled={isLoading || !hasActiveFilters()}
+                            className="min-w-[100px]"
+                        >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                        </Button>
+                    </div>
+                </div>
+
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
 
                 {/* Stats Cards */}
                 <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
@@ -409,13 +686,19 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                                 <Users className="text-muted-foreground h-8 w-8" />
                             </div>
                             <h3 className="mb-2 text-lg font-semibold">No counsellors found</h3>
-                            <p className="text-muted-foreground mb-4">Get started by adding your first counsellor</p>
-                            <Link href={route('agents:counsellors:create')}>
-                                <Button>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Add First Counsellor
-                                </Button>
-                            </Link>
+                            <p className="text-muted-foreground text-center mb-4">
+                                {hasActiveFilters()
+                                    ? 'Try adjusting your filters to see more results.'
+                                    : 'Get started by adding your first counsellor.'}
+                            </p>
+                            {!hasActiveFilters() && (
+                                <Link href={route('agents:counsellors:create')}>
+                                    <Button>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add First Counsellor
+                                    </Button>
+                                </Link>
+                            )}
                         </CardContent>
                     </Card>
                 )}
