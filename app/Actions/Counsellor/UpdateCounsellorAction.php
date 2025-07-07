@@ -6,7 +6,6 @@ use App\Http\Requests\Counsellor\UpdateCounsellorRequest;
 use App\Models\Counsellor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Services\CacheService;
 
 class UpdateCounsellorAction
 {
@@ -38,7 +37,5 @@ class UpdateCounsellorAction
                 'as_processing_officer' => $data['as_processing_officer'] ?? false,
             ]);
         });
-        // Invalidate counsellor cache
-        app(CacheService::class)->flushTags(['counsellors']);
     }
 }

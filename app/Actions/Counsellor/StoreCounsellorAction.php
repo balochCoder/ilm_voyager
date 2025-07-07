@@ -8,7 +8,6 @@ use App\Models\Counsellor;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Services\CacheService;
 
 class StoreCounsellorAction
 {
@@ -39,7 +38,5 @@ class StoreCounsellorAction
                 'is_active' => true,
             ]);
         });
-        // Invalidate counsellor cache
-        app(CacheService::class)->flushTags(['counsellors']);
     }
 }

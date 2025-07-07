@@ -446,6 +446,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                                     className="cursor-pointer"
                                     size="default"
                                     onClick={() => handlePageChange(repCountries.meta.current_page - 1)}
+                                    disabled={repCountries.meta.current_page === 1}
                                 />
                             </PaginationItem>
 
@@ -471,6 +472,7 @@ export default function RepCountriesIndex({ repCountries, availableCountries, re
                                     className="cursor-pointer"
                                     size="default"
                                     onClick={() => handlePageChange(repCountries.meta.current_page + 1)}
+                                    disabled={repCountries.meta.current_page === repCountries.meta.last_page}
                                 />
                             </PaginationItem>
                         </PaginationContent>

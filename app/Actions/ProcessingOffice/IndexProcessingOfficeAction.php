@@ -8,57 +8,49 @@ use App\Models\Country;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\CacheService;
 
 class IndexProcessingOfficeAction
 {
     public function execute(Request $request): array
     {
-        $cacheService = app(CacheService::class);
-        $cacheKey = 'processing_offices.index.' . md5(json_encode($request->all()));
-        $cacheTags = ['processing_offices'];
-        $ttl = 600; // 10 minutes
+        $query = QueryBuilder::for(ProcessingOffice::class)
+            ->with(['country', 'user'])
+            ->allowedFilters([
+                AllowedFilter::callback('keyword', function ($query, $value) {
+                    $query->where(function ($q) use ($value) {
+                        $q->where('name', 'like', "%{$value}%")
+                            ->orWhere('address', 'like', "%{$value}%")
+                            ->orWhere('city', 'like', "%{$value}%")
+                            ->orWhere('state', 'like', "%{$value}%")
+                            ->orWhereHas('user', function ($userQuery) use ($value) {
+                                $userQuery->where('name', 'like', "%{$value}%");
+                            });
+                    });
+                }),
+                AllowedFilter::callback('status', function ($query, $value) {
+                    if ($value === 'active') {
+                        $query->where('is_active', true);
+                    } elseif ($value === 'inactive') {
+                        $query->where('is_active', false);
+                    }
+                }),
+                AllowedFilter::exact('country_id'),
+                AllowedFilter::callback('contact_person_email', function ($query, $value) {
+                    $query->whereHas('user', function ($userQuery) use ($value) {
+                        $userQuery->where('email', 'like', "%{$value}%");
+                    });
+                }),
+            ]);
 
-        return $cacheService->remember($cacheKey, function () use ($request) {
-            $query = QueryBuilder::for(ProcessingOffice::class)
-                ->with(['country', 'user'])
-                ->allowedFilters([
-                    AllowedFilter::callback('keyword', function ($query, $value) {
-                        $query->where(function ($q) use ($value) {
-                            $q->where('name', 'like', "%{$value}%")
-                                ->orWhere('address', 'like', "%{$value}%")
-                                ->orWhere('city', 'like', "%{$value}%")
-                                ->orWhere('state', 'like', "%{$value}%")
-                                ->orWhereHas('user', function ($userQuery) use ($value) {
-                                    $userQuery->where('name', 'like', "%{$value}%");
-                                });
-                        });
-                    }),
-                    AllowedFilter::callback('status', function ($query, $value) {
-                        if ($value === 'active') {
-                            $query->where('is_active', true);
-                        } elseif ($value === 'inactive') {
-                            $query->where('is_active', false);
-                        }
-                    }),
-                    AllowedFilter::exact('country_id'),
-                    AllowedFilter::callback('contact_person_email', function ($query, $value) {
-                        $query->whereHas('user', function ($userQuery) use ($value) {
-                            $userQuery->where('email', 'like', "%{$value}%");
-                        });
-                    }),
-                ]);
+        $processingOffices = $query->paginate(10)->withQueryString();
+        $processingOfficesActive = ProcessingOffice::where('is_active', true)->count();
+        $countries = Country::query()->orderBy('name')->get(['id', 'name', 'flag']);
 
-            $processingOffices = $query->paginate(10)->withQueryString();
-            $processingOfficesActive = ProcessingOffice::where('is_active', true)->count();
-            $countries = Country::query()->orderBy('name')->get(['id', 'name', 'flag']);
-
-            return [
-                'processingOffices' => ProcessingOfficeResource::collection($processingOffices),
-                'processingOfficesTotal' => $processingOffices->total(),
-                'processingOfficesActive' => $processingOfficesActive,
-                'countries' => $countries,
-            ];
-        }, $ttl, $cacheTags);
+        return [
+            'processingOffices' => ProcessingOfficeResource::collection($processingOffices),
+            'processingOfficesTotal' => $processingOffices->total(),
+            'processingOfficesActive' => $processingOfficesActive,
+            'countries' => $countries,
+        ];
     }
 }

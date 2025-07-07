@@ -10,7 +10,6 @@ use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
-use App\Services\CacheService;
 
 final class StoreBranchAction
 {
@@ -51,8 +50,6 @@ final class StoreBranchAction
 
             return $branch;
         });
-        // Invalidate branch cache
-        app(CacheService::class)->flushTags(['branches']);
         return $branch;
     }
 }

@@ -652,6 +652,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                                         className="cursor-pointer"
                                         size="default"
                                         onClick={() => handlePageChange(institutions.meta.current_page - 1)}
+                                        disabled={institutions.meta.current_page === 1}
                                     />
                                 </PaginationItem>
 
@@ -677,6 +678,7 @@ export default function InstitutionsIndex({ institutions, repCountries, institut
                                         className="cursor-pointer"
                                         size="default"
                                         onClick={() => handlePageChange(institutions.meta.current_page + 1)}
+                                        disabled={institutions.meta.current_page === institutions.meta.last_page}
                                     />
                                 </PaginationItem>
                             </PaginationContent>

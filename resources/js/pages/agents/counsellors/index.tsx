@@ -20,6 +20,15 @@ import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Loader2 } from 'lucide-react';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface CounsellorRemark {
     id: string;
@@ -385,6 +394,13 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
         setTargetData(name as keyof typeof targetData, value);
     };
 
+    // Pagination handler (reuse from institutions)
+    const handlePageChange = (page: number) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(page));
+        router.visit(url.toString(), { preserveState: true, preserveScroll: true });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Counsellors" />
@@ -740,6 +756,48 @@ export default function CounsellorsIndex({ counsellors, counsellorsTotal, counse
                             )}
                         </CardContent>
                     </Card>
+                )}
+
+                {/* Pagination Controls */}
+                {counsellors.meta && counsellors.meta.last_page > 1 && (
+                    <div className="overflow-x-auto">
+                        <Pagination className="mt-4 sm:mt-8 min-w-[400px]">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        className="cursor-pointer"
+                                        size="default"
+                                        onClick={() => handlePageChange(counsellors.meta.current_page - 1)}
+                                        disabled={counsellors.meta.current_page === 1}
+                                    />
+                                </PaginationItem>
+                                {Array.from({ length: counsellors.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                    <PaginationItem key={page}>
+                                        {typeof page === 'string' ? (
+                                            <PaginationEllipsis />
+                                        ) : (
+                                            <PaginationLink
+                                                className="cursor-pointer"
+                                                size="default"
+                                                onClick={() => handlePageChange(page)}
+                                                isActive={page === counsellors.meta.current_page}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))}
+                                <PaginationItem>
+                                    <PaginationNext
+                                        className="cursor-pointer"
+                                        size="default"
+                                        onClick={() => handlePageChange(counsellors.meta.current_page + 1)}
+                                        disabled={counsellors.meta.current_page === counsellors.meta.last_page}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
                 )}
 
                 {/* Unified Remarks Sheet */}

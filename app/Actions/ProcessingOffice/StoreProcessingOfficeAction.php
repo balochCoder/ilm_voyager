@@ -10,7 +10,6 @@ use App\Models\ProcessingOffice;
 use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
-use App\Services\CacheService;
 
 final class StoreProcessingOfficeAction
 {
@@ -48,8 +47,6 @@ final class StoreProcessingOfficeAction
 
             return $processingOffice;
         });
-        // Invalidate processing office cache
-        app(CacheService::class)->flushTags(['processing_offices']);
         return $processingOffice;
     }
 }

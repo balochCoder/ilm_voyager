@@ -445,6 +445,7 @@ const hasActiveFilters = () => {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
+                disabled={branches.meta.current_page === 1}
                   className="cursor-pointer"
                   size="default"
                   onClick={() => handlePageChange(branches.meta.current_page - 1)}
@@ -468,6 +469,7 @@ const hasActiveFilters = () => {
               ))}
               <PaginationItem>
                 <PaginationNext
+                disabled={branches.meta.current_page === branches.meta.last_page}
                   className="cursor-pointer"
                   size="default"
                   onClick={() => handlePageChange(branches.meta.current_page + 1)}

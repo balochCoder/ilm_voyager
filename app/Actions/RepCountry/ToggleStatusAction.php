@@ -8,7 +8,6 @@ use App\Http\Requests\RepCountry\ToggleStatusRequest;
 use App\Models\RepCountry;
 use App\Notifications\RepCountryStatusChanged;
 use Illuminate\Support\Facades\Notification;
-use App\Services\CacheService;
 
 final class ToggleStatusAction
 {
@@ -20,8 +19,6 @@ final class ToggleStatusAction
         $validated = $request->validated();
 
         $repCountry->update(['is_active' => $validated['is_active']]);
-        // Invalidate rep country cache
-        app(CacheService::class)->flushTags(['rep_countries']);
         // Queue notification (example: notify the owner or admin)
         // Replace with actual user logic as needed
         // $notifiable = $repCountry->user ?? \App\Models\User::first();

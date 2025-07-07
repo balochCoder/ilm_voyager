@@ -490,70 +490,48 @@ export default function ProcessingOfficesIndex({ processingOffices, processingOf
               </div>
 
               {/* Pagination */}
-              {processingOffices.meta.last_page > 1 && (
-                <div className="flex justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      {processingOffices.meta.current_page > 1 && (
-                        <PaginationItem>
-                          <PaginationPrevious
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(processingOffices.meta.current_page - 1);
-                            }}
-                          />
-                        </PaginationItem>
-                      )}
+           {!isLoading && processingOffices.meta.last_page > 1 && (
+                    <div className="overflow-x-auto">
+                        <Pagination className="mt-4 sm:mt-8 min-w-[400px]">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        className="cursor-pointer"
+                                        size="default"
+                                        onClick={() => handlePageChange(processingOffices.meta.current_page - 1)}
+                                        disabled={processingOffices.meta.current_page === 1}
+                                    />
+                                </PaginationItem>
 
-                      {Array.from({ length: processingOffices.meta.last_page }, (_, i) => i + 1).map((page) => {
-                        if (
-                          page === 1 ||
-                          page === processingOffices.meta.last_page ||
-                          (page >= processingOffices.meta.current_page - 1 && page <= processingOffices.meta.current_page + 1)
-                        ) {
-                          return (
-                            <PaginationItem key={page}>
-                              <PaginationLink
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(page);
-                                }}
-                                isActive={page === processingOffices.meta.current_page}
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        } else if (
-                          page === processingOffices.meta.current_page - 2 ||
-                          page === processingOffices.meta.current_page + 2
-                        ) {
-                          return (
-                            <PaginationItem key={page}>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                          );
-                        }
-                        return null;
-                      })}
+                                {Array.from({ length: processingOffices.meta.last_page }, (_, i) => i + 1).map((page) => (
+                                    <PaginationItem key={page}>
+                                        {typeof page === 'string' ? (
+                                            <PaginationEllipsis />
+                                        ) : (
+                                            <PaginationLink
+                                                className="cursor-pointer"
+                                                size="default"
+                                                onClick={() => handlePageChange(page)}
+                                                isActive={page === processingOffices.meta.current_page}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        )}
+                                    </PaginationItem>
+                                ))}
 
-                      {processingOffices.meta.current_page < processingOffices.meta.last_page && (
-                        <PaginationItem>
-                          <PaginationNext
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(processingOffices.meta.current_page + 1);
-                            }}
-                          />
-                        </PaginationItem>
-                      )}
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+                                <PaginationItem>
+                                    <PaginationNext
+                                        className="cursor-pointer"
+                                        size="default"
+                                        onClick={() => handlePageChange(processingOffices.meta.current_page + 1)}
+                                        disabled={processingOffices.meta.current_page === processingOffices.meta.last_page}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
+                )}
             </>
           )}
         </div>

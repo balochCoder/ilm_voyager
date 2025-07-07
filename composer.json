@@ -13,6 +13,7 @@
         "inertiajs/inertia-laravel": "^2.0.2",
         "laravel/framework": "^12.17",
         "laravel/tinker": "^2.10.1",
+        "predis/predis": "^3.0",
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.19",
         "spatie/laravel-query-builder": "^6.3",
