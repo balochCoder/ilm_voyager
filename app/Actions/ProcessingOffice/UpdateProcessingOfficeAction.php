@@ -6,6 +6,7 @@ use App\Http\Requests\ProcessingOffice\UpdateProcessingOfficeRequest;
 use App\Models\ProcessingOffice;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CacheService;
 
 class UpdateProcessingOfficeAction
 {
@@ -44,5 +45,7 @@ class UpdateProcessingOfficeAction
                 $processingOffice->user->update($userData);
             }
         });
+        // Invalidate processing office cache
+        app(CacheService::class)->flushTags(['processing_offices']);
     }
 }

@@ -7,6 +7,7 @@ namespace App\Actions\Institution;
 use App\Http\Requests\Institution\StoreInstitutionRequest;
 use App\Models\Institution;
 use Illuminate\Support\Facades\Log;
+use App\Services\CacheService;
 
 class StoreInstitutionAction
 {
@@ -25,7 +26,8 @@ class StoreInstitutionAction
         $this->handleSingleFile($request, $institution, 'contract_copy');
         $this->handleSingleFile($request, $institution, 'prospectus');
         $this->handleAdditionalFiles($request, $institution, $isUpdate);
-
+        // Invalidate institution cache
+        app(CacheService::class)->flushTags(['institutions']);
         return $institution;
     }
 

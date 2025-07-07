@@ -10,6 +10,7 @@ use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CacheService;
 
 final class StoreBranchAction
 {
@@ -21,7 +22,7 @@ final class StoreBranchAction
     {
         $validated = $request->validated();
 
-        return $this->db->transaction(function () use ($validated) {
+        $branch = $this->db->transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['contact_name'],
                 'email' => $validated['user_email'],
@@ -50,5 +51,8 @@ final class StoreBranchAction
 
             return $branch;
         });
+        // Invalidate branch cache
+        app(CacheService::class)->flushTags(['branches']);
+        return $branch;
     }
 }

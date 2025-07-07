@@ -11,6 +11,7 @@ use App\Models\Status;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use App\Services\CacheService;
 
 final class GetRepCountriesIndexDataAction
 {
@@ -19,37 +20,44 @@ final class GetRepCountriesIndexDataAction
      */
     public function execute(Request $request): array
     {
-        $query = QueryBuilder::for(RepCountry::class)
-            ->with(['country', 'repCountryStatuses' => function ($query) {
-                $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
-                    $subQuery->orderBy('order', 'asc');
-                }]);
-            }])
-            ->allowedFilters([
-                AllowedFilter::callback('country_id', function ($query, $value) {
-                    if ($value !== 'all') {
-                        $query->where('country_id', $value);
-                    }
-                }),
-            ])
-            ->defaultSort('-created_at');
+        $cacheService = app(CacheService::class);
+        $cacheKey = 'rep_countries.index.' . md5(json_encode($request->all()));
+        $cacheTags = ['rep_countries'];
+        $ttl = 600; // 10 minutes
 
-        $repCountries = RepCountryResource::collection($query->paginate(6));
+        return $cacheService->remember($cacheKey, function () use ($request) {
+            $query = QueryBuilder::for(RepCountry::class)
+                ->with(['country', 'repCountryStatuses' => function ($query) {
+                    $query->orderBy('order', 'asc')->with(['subStatuses' => function ($subQuery) {
+                        $subQuery->orderBy('order', 'asc');
+                    }]);
+                }])
+                ->allowedFilters([
+                    AllowedFilter::callback('country_id', function ($query, $value) {
+                        if ($value !== 'all') {
+                            $query->where('country_id', $value);
+                        }
+                    }),
+                ])
+                ->defaultSort('-created_at');
 
-        $availableCountries = Country::whereHas('repCountry')
-            ->orderBy('name')
-            ->get(['id', 'name', 'flag']);
+            $repCountries = RepCountryResource::collection($query->paginate(2));
 
-        $statuses = Status::ordered()->get();
-        $repCountriesTotal = RepCountry::count();
-        $repCountriesActive = RepCountry::where('is_active', true)->count();
+            $availableCountries = Country::whereHas('repCountry')
+                ->orderBy('name')
+                ->get(['id', 'name', 'flag']);
 
-        return [
-            'repCountries' => $repCountries,
-            'availableCountries' => $availableCountries,
-            'statuses' => $statuses,
-            'repCountriesTotal' => $repCountriesTotal,
-            'repCountriesActive' => $repCountriesActive,
-        ];
+            $statuses = Status::ordered()->get();
+            $repCountriesTotal = RepCountry::count();
+            $repCountriesActive = RepCountry::where('is_active', true)->count();
+
+            return [
+                'repCountries' => $repCountries,
+                'availableCountries' => $availableCountries,
+                'statuses' => $statuses,
+                'repCountriesTotal' => $repCountriesTotal,
+                'repCountriesActive' => $repCountriesActive,
+            ];
+        }, $ttl, $cacheTags);
     }
 }

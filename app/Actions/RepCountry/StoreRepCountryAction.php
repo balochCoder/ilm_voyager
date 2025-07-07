@@ -8,6 +8,7 @@ use App\Http\Requests\RepCountry\StoreRepCountryRequest;
 use App\Models\RepCountry;
 use App\Models\Status;
 use Illuminate\Validation\ValidationException;
+use App\Services\CacheService;
 
 final class StoreRepCountryAction
 {
@@ -49,7 +50,8 @@ final class StoreRepCountryAction
                 }
             }
         }
-
+        // Invalidate rep country cache
+        app(CacheService::class)->flushTags(['rep_countries']);
         return $repCountry;
     }
 }

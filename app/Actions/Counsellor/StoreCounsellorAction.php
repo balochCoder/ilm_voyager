@@ -8,21 +8,23 @@ use App\Models\Counsellor;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CacheService;
 
 class StoreCounsellorAction
 {
     public function execute(StoreCounsellorRequest $request): void
     {
-        DB::transaction(function () use ($request) {
+        $data = $request->validated();
+        DB::transaction(function () use ($data) {
             // Create user
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'phone' => $request->phone,
-                'mobile' => $request->mobile,
-                'whatsapp' => $request->whatsapp,
-                'download_csv' => $request->download_csv,
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'phone' => $data['phone'] ?? null,
+                'mobile' => $data['mobile'] ?? null,
+                'whatsapp' => $data['whatsapp'] ?? null,
+                'download_csv' => $data['download_csv'],
                 'is_active' => true,
             ]);
 
@@ -32,10 +34,12 @@ class StoreCounsellorAction
             // Create counsellor
             Counsellor::create([
                 'user_id' => $user->id,
-                'branch_id' => $request->branch_id,
-                'as_processing_officer' => $request->as_processing_officer,
+                'branch_id' => $data['branch_id'],
+                'as_processing_officer' => $data['as_processing_officer'] ?? false,
                 'is_active' => true,
             ]);
         });
+        // Invalidate counsellor cache
+        app(CacheService::class)->flushTags(['counsellors']);
     }
 }

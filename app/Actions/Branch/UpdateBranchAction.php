@@ -6,6 +6,7 @@ use App\Http\Requests\Branch\UpdateBranchRequest;
 use App\Models\Branch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CacheService;
 
 class UpdateBranchAction
 {
@@ -46,5 +47,7 @@ class UpdateBranchAction
                 $branch->user->update($userData);
             }
         });
+        // Invalidate branch cache
+        app(CacheService::class)->flushTags(['branches']);
     }
 }

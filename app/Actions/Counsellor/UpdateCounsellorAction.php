@@ -6,25 +6,27 @@ use App\Http\Requests\Counsellor\UpdateCounsellorRequest;
 use App\Models\Counsellor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CacheService;
 
 class UpdateCounsellorAction
 {
     public function execute(UpdateCounsellorRequest $request, Counsellor $counsellor): void
     {
-        DB::transaction(function () use ($request, $counsellor) {
+        $data = $request->validated();
+        DB::transaction(function () use ($data, $request, $counsellor) {
             // Prepare user data
             $userData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'mobile' => $request->mobile,
-                'whatsapp' => $request->whatsapp,
-                'download_csv' => $request->download_csv,
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'mobile' => $data['mobile'] ?? null,
+                'whatsapp' => $data['whatsapp'] ?? null,
+                'download_csv' => $data['download_csv'],
             ];
 
             // Update password if provided
-            if ($request->password) {
-                $userData['password'] = Hash::make($request->password);
+            if (array_key_exists('password', $data)) {
+                $userData['password'] = Hash::make($data['password']);
             }
 
             // Update user
@@ -32,9 +34,11 @@ class UpdateCounsellorAction
 
             // Update counsellor
             $counsellor->update([
-                'branch_id' => $request->branch_id,
-                'as_processing_officer' => $request->as_processing_officer,
+                'branch_id' => $data['branch_id'],
+                'as_processing_officer' => $data['as_processing_officer'] ?? false,
             ]);
         });
+        // Invalidate counsellor cache
+        app(CacheService::class)->flushTags(['counsellors']);
     }
 }

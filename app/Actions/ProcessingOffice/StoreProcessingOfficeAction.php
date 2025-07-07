@@ -10,6 +10,7 @@ use App\Models\ProcessingOffice;
 use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CacheService;
 
 final class StoreProcessingOfficeAction
 {
@@ -21,7 +22,7 @@ final class StoreProcessingOfficeAction
     {
         $validated = $request->validated();
 
-        return $this->db->transaction(function () use ($validated) {
+        $processingOffice = $this->db->transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['contact_name'],
                 'email' => $validated['user_email'],
@@ -47,5 +48,8 @@ final class StoreProcessingOfficeAction
 
             return $processingOffice;
         });
+        // Invalidate processing office cache
+        app(CacheService::class)->flushTags(['processing_offices']);
+        return $processingOffice;
     }
 }
