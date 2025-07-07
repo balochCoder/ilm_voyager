@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
-import { CounsellorResource, BreadcrumbItem, SharedData } from '@/types';
+import { CounsellorResource, BreadcrumbItem, SharedData, Branch, CounsellorRemark, CounsellorTarget } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { Plus, Edit, Users, Check, Target, MessageSquare, Building2, User, Pencil, Search, RotateCcw, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
@@ -30,43 +30,12 @@ import {
     PaginationPrevious,
 } from '@/components/ui/pagination';
 
-interface CounsellorRemark {
-    id: string;
-    remark: string;
-    remark_date: string;
-    remark_date_formatted: string;
-    added_by_user: {
-        id: string;
-        name: string;
-    };
-    created_at: string;
-    created_at_formatted: string;
-    updated_at: string;
-    updated_at_formatted: string;
-    is_edited: boolean;
-}
-
-interface CounsellorTarget {
-    id: string;
-    number_of_applications: number;
-    year: number;
-    description: string;
-    added_by_user: {
-        id: string;
-        name: string;
-    };
-    created_at: string;
-    created_at_formatted: string;
-    updated_at: string;
-    updated_at_formatted: string;
-    is_edited: boolean;
-}
 
 interface Props {
   counsellors: CounsellorResource;
   counsellorsTotal: number;
   counsellorsActive: number;
-  branches?: { id: string; name: string }[];
+  branches?: Branch[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [

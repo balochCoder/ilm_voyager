@@ -130,13 +130,10 @@ export interface RepCountryResource {
     };
 }
 
-
-
 export interface Currency {
     id: number;
     code: string;
     name: string;
-
 }
 
 export interface Institution {
@@ -261,7 +258,7 @@ export interface CourseResource {
         total: number;
     };
 }
- export interface Branch {
+export interface Branch {
     id: string;
     name: string;
     contact_person_name: string;
@@ -270,7 +267,7 @@ export interface CourseResource {
     created_at: string;
     is_active: boolean;
     user?: {
-      last_login_at: string;
+        last_login_at: string;
     };
 }
 
@@ -361,6 +358,69 @@ export interface ProcessingOffice {
 
 export interface ProcessingOfficeResource {
     data: ProcessingOffice[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
+}
+
+export interface CounsellorRemark {
+    id: string;
+    remark: string;
+    remark_date: string;
+    remark_date_formatted: string;
+    added_by_user: {
+        id: string;
+        name: string;
+    };
+    created_at: string;
+    created_at_formatted: string;
+    updated_at: string;
+    updated_at_formatted: string;
+    is_edited: boolean;
+}
+
+export interface CounsellorTarget {
+    id: string;
+    number_of_applications: number;
+    year: number;
+    description: string;
+    added_by_user: {
+        id: string;
+        name: string;
+    };
+    created_at: string;
+    created_at_formatted: string;
+    updated_at: string;
+    updated_at_formatted: string;
+    is_edited: boolean;
+}
+export interface Associate {
+    id: string;
+    associate_name: string;
+    contact_person: string;
+    contact_email: string;
+    contact_mobile: string;
+    category: string;
+    created_at: string;
+    is_active: boolean;
+    branch_id: string;
+    address?: string | null;
+    country_id: string;
+    city: string;
+    phone: string;
+    website: string;
+    term_of_association: string;
+    designation: string;
+    contact_phone: string;
+    contact_skype: string;
+    state: string;
+}
+
+export interface AssociateResource {
+    data: Associate[];
     meta: {
         current_page: number;
         last_page: number;

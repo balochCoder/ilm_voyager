@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatusSwitch } from '@/components/ui/status-switch';
 import AppLayout from '@/layouts/app-layout';
-import { BranchResource, BreadcrumbItem, SharedData } from '@/types';
+import { BranchResource, BreadcrumbItem, Country, SharedData } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Plus, Edit, Building2, Check, Clock, Search, RotateCcw, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
@@ -30,7 +30,7 @@ interface Props {
   branches: BranchResource;
   branchesTotal: number;
   branchesActive: number;
-  countries?: { id: string; name: string; flag?: string }[];
+  countries?: Country[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [

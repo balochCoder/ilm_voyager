@@ -120,7 +120,25 @@ const mainNavItems: NavItem[] = [
             },
         ],
     },
-
+{
+        title: "Associates",
+        href: "/agents/associates",
+        icon: Building2,
+        isActive: false,
+        roles: ['super-admin'],
+        items: [
+            {
+                title: "All Associates",
+                href: "/agents/associates",
+                roles: ['super-admin'],
+            },
+            {
+                title: "Add Associate",
+                href: "/agents/associates/create",
+                roles: ['super-admin'],
+            },
+        ],
+    },
 
     {
         title: "Dashboard",
