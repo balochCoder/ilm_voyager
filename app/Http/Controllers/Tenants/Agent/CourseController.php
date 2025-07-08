@@ -71,9 +71,18 @@ class CourseController extends Controller
             ->with('success', 'Course updated successfully!');
     }
 
-    public function toggleStatus(Course $course)
+    public function toggleStatus(Institution $institution, Course $course)
     {
-        $course->is_active = ! $course->is_active;
+
+        if (! $institution->exists) {
+            return back()->withErrors(['error' => 'Institution not found.']);
+        }
+        if ($course->institution_id !== $institution->id) {
+            # code...
+            return back()->withErrors(['error' => 'Unauthorized action.']);
+        }
+
+        $course->is_active = !$course->is_active;
         $course->save();
 
         return back()->with('success', 'Course status updated.');

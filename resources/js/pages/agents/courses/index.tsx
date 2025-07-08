@@ -4,19 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Search, RotateCcw } from 'lucide-react';
-import { CourseResource, SharedData } from '@/types';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { SharedData } from '@/types';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-
-interface CourseLevel {
-  id: string | number;
-  name: string;
-}
 
 interface Course {
     id: string | number;
@@ -39,7 +34,7 @@ interface Course {
 interface Props {
     courses: {
         data: Course[];
-        meta: any;
+        meta: Record<string, unknown>;
     };
     filterOptions: {
         countries: { id: string; name: string }[];
@@ -88,15 +83,7 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
     const {flash} = usePage<SharedData>().props;
     const [isLoading, setIsLoading] = useState(false);
     const [selectedCourseLevel, setSelectedCourseLevel] = useState<string>('all');
-    const [courseName, setCourseName] = useState('');
-    const [campus, setCampus] = useState('');
     const [keyword, setKeyword] = useState('');
-    const [initialFilters, setInitialFilters] = useState({
-        courseLevel: 'all',
-        courseName: '',
-        campus: '',
-        keyword: '',
-    });
     const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [selectedIntake, setSelectedIntake] = useState<string>('all');
@@ -110,29 +97,12 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const courseLevel = urlParams.get('filter[course_level_id]') || urlParams.get('course_level_id') || 'all';
-        const name = urlParams.get('filter[course_name]') || urlParams.get('course_name') || '';
-        const campusValue = urlParams.get('filter[campus]') || urlParams.get('campus') || '';
         const keywordValue = urlParams.get('filter[keyword]') || urlParams.get('keyword') || '';
         if (courseLevel && courseLevel !== 'all') {
             setSelectedCourseLevel(courseLevel);
         }
-        setCourseName(name);
-        setCampus(campusValue);
         setKeyword(keywordValue);
-        setInitialFilters({
-            courseLevel,
-            courseName: name,
-            campus: campusValue,
-            keyword: keywordValue,
-        });
     }, []);
-
-    const hasFilterChanges = () => {
-        return selectedCourseLevel !== initialFilters.courseLevel ||
-               courseName !== initialFilters.courseName ||
-               campus !== initialFilters.campus ||
-               keyword !== initialFilters.keyword;
-    };
 
     const hasActiveFilters = () => {
         return (
@@ -210,6 +180,13 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
             toast.success(flash?.success);
         }
     }, [flash]);
+
+    // Build a map of category IDs to names
+    const categoryMap = Object.fromEntries(filterOptions.categories.map(cat => [String(cat.id), cat.name]));
+
+    // Type assertions for meta properties
+    const lastPage = courses.meta.last_page as number;
+    const currentPage = courses.meta.current_page as number;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -364,8 +341,8 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                                 </div>
                                 {course.course_categories && course.course_categories.length > 0 && (
                                     <div className="flex flex-wrap gap-1 text-xs mt-1">
-                                        {course.course_categories.map((cat, i) => (
-                                            <span key={i} className="bg-muted px-2 py-0.5 rounded-full">{cat}</span>
+                                        {course.course_categories.map((catId, i) => (
+                                            <span key={i} className="bg-muted px-2 py-0.5 rounded-full">{categoryMap[catId] || catId}</span>
                                         ))}
                                     </div>
                                 )}
@@ -381,19 +358,19 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                     )}
                 </div>
                 {/* Pagination */}
-                {!isLoading && courses.meta.last_page > 1 && (
+                {!isLoading && typeof lastPage === 'number' && typeof currentPage === 'number' && lastPage > 1 && (
                     <Pagination className="mt-6">
                         <PaginationContent>
                             <PaginationItem>
                                 <PaginationPrevious
-                                    onClick={() => handlePageChange(courses.meta.current_page - 1)}
-                                    disabled={courses.meta.current_page === 1}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
                                 />
                             </PaginationItem>
-                            {Array.from({ length: courses.meta.last_page }, (_, i) => i + 1).map((page) => (
+                            {Array.from({ length: lastPage }, (_, i) => i + 1).map((page) => (
                                 <PaginationItem key={page}>
                                     <PaginationLink
-                                        isActive={page === courses.meta.current_page}
+                                        isActive={page === currentPage}
                                         onClick={() => handlePageChange(page)}
                                     >
                                         {page}
@@ -402,8 +379,8 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                             ))}
                             <PaginationItem>
                                 <PaginationNext
-                                    onClick={() => handlePageChange(courses.meta.current_page + 1)}
-                                    disabled={courses.meta.current_page === courses.meta.last_page}
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === lastPage}
                                 />
                             </PaginationItem>
                         </PaginationContent>
@@ -412,4 +389,4 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
             </div>
         </AppLayout>
     );
-} 
+}

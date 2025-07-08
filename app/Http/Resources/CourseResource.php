@@ -51,7 +51,7 @@ class CourseResource extends JsonResource
             'is_language_mandatory' => $this->is_language_mandatory,
             'language_requirements' => $this->language_requirements,
             'additional_info' => $this->additional_info,
-            'course_categories' => $this->getCourseCategoryNames(),
+            'course_categories' => $this->course_categories,
             'modules' => $this->modules,
             'intake_month' => $this->intake_month,
             'is_active' => $this->is_active,
@@ -64,7 +64,7 @@ class CourseResource extends JsonResource
 
     private function getCourseCategoryNames()
     {
-        if (! is_array($this->course_categories)) {
+        if (!is_array($this->course_categories)) {
             return [];
         }
         $ids = $this->course_categories;
