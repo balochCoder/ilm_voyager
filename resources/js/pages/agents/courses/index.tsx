@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import React from 'react';
 
 interface Course {
     id: string | number;
@@ -29,6 +31,14 @@ interface Course {
     campus?: string;
     general_eligibility?: string;
     country_flag?: string;
+    currency?: { code?: string };
+    course_benefits?: string;
+    language_requirements?: string;
+    start_date?: string;
+    end_date?: string;
+    awarding_body?: string;
+    additional_info?: string;
+    documents?: { id: string; title: string; url: string }[];
 }
 
 interface Props {
@@ -79,6 +89,18 @@ function renderQualityStars(quality?: string) {
     );
 }
 
+// Custom hook for course sheet state
+function useCourseSheet() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const openSheet = (course: Course) => {
+    setSelectedCourse(course);
+    setIsOpen(true);
+  };
+  const closeSheet = () => setIsOpen(false);
+  return { isOpen, openSheet, closeSheet, selectedCourse };
+}
+
 export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
     const {flash} = usePage<SharedData>().props;
     const [isLoading, setIsLoading] = useState(false);
@@ -89,6 +111,7 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
     const [selectedIntake, setSelectedIntake] = useState<string>('all');
     const [selectedQuality, setSelectedQuality] = useState<string>('all');
     const [amount, setAmount] = useState('');
+    const courseSheet = useCourseSheet();
 
     useEffect(() => {
         setIsLoading(false);
@@ -316,44 +339,49 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                         <div className="text-center text-gray-500 py-12 col-span-full">No courses found.</div>
                     ) : (
                         courses.data.map((course: Course) => (
-                            <Card key={course.id} className="p-4 flex flex-col gap-2 border border-muted-foreground/10 shadow-sm">
-                                <div className="font-semibold text-lg mb-1 truncate" title={course.title}>{course.title}</div>
-                                <div className="text-xs text-muted-foreground mb-2">
-                                    {course.institution_name || '-'}
-                                    {course.country_name && (
-                                        <>
-                                            {', '}
-                                            {course.country_flag && (
-                                                <img src={course.country_flag} alt="flag" className="inline-block w-4 h-4 mr-1 align-text-bottom" />
-                                            )}
-                                            {course.country_name}
-                                        </>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                                    <span>Level: <span className="font-medium text-foreground">{course.course_level?.name || '-'}</span></span>
-                                    <span>Fee: <span className="font-medium text-foreground">{course.course_fee || '-'}</span></span>
-                                    <span>Campus: <span className="font-medium text-foreground">{course.campus || '-'}</span></span>
-                                </div>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                                    <span>Duration: <span className="font-medium text-foreground">{formatDuration(course.duration_year || '', course.duration_month || '', course.duration_week || '')}</span></span>
-                                    <span>Intakes: <span className="font-medium text-foreground">{Array.isArray(course.intake_month) && course.intake_month.length > 0 ? course.intake_month.join(', ') : '-'}</span></span>
-                                </div>
-                                {course.course_categories && course.course_categories.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 text-xs mt-1">
-                                        {course.course_categories.map((catId, i) => (
-                                            <span key={i} className="bg-muted px-2 py-0.5 rounded-full">{categoryMap[catId] || catId}</span>
-                                        ))}
-                                    </div>
+                          <Card key={course.id} className="p-4 flex flex-col gap-2 border border-muted-foreground/10 shadow-sm">
+                            <div className="font-semibold text-lg mb-1 truncate" title={course.title}>{course.title}</div>
+                            <div className="text-xs text-muted-foreground mb-2">
+                                {course.institution_name || '-'}
+                                {course.country_name && (
+                                    <>
+                                        {', '}
+                                        {course.country_flag && (
+                                            <img src={course.country_flag} alt="flag" className="inline-block w-4 h-4 mr-1 align-text-bottom" />
+                                        )}
+                                        {course.country_name}
+                                    </>
                                 )}
-                                <div className="border-t my-2" />
-                                <div className="text-xs text-foreground">
-                                    {renderQualityStars(course.quality_of_desired_application)}
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                <span>Level: <span className="font-medium text-foreground">{course.course_level?.name || '-'}</span></span>
+                                <span>Fee: <span className="font-medium text-foreground">{course.course_fee ? `${course.course_fee}${course.currency && course.currency.code ? ' ' + course.currency.code : ''}` : '-'}</span></span>
+                                <span>Campus: <span className="font-medium text-foreground">{course.campus || '-'}</span></span>
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                <span>Duration: <span className="font-medium text-foreground">{formatDuration(course.duration_year || '', course.duration_month || '', course.duration_week || '')}</span></span>
+                                <span>Intakes: <span className="font-medium text-foreground">{Array.isArray(course.intake_month) && course.intake_month.length > 0 ? course.intake_month.join(', ') : '-'}</span></span>
+                            </div>
+                            {course.course_categories && course.course_categories.length > 0 && (
+                                <div className="flex flex-wrap gap-1 text-xs mt-1">
+                                    {course.course_categories.map((catId, i) => (
+                                        <span key={i} className="bg-muted px-2 py-0.5 rounded-full">{categoryMap[catId] || catId}</span>
+                                    ))}
                                 </div>
-                                <div className="text-xs text-muted-foreground line-clamp-2" title={course.general_eligibility || ''}>
-                                    {course.general_eligibility || '-'}
-                                </div>
-                            </Card>
+                            )}
+                            <div className="border-t my-2" />
+                            <div className="text-xs text-foreground">
+                                {renderQualityStars(course.quality_of_desired_application)}
+                            </div>
+                            <div className="text-xs text-muted-foreground line-clamp-2" title={course.general_eligibility || ''}>
+                                {course.general_eligibility || '-'}
+                            </div>
+                            <div className="mt-2">
+                              <Button variant="outline" size="sm" onClick={() => courseSheet.openSheet(course)}>
+                                View Details
+                              </Button>
+                            </div>
+                          </Card>
                         ))
                     )}
                 </div>
@@ -386,6 +414,108 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                         </PaginationContent>
                     </Pagination>
                 )}
+                {/* Course Details Sheet (outside the map) */}
+                <Sheet open={courseSheet.isOpen} onOpenChange={open => { if (!open) courseSheet.closeSheet(); }}>
+                  <SheetContent side="right" className="w-[1000px] !max-w-none">
+                    <SheetHeader>
+                      <SheetTitle>Course Details</SheetTitle>
+                      <SheetDescription>
+                        {courseSheet.selectedCourse ? (
+                          <div className="p-6 bg-white rounded-lg shadow-lg">
+                            <div className="mb-6">
+                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{courseSheet.selectedCourse.institution_name || '-'}</span>
+                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded">{courseSheet.selectedCourse.country_name || '-'}</span>
+                                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">{courseSheet.selectedCourse.course_level?.name || '-'}</span>
+                                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">{courseSheet.selectedCourse.course_fee ? `${courseSheet.selectedCourse.course_fee}${courseSheet.selectedCourse.currency && courseSheet.selectedCourse.currency.code ? ' ' + courseSheet.selectedCourse.currency.code : ''}` : '-'}</span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Campus:</span>
+                                <span>{courseSheet.selectedCourse.campus || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Duration:</span>
+                                <span>{formatDuration(courseSheet.selectedCourse.duration_year || '', courseSheet.selectedCourse.duration_month || '', courseSheet.selectedCourse.duration_week || '')}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Intakes:</span>
+                                <span>{Array.isArray(courseSheet.selectedCourse.intake_month) && courseSheet.selectedCourse.intake_month.length > 0 ? courseSheet.selectedCourse.intake_month.join(', ') : '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Awarding Body:</span>
+                                <span>{courseSheet.selectedCourse.awarding_body || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Start Date:</span>
+                                <span>{courseSheet.selectedCourse.start_date || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">End Date:</span>
+                                <span>{courseSheet.selectedCourse.end_date || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Eligibility:</span>
+                                <span>{courseSheet.selectedCourse.general_eligibility || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Language Requirements:</span>
+                                <span>{courseSheet.selectedCourse.language_requirements || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Benefits:</span>
+                                <span>{courseSheet.selectedCourse.course_benefits || '-'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-base">
+                                <span className="font-semibold text-muted-foreground min-w-[120px]">Additional Info:</span>
+                                <span>{courseSheet.selectedCourse.additional_info || '-'}</span>
+                              </div>
+                            </div>
+                            {/* Categories */}
+                            {courseSheet.selectedCourse.course_categories && courseSheet.selectedCourse.course_categories.length > 0 && (
+                              <div className="mt-6">
+                                <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">Categories</div>
+                                <div className="flex flex-wrap gap-1">
+                                  {courseSheet.selectedCourse.course_categories.map((catId: string, i: number) => (
+                                    <span key={i} className="bg-muted px-2 py-0.5 rounded-full text-base">{categoryMap[catId] || catId}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {/* Documents */}
+                            <div className="mt-8">
+                              <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">Documents</div>
+                              {courseSheet.selectedCourse && Array.isArray(courseSheet.selectedCourse.documents) && courseSheet.selectedCourse.documents.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                                  {courseSheet.selectedCourse.documents.map((doc: { id: string; title: string; url: string }, idx: number) => (
+                                    <React.Fragment key={doc.id || idx}>
+                                      <div className="flex items-center text-base font-medium truncate">
+                                        {doc.title || 'Untitled Document'}
+                                      </div>
+                                      <div className="flex items-center justify-end text-base">
+                                        <a
+                                          href={doc.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-blue-600 underline hover:text-blue-800 transition-colors truncate"
+                                        >
+                                          View
+                                        </a>
+                                      </div>
+                                    </React.Fragment>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span>-</span>
+                              )}
+                            </div>
+                          </div>
+                        ) : null}
+                      </SheetDescription>
+                    </SheetHeader>
+                  </SheetContent>
+                </Sheet>
             </div>
         </AppLayout>
     );
