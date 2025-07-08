@@ -4,15 +4,15 @@ namespace App\Actions\Course;
 
 use App\Http\Resources\CourseResource;
 use App\Models\Institution;
-use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class GetCoursesAction
 {
     public function execute(Institution $institution, array $filters)
     {
         $query = QueryBuilder::for($institution->courses()->getQuery())
-            ->with(['courseLevel', 'currency'])
+            ->with(['courseLevel', 'currency', 'institution.repCountry.country'])
             ->allowedFilters([
                 AllowedFilter::callback('course_level_id', function ($query, $value) {
                     if ($value !== 'all') {
@@ -38,7 +38,7 @@ class GetCoursesAction
             ])
             ->defaultSort('-created_at');
 
-        $courses = $query->paginate(10)->withQueryString();
+        $courses = $query->paginate(12)->withQueryString();
 
         $notLanguageMandatoryCount = $institution->courses()->where('is_language_mandatory', false)->count();
         $courseLevels = \App\Models\CourseLevel::all(['id', 'name']);

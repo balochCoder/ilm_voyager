@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Actions\Counsellor\IndexCounsellorAction;
 use App\Actions\Counsellor\StoreCounsellorAction;

@@ -6,8 +6,8 @@ use App\Http\Resources\BranchResource;
 use App\Models\Branch;
 use App\Models\Country;
 use Illuminate\Http\Request;
-use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexBranchAction
 {
@@ -42,7 +42,7 @@ class IndexBranchAction
                 }),
             ]);
 
-        $branches = $query->paginate(10)->withQueryString();
+        $branches = $query->paginate(12)->withQueryString();
         $branchesActive = Branch::where('is_active', true)->count();
         $countries = Country::query()->orderBy('name')->get(['id', 'name', 'flag']);
 

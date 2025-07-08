@@ -15,7 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('permissions', function (Blueprint $table) {
-              DB::table('roles')->insert([
+            DB::table('roles')->insert([
 
                 [
                     'id' => (string) Str::ulid(),
@@ -34,6 +34,4 @@ return new class extends Migration
             ]);
         });
     }
-
-
 };

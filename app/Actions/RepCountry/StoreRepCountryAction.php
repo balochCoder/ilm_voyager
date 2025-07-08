@@ -49,6 +49,7 @@ final class StoreRepCountryAction
                 }
             }
         }
+
         return $repCountry;
     }
 }

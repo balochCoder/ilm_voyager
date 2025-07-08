@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\RepCountry
  *
  * @property string $id
- * @property string|null $monthly_living_cost
+ * @property int|null $monthly_living_cost
  * @property string|null $visa_requirements
  * @property string|null $part_time_work_details
  * @property string|null $country_benefits
@@ -55,6 +56,15 @@ final class RepCountry extends Model
     {
         return [
             'is_active' => 'boolean',
+            'monthly_living_cost' => 'integer',
         ];
+    }
+
+    protected function monthlyLivingCost(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value / 100,
+            set: fn ($value) => $value * 100
+        );
     }
 }

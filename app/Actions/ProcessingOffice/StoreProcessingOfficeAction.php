@@ -47,6 +47,7 @@ final class StoreProcessingOfficeAction
 
             return $processingOffice;
         });
+
         return $processingOffice;
     }
 }

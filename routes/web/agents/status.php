@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Tenants\StatusController;
+use App\Http\Controllers\Tenants\Agent\StatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('representing-countries/{repCountry}/reorder-statuses', [StatusController::class, 'reorderStatuses'])->name('rep-countries:reorder-statuses');

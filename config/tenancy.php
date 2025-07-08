@@ -27,6 +27,7 @@ return [
      */
     'central_domains' => [
         'localhost',
+        'ilm_voyager.test',
     ],
 
     /**

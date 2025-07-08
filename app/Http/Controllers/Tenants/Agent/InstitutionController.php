@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Actions\Institution\GetInstitutionsIndexDataAction;
 use App\Actions\Institution\StoreInstitutionAction;

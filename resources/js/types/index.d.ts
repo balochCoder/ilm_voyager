@@ -399,24 +399,31 @@ export interface CounsellorTarget {
 }
 export interface Associate {
     id: string;
-    associate_name: string;
-    contact_person: string;
-    contact_email: string;
-    contact_mobile: string;
-    category: string;
-    created_at: string;
-    is_active: boolean;
+    user_id: string;
     branch_id: string;
-    address?: string | null;
     country_id: string;
-    city: string;
-    phone: string;
-    website: string;
-    term_of_association: string;
-    designation: string;
-    contact_phone: string;
-    contact_skype: string;
-    state: string;
+    category: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    user: {
+        id: string;
+        name: string;
+        email: string;
+        // add other fields as needed
+    };
+    branch?: {
+        id: string;
+        name: string;
+    };
+    country?: {
+        id: string;
+        name: string;
+        flag?: string;
+    };
+    phone?: string;
+    mobile?: string;
+    whatsapp?: string;
 }
 
 export interface AssociateResource {

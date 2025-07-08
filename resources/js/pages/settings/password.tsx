@@ -29,6 +29,10 @@ export default function Password() {
             if (hasRole('counsellor')) {
                 return route('counsellors:password:update');
             }
+
+            if (hasRole('branch-office')) {
+                return route('branches:password:update');
+            }
             return route('agents:agents:update'); // Default fallback
         };
     const passwordInput = useRef<HTMLInputElement>(null);

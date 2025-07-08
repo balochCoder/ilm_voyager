@@ -6,15 +6,19 @@ use App\Enums\TenantRolesEnum;
 use App\Http\Requests\Counsellor\StoreCounsellorRequest;
 use App\Models\Counsellor;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
 
 class StoreCounsellorAction
 {
+    public function __construct(
+        private DatabaseManager $database
+    ) {}
+
     public function execute(StoreCounsellorRequest $request): void
     {
         $data = $request->validated();
-        DB::transaction(function () use ($data) {
+        $this->database->transaction(function () use ($data) {
             // Create user
             $user = User::create([
                 'name' => $data['name'],

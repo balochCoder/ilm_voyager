@@ -36,6 +36,9 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         if (hasRole('counsellor')) {
             return route('counsellors:profile:update');
         }
+        if (hasRole('branch-office')) {
+            return route('branches:profile:update');
+        }
         return route('agents:profile:update'); // Default fallback
     };
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({

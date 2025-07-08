@@ -4,15 +4,19 @@ namespace App\Actions\Counsellor;
 
 use App\Http\Requests\Counsellor\UpdateCounsellorRequest;
 use App\Models\Counsellor;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
 
 class UpdateCounsellorAction
 {
+    public function __construct(
+        private DatabaseManager $database
+    ) {}
+
     public function execute(UpdateCounsellorRequest $request, Counsellor $counsellor): void
     {
         $data = $request->validated();
-        DB::transaction(function () use ($data, $request, $counsellor) {
+        $this->database->transaction(function () use ($data, $counsellor) {
             // Prepare user data
             $userData = [
                 'name' => $data['name'],

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Tenants\CourseController;
-use App\Http\Controllers\Tenants\InstitutionController;
+use App\Http\Controllers\Tenants\Agent\CourseController;
+use App\Http\Controllers\Tenants\Agent\InstitutionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('representing-institutions', [InstitutionController::class, 'index'])->name('institutions:index');
@@ -12,12 +12,12 @@ Route::post('representing-institutions', [InstitutionController::class, 'store']
 Route::patch('representing-institutions/{institution}/toggle-status', [InstitutionController::class, 'toggleStatus'])->name('institutions:toggle-status');
 Route::get('representing-institutions/{institution}', [InstitutionController::class, 'show'])->name('institutions:show');
 Route::get('representing-institutions/{institution}/edit', [
-    \App\Http\Controllers\Tenants\InstitutionController::class,
+    \App\Http\Controllers\Tenants\Agent\InstitutionController::class,
     'edit',
 ])->name('institutions:edit');
 
 Route::put('representing-institutions/{institution}', [
-    \App\Http\Controllers\Tenants\InstitutionController::class,
+    \App\Http\Controllers\Tenants\Agent\InstitutionController::class,
     'update',
 ])->name('institutions:update');
 

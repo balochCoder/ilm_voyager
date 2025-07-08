@@ -9,8 +9,8 @@ use App\Models\Currency;
 use App\Models\Institution;
 use App\Models\RepCountry;
 use Illuminate\Http\Request;
-use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 final class GetInstitutionsIndexDataAction
 {
@@ -53,7 +53,7 @@ final class GetInstitutionsIndexDataAction
             ])
             ->defaultSort('-created_at');
 
-        $institutions = InstitutionResource::collection($query->paginate(10)->withQueryString());
+        $institutions = InstitutionResource::collection($query->paginate(12)->withQueryString());
         $institutionsTotal = Institution::count();
         $institutionsActive = Institution::where('is_active', true)->count();
         $institutionsDirect = Institution::where('institute_type', 'direct')->count();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Actions\Branch\IndexBranchAction;
 use App\Actions\Branch\StoreBranchAction;
@@ -84,4 +84,6 @@ class BranchController extends Controller
             return back()->withErrors(['error' => 'Failed to update branch: '.$e->getMessage()]);
         }
     }
+
+   
 }

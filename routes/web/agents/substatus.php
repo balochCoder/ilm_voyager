@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Tenants\SubStatusController;
+use App\Http\Controllers\Tenants\Agent\SubStatusController;
 use Illuminate\Support\Facades\Route;
 
 // Sub-status routes

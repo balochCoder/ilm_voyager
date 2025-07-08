@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Tenants\Agent\AssociateController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Tenants\AssociateController;
 
 Route::get('associates', [AssociateController::class, 'index'])->name('associates:index');
 Route::get('associates/create', [AssociateController::class, 'create'])->name('associates:create');

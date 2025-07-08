@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;

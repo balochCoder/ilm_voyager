@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('institution_name');
             $table->string('campus')->nullable();
             $table->string('website')->nullable();
-            $table->decimal('monthly_living_cost', 10, 2)->nullable();
-            $table->decimal('funds_required_for_visa', 10, 2)->nullable();
-            $table->decimal('application_fee', 10, 2)->nullable();
+            $table->integer('monthly_living_cost')->nullable();
+            $table->integer('funds_required_for_visa')->nullable();
+            $table->integer('application_fee')->nullable();
             $table->foreignId('currency_id')->constrained('currencies')->onDelete('cascade');
             $table->text('contract_terms')->nullable();
             $table->enum('institute_type', ['direct', 'indirect']);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Actions\ProcessingOffice\IndexProcessingOfficeAction;
 use App\Actions\ProcessingOffice\StoreProcessingOfficeAction;
@@ -10,8 +10,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProcessingOffice\StoreProcessingOfficeRequest;
 use App\Http\Requests\ProcessingOffice\UpdateProcessingOfficeRequest;
 use App\Http\Resources\ProcessingOfficeResource;
-use App\Models\ProcessingOffice;
 use App\Models\Country;
+use App\Models\ProcessingOffice;
 use App\Models\TimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

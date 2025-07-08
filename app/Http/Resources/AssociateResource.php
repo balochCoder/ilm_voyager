@@ -16,7 +16,17 @@ class AssociateResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'user_id' => $this->user_id,
+            'branch_id' => $this->branch_id,
+            'country_id' => $this->country_id,
             'associate_name' => $this->associate_name,
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ];
+            }),
             'branch' => $this->whenLoaded('branch', function () {
                 return [
                     'id' => $this->branch->id,
@@ -37,7 +47,7 @@ class AssociateResource extends JsonResource
             'phone' => $this->phone,
             'website' => $this->website,
             'term_of_association' => $this->term_of_association,
-            'contract_file_url' => $this->getFirstMediaUrl('contract_file'),
+            'contract_file' => $this->getContractFile(),
             'contact_person' => $this->contact_person,
             'designation' => $this->designation,
             'contact_phone' => $this->contact_phone,

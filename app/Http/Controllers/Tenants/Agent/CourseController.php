@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Actions\Course\GetCoursesAction;
 use App\Actions\Course\StoreCourseAction;

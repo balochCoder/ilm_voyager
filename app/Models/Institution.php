@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -87,6 +88,16 @@ class Institution extends Model implements HasMedia
         ];
     }
 
+    protected function casts()
+    {
+        return [
+            'is_language_mandatory' => 'boolean',
+            'monthly_living_cost' => 'integer',
+            'funds_required_for_visa' => 'integer',
+            'application_fee' => 'integer',
+        ];
+    }
+
     public function getProspectusFile()
     {
         $media = $this->getFirstMedia('prospectus');
@@ -106,5 +117,29 @@ class Institution extends Model implements HasMedia
     public function courses()
     {
         return $this->hasMany(\App\Models\Course::class);
+    }
+
+    protected function monthlyLivingCost(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value / 100,
+            set: fn ($value) => $value * 100
+        );
+    }
+
+    protected function fundsRequiredForVisa(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value / 100,
+            set: fn ($value) => $value * 100
+        );
+    }
+
+    protected function applicationFee(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value / 100,
+            set: fn ($value) => $value * 100
+        );
     }
 }

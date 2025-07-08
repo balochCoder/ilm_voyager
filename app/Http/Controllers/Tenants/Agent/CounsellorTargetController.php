@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
@@ -8,7 +8,6 @@ use App\Http\Requests\CounsellorTarget\StoreCounsellorTargetRequest;
 use App\Http\Resources\CounsellorTargetResource;
 use App\Models\Counsellor;
 use App\Models\CounsellorTarget;
-use Illuminate\Http\Request;
 
 class CounsellorTargetController extends Controller
 {
@@ -50,7 +49,7 @@ class CounsellorTargetController extends Controller
             return back()
                 ->with('success', 'Target added successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to add target: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to add target: '.$e->getMessage()]);
         }
     }
 
@@ -61,7 +60,7 @@ class CounsellorTargetController extends Controller
     {
         try {
             // Check if the current user is authorized to edit this target
-            if ($target->added_by_user_id !== auth()->id() && !auth()->user()->hasRole('superadmin')) {
+            if ($target->added_by_user_id !== auth()->id() && ! auth()->user()->hasRole('superadmin')) {
                 return back()->withErrors(['error' => 'You are not authorized to edit this target.']);
             }
 
@@ -74,7 +73,7 @@ class CounsellorTargetController extends Controller
             return back()
                 ->with('success', 'Target updated successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to update target: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to update target: '.$e->getMessage()]);
         }
     }
 }

@@ -47,8 +47,16 @@ Route::as('agents:')->middleware(['role:'.TenantRolesEnum::SUPERADMIN->value])->
         [],
         base_path('routes/web/agents/processing-offices.php')
     );
-     Route::group(
+    Route::group(
         [],
         base_path('routes/web/agents/associates.php')
+    );
+    Route::group(
+        [],
+        base_path('routes/web/agents/courses.php')
+    );
+    Route::group(
+        [],
+        base_path('routes/web/agents/lead-sources.php')
     );
 });

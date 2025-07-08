@@ -9,8 +9,8 @@ use App\Models\Country;
 use App\Models\RepCountry;
 use App\Models\Status;
 use Illuminate\Http\Request;
-use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 final class GetRepCountriesIndexDataAction
 {
@@ -34,7 +34,7 @@ final class GetRepCountriesIndexDataAction
             ])
             ->defaultSort('-created_at');
 
-        $repCountries = RepCountryResource::collection($query->paginate(6));
+        $repCountries = RepCountryResource::collection($query->paginate(12));
 
         $availableCountries = Country::whereHas('repCountry')
             ->orderBy('name')

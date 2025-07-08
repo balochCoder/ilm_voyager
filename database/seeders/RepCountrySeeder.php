@@ -6,11 +6,11 @@ namespace Database\Seeders;
 
 use App\Enums\TenantRolesEnum;
 use App\Models\Branch;
+use App\Models\Counsellor;
 use App\Models\Country;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\CourseLevel;
-use App\Models\Counsellor;
 use App\Models\Currency;
 use App\Models\Institution;
 use App\Models\ProcessingOffice;
@@ -47,7 +47,7 @@ final class RepCountrySeeder extends Seeder
         $repCountriesData = [
             [
                 'country_id' => $countries->first()->id,
-                'monthly_living_cost' => '$2,500 - $3,500',
+                'monthly_living_cost' => 250.98,
                 'visa_requirements' => "1. Valid passport with at least 6 months validity\n2. Completed visa application form\n3. Proof of financial support\n4. Letter of acceptance from educational institution\n5. Health insurance coverage\n6. Police clearance certificate\n7. Medical examination results",
                 'part_time_work_details' => 'Students are allowed to work up to 20 hours per week during academic sessions and full-time during scheduled breaks. Work must be on-campus or authorized off-campus employment. Students must maintain full-time enrollment status.',
                 'country_benefits' => "• High-quality education system\n• Diverse cultural experience\n• Post-study work opportunities\n• Access to world-class research facilities\n• Strong international student support\n• Beautiful natural landscapes\n• Safe and welcoming environment",
@@ -55,7 +55,7 @@ final class RepCountrySeeder extends Seeder
             ],
             [
                 'country_id' => $countries->skip(1)->first()->id,
-                'monthly_living_cost' => '$3,000 - $4,000',
+                'monthly_living_cost' => 250.98,
                 'visa_requirements' => "1. Student visa application (Tier 4)\n2. Confirmation of Acceptance for Studies (CAS)\n3. Proof of English language proficiency\n4. Financial evidence showing sufficient funds\n5. Tuberculosis test results\n6. Academic qualifications and transcripts\n7. Personal statement and references",
                 'part_time_work_details' => 'Tier 4 students can work up to 20 hours per week during term time and unlimited hours during holidays. Work must not interfere with studies. Students cannot be self-employed or work as professional sportspeople or entertainers.',
                 'country_benefits' => "• Prestigious universities and colleges\n• Rich cultural heritage and history\n• Excellent career opportunities\n• Access to European travel\n• Strong research and innovation culture\n• Multicultural society\n• World-class healthcare system",
@@ -63,7 +63,7 @@ final class RepCountrySeeder extends Seeder
             ],
             [
                 'country_id' => $countries->skip(2)->first()->id,
-                'monthly_living_cost' => '$2,000 - $3,200',
+                'monthly_living_cost' => 250.98,
                 'visa_requirements' => "1. Study permit application\n2. Letter of acceptance from Designated Learning Institution\n3. Proof of financial support\n4. Medical examination\n5. Police certificate\n6. Biometric information\n7. Statement of purpose",
                 'part_time_work_details' => 'International students can work up to 20 hours per week during regular academic sessions and full-time during scheduled breaks. Students must have a valid study permit and be enrolled full-time at a designated learning institution.',
                 'country_benefits' => "• High standard of living\n• Excellent healthcare system\n• Beautiful natural scenery\n• Multicultural society\n• Strong economy and job market\n• Quality education at affordable costs\n• Safe and peaceful environment",
@@ -71,7 +71,7 @@ final class RepCountrySeeder extends Seeder
             ],
             [
                 'country_id' => $countries->skip(3)->first()->id,
-                'monthly_living_cost' => '$2,800 - $3,800',
+                'monthly_living_cost' => 250.98,
                 'visa_requirements' => "1. Student visa (subclass 500)\n2. Confirmation of Enrollment (CoE)\n3. Genuine Temporary Entrant (GTE) statement\n4. Financial capacity evidence\n5. Health insurance (OSHC)\n6. English language proficiency\n7. Health and character requirements",
                 'part_time_work_details' => 'Student visa holders can work up to 40 hours per fortnight during course sessions and unlimited hours during scheduled course breaks. Students must maintain course attendance and academic progress.',
                 'country_benefits' => "• World-class education institutions\n• Beautiful beaches and landscapes\n• Excellent quality of life\n• Strong economy and job opportunities\n• Multicultural and welcoming society\n• Great weather and outdoor lifestyle\n• Post-study work opportunities",
@@ -79,7 +79,7 @@ final class RepCountrySeeder extends Seeder
             ],
             [
                 'country_id' => $countries->skip(4)->first()->id,
-                'monthly_living_cost' => '$1,800 - $2,500',
+                'monthly_living_cost' => 250.98,
                 'visa_requirements' => "1. Student visa application\n2. Offer letter from educational institution\n3. Proof of financial means\n4. Health and character certificates\n5. Academic qualifications\n6. English language proficiency\n7. Medical and travel insurance",
                 'part_time_work_details' => 'International students can work up to 20 hours per week during academic sessions and full-time during scheduled breaks. Students must maintain full-time enrollment and satisfactory academic progress.',
                 'country_benefits' => "• Affordable education costs\n• High-quality education system\n• Beautiful landscapes and outdoor activities\n• Friendly and welcoming people\n• Safe and peaceful environment\n• Strong economy\n• Excellent work-life balance",
@@ -219,7 +219,7 @@ final class RepCountrySeeder extends Seeder
             ['John Smith', 'Sarah Johnson', 'Michael Brown'],
             ['Emily Davis', 'David Wilson', 'Lisa Anderson'],
             ['Robert Taylor', 'Jennifer Martinez', 'Christopher Garcia'],
-            ['Amanda Rodriguez', 'James Lee', 'Michelle White']
+            ['Amanda Rodriguez', 'James Lee', 'Michelle White'],
         ];
 
         for ($i = 0; $i < 4; $i++) {
@@ -227,22 +227,23 @@ final class RepCountrySeeder extends Seeder
             $timeZone = $timeZones->random();
 
             // Check if branch user already exists
-            $branchEmail = 'branch' . ($i + 1) . '@example.com';
+            $branchEmail = 'branch'.($i + 1).'@example.com';
             $existingBranchUser = User::where('email', $branchEmail)->first();
 
             if ($existingBranchUser) {
-                $this->command->warn('Branch user already exists: ' . $branchEmail);
+                $this->command->warn('Branch user already exists: '.$branchEmail);
+
                 continue;
             }
 
             // Create branch user
             $branchUser = User::create([
-                'name' => $branchNames[$i] . ' Manager',
-                'email' => 'branch' . ($i + 1) . '@example.com',
+                'name' => $branchNames[$i].' Manager',
+                'email' => 'branch'.($i + 1).'@example.com',
                 'password' => Hash::make('password'),
-                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                'mobile' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                'whatsapp' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'phone' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'mobile' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'whatsapp' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
                 'download_csv' => 'allowed',
                 'is_active' => true,
             ]);
@@ -252,37 +253,38 @@ final class RepCountrySeeder extends Seeder
             // Create branch
             $branch = Branch::create([
                 'name' => $branchNames[$i],
-                'address' => (string) rand(100, 9999) . ' ' . ['Main St', 'Oak Ave', 'Pine Rd', 'Elm Blvd'][rand(0, 3)],
+                'address' => (string) rand(100, 9999).' '.['Main St', 'Oak Ave', 'Pine Rd', 'Elm Blvd'][rand(0, 3)],
                 'city' => ['New York', 'Los Angeles', 'Chicago', 'Houston'][$i],
                 'state' => ['NY', 'CA', 'IL', 'TX'][$i],
                 'country_id' => $country->id,
                 'time_zone_id' => $timeZone->id,
-                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                'website' => 'https://branch' . ($i + 1) . '.example.com',
-                'email' => 'info@branch' . ($i + 1) . '.example.com',
+                'phone' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'website' => 'https://branch'.($i + 1).'.example.com',
+                'email' => 'info@branch'.($i + 1).'.example.com',
                 'user_id' => $branchUser->id,
                 'is_active' => true,
             ]);
 
-            $this->command->info('Created branch: ' . $branch->name);
+            $this->command->info('Created branch: '.$branch->name);
 
             // Create 3 counsellors for this branch
             for ($j = 0; $j < 3; $j++) {
-                $counsellorEmail = 'counsellor' . ($i + 1) . ($j + 1) . '@example.com';
+                $counsellorEmail = 'counsellor'.($i + 1).($j + 1).'@example.com';
                 $existingCounsellorUser = User::where('email', $counsellorEmail)->first();
 
                 if ($existingCounsellorUser) {
-                    $this->command->warn('Counsellor user already exists: ' . $counsellorEmail);
+                    $this->command->warn('Counsellor user already exists: '.$counsellorEmail);
+
                     continue;
                 }
 
                 $counsellorUser = User::create([
                     'name' => $counsellorNames[$i][$j],
-                    'email' => 'counsellor' . ($i + 1) . ($j + 1) . '@example.com',
+                    'email' => 'counsellor'.($i + 1).($j + 1).'@example.com',
                     'password' => Hash::make('password'),
-                    'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                    'mobile' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                    'whatsapp' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                    'phone' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                    'mobile' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                    'whatsapp' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
                     'download_csv' => ['allowed', 'allowed_without_contact', 'not_allowed'][rand(0, 2)],
                     'is_active' => true,
                 ]);
@@ -296,7 +298,7 @@ final class RepCountrySeeder extends Seeder
                     'is_active' => true,
                 ]);
 
-                $this->command->info('Created counsellor: ' . $counsellorUser->name . ' for branch: ' . $branch->name);
+                $this->command->info('Created counsellor: '.$counsellorUser->name.' for branch: '.$branch->name);
             }
         }
     }
@@ -314,23 +316,24 @@ final class RepCountrySeeder extends Seeder
             $timeZone = $timeZones->random();
 
             // Check if processing office user already exists
-            $processingEmail = 'processing' . ($i + 1) . '@example.com';
+            $processingEmail = 'processing'.($i + 1).'@example.com';
             $existingProcessingUser = User::where('email', $processingEmail)->first();
 
             if ($existingProcessingUser) {
-                $this->command->warn('Processing office user already exists: ' . $processingEmail);
+                $this->command->warn('Processing office user already exists: '.$processingEmail);
+
                 continue;
             }
 
             // Create processing office user
             $processingUser = User::create([
                 'name' => $contactNames[$i],
-                'email' => 'processing' . ($i + 1) . '@example.com',
+                'email' => 'processing'.($i + 1).'@example.com',
                 'password' => Hash::make('password'),
                 'designation' => 'Processing Manager',
-                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                'mobile' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
-                'skype' => 'processing' . ($i + 1),
+                'phone' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'mobile' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'skype' => 'processing'.($i + 1),
                 'download_csv' => 'allowed',
                 'is_active' => true,
             ]);
@@ -340,17 +343,17 @@ final class RepCountrySeeder extends Seeder
             // Create processing office
             $processingOffice = ProcessingOffice::create([
                 'name' => $processingOfficeNames[$i],
-                'address' => (string) rand(100, 9999) . ' ' . ['Processing St', 'Visa Ave', 'Document Rd', 'Application Blvd'][rand(0, 3)],
+                'address' => (string) rand(100, 9999).' '.['Processing St', 'Visa Ave', 'Document Rd', 'Application Blvd'][rand(0, 3)],
                 'city' => ['Miami', 'Seattle', 'Denver', 'Atlanta'][$i],
                 'state' => ['FL', 'WA', 'CO', 'GA'][$i],
                 'country_id' => $country->id,
                 'time_zone_id' => $timeZone->id,
-                'phone' => '+1-555-' . str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
+                'phone' => '+1-555-'.str_pad((string) rand(100, 999), 3, '0', STR_PAD_LEFT),
                 'user_id' => $processingUser->id,
                 'is_active' => true,
             ]);
 
-            $this->command->info('Created processing office: ' . $processingOffice->name);
+            $this->command->info('Created processing office: '.$processingOffice->name);
         }
     }
 }

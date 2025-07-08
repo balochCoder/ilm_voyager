@@ -17,6 +17,9 @@ class CourseResource extends JsonResource
         return [
             'id' => $this->id,
             'institution_id' => $this->institution_id,
+            'institution_name' => optional($this->institution)->institution_name,
+            'country_name' => optional(optional(optional($this->institution)->repCountry)->country)->name,
+            'country_flag' => optional(optional(optional($this->institution)->repCountry)->country)->flag,
             'title' => $this->title,
             'course_level_id' => $this->course_level_id,
             'course_level' => $this->whenLoaded('courseLevel', function () {
@@ -48,7 +51,7 @@ class CourseResource extends JsonResource
             'is_language_mandatory' => $this->is_language_mandatory,
             'language_requirements' => $this->language_requirements,
             'additional_info' => $this->additional_info,
-            'course_categories' => $this->course_categories,
+            'course_categories' => $this->getCourseCategoryNames(),
             'modules' => $this->modules,
             'intake_month' => $this->intake_month,
             'is_active' => $this->is_active,
@@ -57,5 +60,16 @@ class CourseResource extends JsonResource
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
         ];
+    }
+
+    private function getCourseCategoryNames()
+    {
+        if (! is_array($this->course_categories)) {
+            return [];
+        }
+        $ids = $this->course_categories;
+        $names = \App\Models\CourseCategory::whereIn('id', $ids)->pluck('name')->toArray();
+
+        return $names;
     }
 }

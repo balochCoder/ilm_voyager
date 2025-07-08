@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('campus')->nullable();
             $table->string('awarding_body')->nullable();
             $table->foreignId('currency_id')->constrained()->onDelete('cascade');
-            $table->decimal('course_fee', 12, 2)->nullable();
-            $table->decimal('application_fee', 12, 2)->nullable();
+            $table->integer('course_fee')->nullable();
+            $table->integer('application_fee')->nullable();
             $table->text('course_benefits')->nullable();
             $table->text('general_eligibility')->nullable();
             $table->enum('quality_of_desired_application', ['excellent', 'good', 'average', 'below_average'])

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import React from 'react';
+import { BreadcrumbItem } from '@/types';
 
 function getInitials(name: string) {
   return name
@@ -52,10 +53,24 @@ const tabs = [
   { key: 'documents', label: 'Documents', icon: <FileText className="mr-1 h-4 w-4" /> },
 ];
 
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+    },
+    {
+        title: 'Associates',
+        href: '/agents/associates',
+    },
+    {
+        title: 'Show Associate',
+        href: '#',
+    }
+];
 export default function ShowAssociate({ associate }: { associate: any }) {
   const [activeTab, setActiveTab] = useState('overview');
   return (
-    <AppLayout>
+    <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={associate.associate_name} />
       <div className="flex h-full w-full flex-1 flex-col space-y-4 p-2 sm:space-y-6 sm:p-4 md:p-6">
         {/* Top Bar: Heading and Back Button */}
@@ -129,7 +144,7 @@ export default function ShowAssociate({ associate }: { associate: any }) {
                   <InfoRow icon={<Info className="text-primary" />} label="Country" value={associate.country?.name} />
                   <InfoRow icon={<Info className="text-primary" />} label="Website" value={associate.website} />
                   <InfoRow icon={<Info className="text-primary" />} label="Term of Association" value={associate.term_of_association} />
-                  <InfoRow icon={<FileText className="text-primary" />} label="Contract File" value={associate.contract_term_file ? (<a href={associate.contract_term_file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Download</a>) : null} />
+                  <InfoRow icon={<FileText className="text-primary" />} label="Contract File" value={associate.contract_file_url ? (<a href={associate.contract_file_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Download</a>) : <span className="text-gray-400">No contract file uploaded.</span>} />
                 </div>
                 <div>
                   <SectionTitle>Meta</SectionTitle>
@@ -159,8 +174,8 @@ export default function ShowAssociate({ associate }: { associate: any }) {
               <div className="flex flex-col gap-4">
                 <div>
                   <div className="font-semibold text-gray-700 mb-1">Contract File</div>
-                  {associate.contract_file_url ? (
-                    <a href={associate.contract_file_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Download Contract</a>
+                  {associate.contract_file ? (
+                    <a href={associate.contract_file.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Download Contract</a>
                   ) : (
                     <span className="text-gray-400">No contract file uploaded.</span>
                   )}

@@ -26,7 +26,7 @@ final class StoreRepCountryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'monthly_living_cost' => 'nullable|string|max:255',
+            'monthly_living_cost' => 'nullable|integer',
             'visa_requirements' => 'nullable|string',
             'part_time_work_details' => 'nullable|string',
             'country_benefits' => 'nullable|string',

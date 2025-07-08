@@ -40,5 +40,6 @@ Route::middleware([
         })->middleware('tenant.redirect');
         Route::group([], base_path('routes/web/agents/routes.php'));
         Route::group([], base_path('routes/web/counsellors/routes.php'));
+        Route::group([], base_path('routes/web/branches/routes.php'));
     });
 });

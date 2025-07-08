@@ -11,29 +11,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Associate extends Model implements HasMedia
 {
     use HasUlids;
-    use SoftDeletes;
     use InteractsWithMedia;
-
-    protected $fillable = [
-        'user_id',
-        'branch_id',
-        'associate_name',
-        'address',
-        'city',
-        'state',
-        'country_id',
-        'phone',
-        'website',
-        'category',
-        'term_of_association',
-        'contact_person',
-        'designation',
-        'contact_phone',
-        'contact_mobile',
-        'contact_skype',
-        'contact_email',
-        'is_active',
-    ];
+    use SoftDeletes;
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -58,6 +37,22 @@ class Associate extends Model implements HasMedia
     {
         $this->addMediaCollection('contract_file')
             ->singleFile()
-            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'application/msword', 'application/csv', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
+    }
+
+    public function getContractFile()
+    {
+        $media = $this->getFirstMedia('contract_file');
+        if (! $media) {
+            return null;
+        }
+
+        return [
+            'id' => $media->id,
+            'name' => $media->name,
+            'url' => $media->getUrl(),
+            'size' => $media->size,
+            'mime_type' => $media->mime_type,
+        ];
     }
 }

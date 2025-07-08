@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tenants;
+namespace App\Http\Controllers\Tenants\Agent;
 
 use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
@@ -8,7 +8,6 @@ use App\Http\Requests\CounsellorRemark\StoreCounsellorRemarkRequest;
 use App\Http\Resources\CounsellorRemarkResource;
 use App\Models\Counsellor;
 use App\Models\CounsellorRemark;
-use Illuminate\Http\Request;
 
 class CounsellorRemarkController extends Controller
 {
@@ -34,8 +33,6 @@ class CounsellorRemarkController extends Controller
         ]);
     }
 
-
-
     /**
      * Store a newly created remark in storage.
      */
@@ -51,7 +48,7 @@ class CounsellorRemarkController extends Controller
             return back()
                 ->with('success', 'Remark added successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to add remark: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to add remark: '.$e->getMessage()]);
         }
     }
 
@@ -62,7 +59,7 @@ class CounsellorRemarkController extends Controller
     {
         try {
             // Check if the current user is authorized to edit this remark
-            if ($remark->added_by_user_id !== auth()->id() && !auth()->user()->hasRole('superadmin')) {
+            if ($remark->added_by_user_id !== auth()->id() && ! auth()->user()->hasRole('superadmin')) {
                 return back()->withErrors(['error' => 'You are not authorized to edit this remark.']);
             }
 
@@ -75,8 +72,7 @@ class CounsellorRemarkController extends Controller
             return back()
                 ->with('success', 'Remark updated successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to update remark: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to update remark: '.$e->getMessage()]);
         }
     }
-
 }

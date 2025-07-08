@@ -24,7 +24,6 @@ class UpdateAssociateRequest extends FormRequest
             'website' => ['nullable', 'string', 'max:255'],
             'category' => ['sometimes', 'string', 'max:255'],
             'term_of_association' => ['nullable', 'string'],
-            'contract_term_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:10240'],
             'contact_person' => ['sometimes', 'string', 'max:255'],
             'designation' => ['sometimes', 'string', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:20'],

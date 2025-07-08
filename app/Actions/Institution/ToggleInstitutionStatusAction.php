@@ -12,6 +12,7 @@ class ToggleInstitutionStatusAction
     {
         $institution->is_active = ! $institution->is_active;
         $institution->save();
+
         return $institution;
     }
 }

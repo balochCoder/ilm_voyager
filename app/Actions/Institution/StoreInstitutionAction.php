@@ -25,6 +25,7 @@ class StoreInstitutionAction
         $this->handleSingleFile($request, $institution, 'contract_copy');
         $this->handleSingleFile($request, $institution, 'prospectus');
         $this->handleAdditionalFiles($request, $institution, $isUpdate);
+
         return $institution;
     }
 

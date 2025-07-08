@@ -4,16 +4,21 @@ namespace App\Actions\Associate;
 
 use App\Http\Requests\Associate\UpdateAssociateRequest;
 use App\Models\Associate;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
 
 class UpdateAssociateAction
 {
+    public function __construct(
+        private DatabaseManager $database
+    ) {
+        // You can inject dependencies here if needed
+    }
+
     public function execute(UpdateAssociateRequest $request, Associate $associate): void
     {
         $data = $request->validated();
-        DB::transaction(function () use ($data, $request, $associate) {
+        $this->database->transaction(function () use ($data, $request, $associate) {
             // Update user
             $userData = [
                 'name' => $data['associate_name'] ?? $associate->associate_name,
@@ -23,15 +28,15 @@ class UpdateAssociateAction
             if (isset($data['contact_email'])) {
                 $userData['email'] = $data['contact_email'];
             }
-            if (!empty($data['password'])) {
+            if (! empty($data['password'])) {
                 $userData['password'] = Hash::make($data['password']);
             }
             $associate->user->update($userData);
 
             // Handle contract file upload
-            if ($request->hasFile('contract_term_file')) {
+            if ($request->hasFile('contract_file')) {
                 $associate->clearMediaCollection('contract_file');
-                $associate->addMediaFromRequest('contract_term_file')->toMediaCollection('contract_file');
+                $associate->addMediaFromRequest('contract_file')->toMediaCollection('contract_file');
             }
 
             // Update associate

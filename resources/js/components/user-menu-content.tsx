@@ -26,6 +26,9 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
         if (hasRole('counsellor')) {
             return route('counsellors:profile:edit');
         }
+        if (hasRole('branch-office')) {
+            return route('branches:profile:edit');
+        }
         return route('agents:profile:edit'); // Default fallback
     };
 

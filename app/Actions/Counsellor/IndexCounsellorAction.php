@@ -7,8 +7,8 @@ use App\Models\Branch;
 use App\Models\Counsellor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class IndexCounsellorAction
 {
@@ -56,7 +56,7 @@ class IndexCounsellorAction
                 }),
             ]);
 
-        $counsellors = $query->paginate(10)->withQueryString();
+        $counsellors = $query->paginate(12)->withQueryString();
         $counsellorsActive = Counsellor::where('is_active', true)->count();
         $branches = Branch::query()
             ->where('is_active', true)

@@ -1,9 +1,9 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { usePermission } from '@/hooks/use-permission';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
-import { usePermission } from '@/hooks/use-permission';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -16,6 +16,9 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
         }
         if (hasRole('counsellor')) {
             return '/counsellors/settings';
+        }
+        if (hasRole('branch-office')) {
+            return '/branch-office/settings';
         }
         return '/agents/settings'; // Default fallback
     };

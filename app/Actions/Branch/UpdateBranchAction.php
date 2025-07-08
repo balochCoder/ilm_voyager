@@ -4,14 +4,18 @@ namespace App\Actions\Branch;
 
 use App\Http\Requests\Branch\UpdateBranchRequest;
 use App\Models\Branch;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
 
 class UpdateBranchAction
 {
+    public function __construct(
+        private DatabaseManager $database
+    ) {}
+
     public function execute(UpdateBranchRequest $request, Branch $branch): void
     {
-        DB::transaction(function () use ($request, $branch) {
+        $this->database->transaction(function () use ($request, $branch) {
             // Update branch information
             $branch->update([
                 'name' => $request->name,

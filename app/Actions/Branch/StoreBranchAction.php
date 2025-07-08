@@ -50,6 +50,7 @@ final class StoreBranchAction
 
             return $branch;
         });
+
         return $branch;
     }
 }

@@ -6,16 +6,21 @@ use App\Enums\TenantRolesEnum;
 use App\Http\Requests\Associate\StoreAssociateRequest;
 use App\Models\Associate;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class StoreAssociateAction
 {
+    public function __construct(
+        private DatabaseManager $database
+    ) {
+        // You can inject dependencies here if needed
+    }
+
     public function execute(StoreAssociateRequest $request): void
     {
         $data = $request->validated();
-        DB::transaction(function () use ($data, $request) {
+        $this->database->transaction(function () use ($data, $request) {
             // Create user
             $user = User::create([
                 'name' => $data['associate_name'],
@@ -50,6 +55,11 @@ class StoreAssociateAction
                 'contact_email' => $data['contact_email'],
                 'is_active' => true,
             ]);
+
+            // Save contract_file to media library if present
+            if ($request->hasFile('contract_file')) {
+                $associate->addMediaFromRequest('contract_file')->toMediaCollection('contract_file');
+            }
         });
     }
 }
