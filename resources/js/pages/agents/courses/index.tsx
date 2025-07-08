@@ -3,7 +3,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Search, RotateCcw } from 'lucide-react';
+import { Search, RotateCcw, FileText } from 'lucide-react';
 import { SharedData } from '@/types';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useState, useEffect } from 'react';
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import React from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Course {
     id: string | number;
@@ -39,6 +40,9 @@ interface Course {
     awarding_body?: string;
     additional_info?: string;
     documents?: { id: string; title: string; url: string }[];
+    application_fee?: string;
+    modules?: string[];
+    is_language_mandatory?: boolean;
 }
 
 interface Props {
@@ -416,104 +420,140 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                 )}
                 {/* Course Details Sheet (outside the map) */}
                 <Sheet open={courseSheet.isOpen} onOpenChange={open => { if (!open) courseSheet.closeSheet(); }}>
-                  <SheetContent side="right" className="w-[1000px] !max-w-none">
-                    <SheetHeader>
+                  <SheetContent side="right" className="w-[1000px] !max-w-none h-screen max-h-screen flex flex-col">
+                    <div className="overflow-auto">
+<SheetHeader>
                       <SheetTitle>Course Details</SheetTitle>
                       <SheetDescription>
                         {courseSheet.selectedCourse ? (
-                          <div className="p-6 bg-white rounded-lg shadow-lg">
-                            <div className="mb-6">
-                              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{courseSheet.selectedCourse.institution_name || '-'}</span>
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded">{courseSheet.selectedCourse.country_name || '-'}</span>
-                                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">{courseSheet.selectedCourse.course_level?.name || '-'}</span>
-                                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">{courseSheet.selectedCourse.course_fee ? `${courseSheet.selectedCourse.course_fee}${courseSheet.selectedCourse.currency && courseSheet.selectedCourse.currency.code ? ' ' + courseSheet.selectedCourse.currency.code : ''}` : '-'}</span>
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Campus:</span>
-                                <span>{courseSheet.selectedCourse.campus || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Duration:</span>
-                                <span>{formatDuration(courseSheet.selectedCourse.duration_year || '', courseSheet.selectedCourse.duration_month || '', courseSheet.selectedCourse.duration_week || '')}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Intakes:</span>
-                                <span>{Array.isArray(courseSheet.selectedCourse.intake_month) && courseSheet.selectedCourse.intake_month.length > 0 ? courseSheet.selectedCourse.intake_month.join(', ') : '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Awarding Body:</span>
-                                <span>{courseSheet.selectedCourse.awarding_body || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Start Date:</span>
-                                <span>{courseSheet.selectedCourse.start_date || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">End Date:</span>
-                                <span>{courseSheet.selectedCourse.end_date || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Eligibility:</span>
-                                <span>{courseSheet.selectedCourse.general_eligibility || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Language Requirements:</span>
-                                <span>{courseSheet.selectedCourse.language_requirements || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Benefits:</span>
-                                <span>{courseSheet.selectedCourse.course_benefits || '-'}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-base">
-                                <span className="font-semibold text-muted-foreground min-w-[120px]">Additional Info:</span>
-                                <span>{courseSheet.selectedCourse.additional_info || '-'}</span>
-                              </div>
-                            </div>
-                            {/* Categories */}
-                            {courseSheet.selectedCourse.course_categories && courseSheet.selectedCourse.course_categories.length > 0 && (
-                              <div className="mt-6">
-                                <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">Categories</div>
-                                <div className="flex flex-wrap gap-1">
-                                  {courseSheet.selectedCourse.course_categories.map((catId: string, i: number) => (
-                                    <span key={i} className="bg-muted px-2 py-0.5 rounded-full text-base">{categoryMap[catId] || catId}</span>
-                                  ))}
+                          <>
+                            <div className="mb-6 pb-4 border-b border-primary/20">
+                              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                                <div>
+                                  <h2 className="text-2xl font-bold text-primary mb-2">{courseSheet.selectedCourse.title}</h2>
+                                  <div className="flex flex-wrap gap-2">
+                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">{courseSheet.selectedCourse.institution_name || '-'}</span>
+                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">{courseSheet.selectedCourse.country_name || '-'}</span>
+                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">{courseSheet.selectedCourse.course_level?.name || '-'}</span>
+                                  </div>
                                 </div>
                               </div>
-                            )}
-                            {/* Documents */}
-                            <div className="mt-8">
-                              <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">Documents</div>
-                              {courseSheet.selectedCourse && Array.isArray(courseSheet.selectedCourse.documents) && courseSheet.selectedCourse.documents.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                                  {courseSheet.selectedCourse.documents.map((doc: { id: string; title: string; url: string }, idx: number) => (
-                                    <React.Fragment key={doc.id || idx}>
-                                      <div className="flex items-center text-base font-medium truncate">
-                                        {doc.title || 'Untitled Document'}
-                                      </div>
-                                      <div className="flex items-center justify-end text-base">
-                                        <a
-                                          href={doc.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-blue-600 underline hover:text-blue-800 transition-colors truncate"
-                                        >
-                                          View
-                                        </a>
-                                      </div>
-                                    </React.Fragment>
-                                  ))}
-                                </div>
-                              ) : (
-                                <span>-</span>
-                              )}
                             </div>
-                          </div>
+                            <ScrollArea className="flex-1 min-h-0">
+                              <div className="p-0">
+                                {/* Details Section */}
+                                <div className="bg-primary/5 rounded-xl shadow-sm p-6 mb-6">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Course Fee</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.course_fee ? `${courseSheet.selectedCourse.course_fee}${courseSheet.selectedCourse.currency && courseSheet.selectedCourse.currency.code ? ' ' + courseSheet.selectedCourse.currency.code : ''}` : '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Application Fee</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.application_fee ? `${courseSheet.selectedCourse.application_fee}${courseSheet.selectedCourse.currency && courseSheet.selectedCourse.currency.code ? ' ' + courseSheet.selectedCourse.currency.code : ''}` : '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Duration</div>
+                                      <div className="text-lg font-medium text-primary">{formatDuration(courseSheet.selectedCourse.duration_year || '', courseSheet.selectedCourse.duration_month || '', courseSheet.selectedCourse.duration_week || '')}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Campus</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.campus || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Intakes</div>
+                                      <div className="text-lg font-medium text-primary">{Array.isArray(courseSheet.selectedCourse.intake_month) && courseSheet.selectedCourse.intake_month.length > 0 ? courseSheet.selectedCourse.intake_month.join(', ') : '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Awarding Body</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.awarding_body || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">End Date</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.end_date || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Eligibility</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.general_eligibility || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Language Requirements</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.language_requirements || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Benefits</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.course_benefits || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Additional Info</div>
+                                      <div className="text-lg font-medium text-primary">{courseSheet.selectedCourse.additional_info || '-'}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Language Mandatory</div>
+                                      <div className="text-lg font-medium text-primary">
+                                        {typeof courseSheet.selectedCourse.is_language_mandatory === 'boolean'
+                                          ? (courseSheet.selectedCourse.is_language_mandatory ? 'Yes' : 'No')
+                                          : '-'}
+                                      </div>
+                                    </div>
+                                    <div className="col-span-1 md:col-span-2">
+                                      <div className="text-xs font-semibold text-primary uppercase mb-1">Modules</div>
+                                      <div className="text-lg font-medium text-primary">
+                                        {Array.isArray(courseSheet.selectedCourse.modules) && courseSheet.selectedCourse.modules.length > 0 ? (
+                                          <ul className="list-disc pl-5 space-y-1">
+                                            {courseSheet.selectedCourse.modules.map((mod: string, idx: number) => (
+                                              <li key={idx}>{mod}</li>
+                                            ))}
+                                          </ul>
+                                        ) : '-'}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Categories Section */}
+                                {courseSheet.selectedCourse.course_categories && courseSheet.selectedCourse.course_categories.length > 0 && (
+                                  <div className="mb-6">
+                                    <div className="text-xs font-semibold text-primary uppercase mb-2">Categories</div>
+                                    <div className="flex flex-wrap gap-2">
+                                      {courseSheet.selectedCourse.course_categories.map((catId: string, i: number) => (
+                                        <span key={i} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-base font-medium">{categoryMap[catId] || catId}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                {/* Documents Section */}
+                                <div className="mb-2">
+                                  <div className="text-xs font-semibold text-primary uppercase mb-2">Documents</div>
+                                  {courseSheet.selectedCourse && Array.isArray(courseSheet.selectedCourse.documents) && courseSheet.selectedCourse.documents.length > 0 ? (
+                                    <div className="divide-y divide-primary/20 rounded-lg overflow-hidden border border-primary/20 bg-white">
+                                      {courseSheet.selectedCourse.documents.map((doc: { id: string; title: string; url: string }, idx: number) => (
+                                        <div key={doc.id || idx} className="flex items-center justify-between px-4 py-3 gap-4">
+                                          <div className="flex items-center gap-2 min-w-0">
+                                            <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                                            <span className="font-semibold text-base text-primary truncate">{doc.title || 'Untitled Document'}</span>
+                                          </div>
+                                          <a
+                                            href={doc.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-primary underline hover:text-primary/80 transition-colors font-medium text-base"
+                                          >
+                                            View
+                                          </a>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span>-</span>
+                                  )}
+                                </div>
+                              </div>
+                            </ScrollArea>
+                          </>
                         ) : null}
                       </SheetDescription>
                     </SheetHeader>
+                    </div>
                   </SheetContent>
                 </Sheet>
             </div>
