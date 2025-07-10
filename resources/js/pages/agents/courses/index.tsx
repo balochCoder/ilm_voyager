@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -430,6 +430,7 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                     <SheetContent side="right" className="w-[1000px] !max-w-none h-screen max-h-screen flex flex-col">
                         {/* Scrollable Details Section */}
                         <ScrollArea className="flex-1 min-h-0 px-8">
+                            <SheetHeader className='pl-0 text-3xl'>Course Details</SheetHeader>
                             {/* Header content now inside scroll area */}
                             <div className="mb-0 pb-4 border-b border-primary/20 flex flex-col md:flex-row md:items-start md:justify-between gap-2">
                                 <div className="flex-1 min-w-0">
