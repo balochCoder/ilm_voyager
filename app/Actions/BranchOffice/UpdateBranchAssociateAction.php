@@ -20,7 +20,7 @@ class UpdateBranchAssociateAction
                 'name' => $data['contact_person'],
                 'email' => $data['contact_email'],
             ];
-            if (!empty($data['password'])) {
+            if (! empty($data['password'])) {
                 $userData['password'] = Hash::make($data['password']);
             }
             $associate->user->update($userData);

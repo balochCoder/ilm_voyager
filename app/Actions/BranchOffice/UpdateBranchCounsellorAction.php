@@ -28,7 +28,7 @@ class UpdateBranchCounsellorAction
             ];
 
             // Update password if provided
-            if (!empty($data['password'])) {
+            if (! empty($data['password'])) {
                 $userData['password'] = Hash::make($data['password']);
             }
 
@@ -41,4 +41,4 @@ class UpdateBranchCounsellorAction
             ]);
         });
     }
-} 
+}

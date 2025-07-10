@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers\Tenants\BranchOffice;
 
+use App\Actions\BranchOffice\StoreBranchCounsellorAction;
+use App\Actions\BranchOffice\ToggleBranchCounsellorStatusAction;
+use App\Actions\BranchOffice\UpdateBranchCounsellorAction;
+use App\Http\Controllers\Concerns\InertiaRoute;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CounsellorResource;
-use App\Models\Counsellor;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Counsellor\StoreBranchCounsellorRequest;
 use App\Http\Requests\Counsellor\UpdateBranchCounsellorRequest;
-use App\Actions\BranchOffice\StoreBranchCounsellorAction;
-use App\Actions\BranchOffice\UpdateBranchCounsellorAction;
-use App\Actions\BranchOffice\ToggleBranchCounsellorStatusAction;
-use App\Http\Controllers\Concerns\InertiaRoute;
+use App\Http\Resources\CounsellorResource;
+use App\Models\Counsellor;
 use App\Models\Institution;
-use Illuminate\Contracts\Cache\Store;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class CounsellorController extends Controller
 {
@@ -39,16 +37,15 @@ class CounsellorController extends Controller
             $keyword = $request->input('filter.keyword');
             $query->whereHas('user', function ($q) use ($keyword) {
                 $q->where('name', 'like', "%$keyword%")
-                  ->orWhere('email', 'like', "%$keyword%")
-                  ->orWhere('phone', 'like', "%$keyword%")
-                  ->orWhere('mobile', 'like', "%$keyword%")
-                  ;
+                    ->orWhere('email', 'like', "%$keyword%")
+                    ->orWhere('phone', 'like', "%$keyword%")
+                    ->orWhere('mobile', 'like', "%$keyword%");
             });
         }
         if ($request->filled('filter.email')) {
             $email = $request->input('filter.email');
             $query->whereHas('user', function ($q) use ($email) {
-                $q->where('email', 'like', "%$email%") ;
+                $q->where('email', 'like', "%$email%");
             });
         }
         if ($request->filled('filter.download_csv') && $request->input('filter.download_csv') !== 'all') {
@@ -60,6 +57,7 @@ class CounsellorController extends Controller
         $counsellors = $query->paginate(10)->withQueryString();
         $counsellorsActive = $branch->counsellors()->where('is_active', true)->count();
         $counsellorsTotal = $branch->counsellors()->count();
+
         return $this->factory->render('branches/counsellors/index', [
             'counsellors' => CounsellorResource::collection($counsellors),
             'counsellorsTotal' => $counsellorsTotal,
@@ -84,6 +82,7 @@ class CounsellorController extends Controller
             abort(404, 'Branch not found for this user.');
         }
         $storeAction->execute($request, $branch);
+
         return redirect()->route('branches:counsellors:index')->with('success', 'Counsellor created successfully.');
     }
 
@@ -98,6 +97,7 @@ class CounsellorController extends Controller
             abort(404, 'Branch not found for this user.');
         }
         $counsellor = $branch->counsellors()->with('user')->findOrFail($counsellorId);
+
         return $this->factory->render('branches/counsellors/edit', [
             'counsellor' => new CounsellorResource($counsellor),
         ]);
@@ -115,6 +115,7 @@ class CounsellorController extends Controller
         }
         $counsellor = $branch->counsellors()->with('user')->findOrFail($counsellorId);
         $updateAction->execute($request, $counsellor);
+
         return redirect()->route('branches:counsellors:index')->with('success', 'Counsellor updated successfully.');
     }
 
@@ -130,6 +131,7 @@ class CounsellorController extends Controller
         }
         $counsellor = $branch->counsellors()->with('user')->findOrFail($counsellorId);
         $toggleStatusAction->execute($counsellor);
+
         return back()->with('success', 'Counsellor status updated successfully.');
     }
 

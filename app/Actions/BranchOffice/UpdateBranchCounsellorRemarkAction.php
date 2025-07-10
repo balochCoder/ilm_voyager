@@ -10,6 +10,7 @@ class UpdateBranchCounsellorRemarkAction
     {
         $remark->update($data);
         $remark->load('addedByUser');
+
         return $remark;
     }
-} 
+}

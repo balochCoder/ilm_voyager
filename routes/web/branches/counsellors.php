@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Tenants\BranchOffice\CounsellorRemarkController;
 use App\Http\Controllers\Tenants\BranchOffice\CounsellorController;
+use App\Http\Controllers\Tenants\BranchOffice\CounsellorRemarkController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('counsellors', [CounsellorController::class, 'index'])->name('counsellors:index');

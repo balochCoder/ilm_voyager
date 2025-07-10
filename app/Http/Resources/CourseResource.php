@@ -64,7 +64,7 @@ class CourseResource extends JsonResource
 
     private function getCourseCategoryNames()
     {
-        if (!is_array($this->course_categories)) {
+        if (! is_array($this->course_categories)) {
             return [];
         }
         $ids = $this->course_categories;

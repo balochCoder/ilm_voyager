@@ -9,4 +9,4 @@ Route::post('associates', [AssociateController::class, 'store'])->name('associat
 Route::get('associates/{associate}/edit', [AssociateController::class, 'edit'])->name('associates:edit');
 Route::put('associates/{associate}', [AssociateController::class, 'update'])->name('associates:update');
 Route::patch('associates/{associate}/toggle-status', [AssociateController::class, 'toggleStatus'])->name('associates:toggle-status');
-Route::get('associates/{associate}', [AssociateController::class, 'show'])->name('associates:show'); 
+Route::get('associates/{associate}', [AssociateController::class, 'show'])->name('associates:show');

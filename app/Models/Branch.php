@@ -44,6 +44,7 @@ class Branch extends Model
     {
         return $this->hasMany(Counsellor::class);
     }
+
     public function associates()
     {
         return $this->hasMany(Associate::class);

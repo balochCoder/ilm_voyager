@@ -16,6 +16,7 @@ class StoreBranchCounsellorRemarkAction
             'added_by_user_id' => Auth::id(),
         ]);
         $remark->load('addedByUser');
+
         return $remark;
     }
-} 
+}

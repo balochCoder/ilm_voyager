@@ -34,6 +34,7 @@ class UpdateBranchCounsellorRequest extends FormRequest
             $rules['password'] = ['string', 'min:8', 'confirmed'];
             $rules['password_confirmation'] = ['required', 'string'];
         }
+
         return $rules;
     }
 

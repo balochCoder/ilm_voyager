@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Tenants\BranchOffice;
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Concerns\InertiaRoute;
-use App\Http\Resources\AssociateResource;
-use App\Models\Associate;
-use Illuminate\Http\Request;
-use App\Http\Requests\Associate\StoreAssociateRequest;
-use App\Http\Requests\Associate\UpdateAssociateRequest;
 use App\Actions\BranchOffice\StoreBranchAssociateAction;
 use App\Actions\BranchOffice\UpdateBranchAssociateAction;
+use App\Http\Controllers\Concerns\InertiaRoute;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Associate\StoreAssociateRequest;
+use App\Http\Requests\Associate\UpdateAssociateRequest;
+use App\Http\Resources\AssociateResource;
 use App\Models\Country;
+use Illuminate\Http\Request;
 
 class AssociateController extends Controller
 {
@@ -32,6 +31,7 @@ class AssociateController extends Controller
         $associates = $query->paginate(10)->withQueryString();
         $associatesActive = $branch->associates()->where('is_active', true)->count();
         $associatesTotal = $branch->associates()->count();
+
         return $this->factory->render('branches/associates/index', [
             'associates' => AssociateResource::collection($associates),
             'associatesTotal' => $associatesTotal,
@@ -46,6 +46,7 @@ class AssociateController extends Controller
             abort(403);
         }
         $countries = Country::where('is_active', true)->orderBy('name')->get(['id', 'name', 'flag']);
+
         return $this->factory->render('branches/associates/create', [
             'countries' => $countries,
         ]);
@@ -62,6 +63,7 @@ class AssociateController extends Controller
             abort(404, 'Branch not found for this user.');
         }
         $action->execute($request, $branch);
+
         return to_route('branches:associates:index')->with('success', 'Associate and user created successfully.');
     }
 
@@ -77,6 +79,7 @@ class AssociateController extends Controller
         }
         $associate = $branch->associates()->with(['user', 'branch', 'country'])->findOrFail($associateId);
         $countries = Country::where('is_active', true)->orderBy('name')->get(['id', 'name', 'flag']);
+
         return $this->factory->render('branches/associates/edit', [
             'associate' => AssociateResource::make($associate),
             'countries' => $countries,
@@ -95,6 +98,7 @@ class AssociateController extends Controller
         }
         $associate = $branch->associates()->findOrFail($associateId);
         $action->execute($request, $associate);
+
         return to_route('branches:associates:index')->with('success', 'Associate updated successfully.');
     }
 
@@ -115,6 +119,7 @@ class AssociateController extends Controller
             $associate->user->is_active = $associate->is_active;
             $associate->user->save();
         }
+
         return back()->with('success', 'Associate status updated successfully.');
     }
 
@@ -129,8 +134,9 @@ class AssociateController extends Controller
             abort(404, 'Branch not found for this user.');
         }
         $associate = $branch->associates()->with(['user', 'branch', 'country'])->findOrFail($associateId);
+
         return $this->factory->render('branches/associates/show', [
             'associate' => AssociateResource::make($associate),
         ]);
     }
-} 
+}

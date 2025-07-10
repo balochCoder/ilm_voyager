@@ -6,9 +6,8 @@ use App\Enums\TenantRolesEnum;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-
-Route::as('branches:')->middleware(['role:' . TenantRolesEnum::BRANCHOFFICE->value])->prefix('branch-office')->group(function () {
-    Route::get('dashboard', fn() => Inertia::render('branches/dashboard'))->name('dashboard');
+Route::as('branches:')->middleware(['role:'.TenantRolesEnum::BRANCHOFFICE->value])->prefix('branch-office')->group(function () {
+    Route::get('dashboard', fn () => Inertia::render('branches/dashboard'))->name('dashboard');
 
     Route::group(
         [],

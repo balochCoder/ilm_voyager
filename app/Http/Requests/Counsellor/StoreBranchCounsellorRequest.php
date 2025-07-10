@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Counsellor;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreBranchCounsellorRequest extends FormRequest
 {

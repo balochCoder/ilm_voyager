@@ -78,11 +78,11 @@ class CourseController extends Controller
             return back()->withErrors(['error' => 'Institution not found.']);
         }
         if ($course->institution_id !== $institution->id) {
-            # code...
+            // code...
             return back()->withErrors(['error' => 'Unauthorized action.']);
         }
 
-        $course->is_active = !$course->is_active;
+        $course->is_active = ! $course->is_active;
         $course->save();
 
         return back()->with('success', 'Course status updated.');

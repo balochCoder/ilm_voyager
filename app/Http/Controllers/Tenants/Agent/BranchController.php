@@ -84,6 +84,4 @@ class BranchController extends Controller
             return back()->withErrors(['error' => 'Failed to update branch: '.$e->getMessage()]);
         }
     }
-
-   
 }
