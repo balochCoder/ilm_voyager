@@ -59,6 +59,7 @@ class AssociateController extends Controller
             abort(403);
         }
         $branch = $user->branch;
+        
         if (! $branch) {
             abort(404, 'Branch not found for this user.');
         }

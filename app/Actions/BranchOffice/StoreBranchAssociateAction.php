@@ -15,6 +15,7 @@ class StoreBranchAssociateAction
     public function execute(StoreAssociateRequest $request, $branch): void
     {
         $data = $request->validated();
+
         $this->database->transaction(function () use ($data, $branch) {
             // Create user
             $user = User::create([
@@ -30,6 +31,13 @@ class StoreBranchAssociateAction
                 'country_id' => $data['country_id'],
                 'category' => $data['category'] ?? null,
                 'is_active' => true,
+                'associate_name' => $data['associate_name'],
+                'address' => $data['address'] ?? null,
+                'city' => $data['city'] ?? null,
+                'state' => $data['state'] ?? null,
+                'phone' => $data['phone'] ?? null,
+                'website' => $data['website'] ?? null,
+                'term_of_association' => $data['term_of_association'] ?? null,
             ]);
         });
     }

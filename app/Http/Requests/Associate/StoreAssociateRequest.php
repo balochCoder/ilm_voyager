@@ -14,8 +14,7 @@ class StoreAssociateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'associate_name' => ['required', 'string', 'max:255'],
-            'branch_id' => ['required', 'exists:branches,id'],
+            'associate_name' => ['required', 'string', 'max:255'],  
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'state' => ['nullable', 'string', 'max:255'],

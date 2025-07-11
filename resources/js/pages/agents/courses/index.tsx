@@ -431,6 +431,15 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                         {/* Scrollable Details Section */}
                         <ScrollArea className="flex-1 min-h-0 px-8">
                             <SheetHeader className='pl-0 text-3xl'>Course Details</SheetHeader>
+                            {/* Slim action buttons for PDF */}
+                            <div className="flex gap-2 mb-4 mt-2">
+                                <Button variant="default" size="sm" className="px-3 py-1 h-7 text-xs font-semibold" type="button">
+                                    Print in PDF
+                                </Button>
+                                <Button variant="default" size="sm" className="px-3 py-1 h-7 text-xs font-semibold" type="button">
+                                    Send PDF on Mail
+                                </Button>
+                            </div>
                             {/* Header content now inside scroll area */}
                             <div className="mb-0 pb-4 border-b border-primary/20 flex flex-col md:flex-row md:items-start md:justify-between gap-2">
                                 <div className="flex-1 min-w-0">
@@ -511,7 +520,7 @@ export default function GlobalCoursesIndex({ courses, filterOptions }: Props) {
                                 {/* Categories Section */}
                                 {courseSheet.selectedCourse?.course_categories && courseSheet.selectedCourse.course_categories.length > 0 && (
                                     <div className="mb-6">
-                                        <div className="text-md font-semibold uppercase mb-2">Categories</div>
+                                        <div className="text-md font-semibold uppercase mb-2">Course Category</div>
                                         <div className="flex flex-wrap gap-2">
                                             {courseSheet.selectedCourse.course_categories.map((catId: string, i: number) => (
                                                 <span key={i} className="bg-primary/10 px-3 py-1 rounded-full text-base font-medium">{categoryMap[catId] || catId}</span>
